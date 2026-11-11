@@ -89,9 +89,13 @@ void app_on_timer(int32_t id)
     wake_at_the_next_minute();
 }
 
+/* The application has a few alarms; the countdown is this one. */
+#define COUNTDOWN_ALARM 0
+
 /* Loaded for this one call when the application is not on the screen. */
-void app_on_alarm(void)
+void app_on_alarm(int32_t id)
 {
+    (void)id; /* the only one it sets */
     state.ends_at = 0;
     state.is_up = 1;
     save();
@@ -103,7 +107,7 @@ static void start(void)
 {
     state.ends_at = uptime_seconds() + state.minutes * SECONDS_PER_MINUTE;
     state.is_up = 0;
-    alarm_set(state.minutes * SECONDS_PER_MINUTE);
+    alarm_set(COUNTDOWN_ALARM, state.minutes * SECONDS_PER_MINUTE);
     wake_at_the_next_minute();
 }
 
@@ -111,7 +115,7 @@ static void stop(void)
 {
     state.ends_at = 0;
     state.is_up = 0;
-    alarm_set(0);
+    alarm_set(COUNTDOWN_ALARM, 0);
     timer_set(MINUTE_TIMER, 0);
 }
 
