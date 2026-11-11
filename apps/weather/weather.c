@@ -195,7 +195,10 @@ void app_on_button(int32_t event)
 /* ---- the picture ---- */
 
 #define MARGIN            16
-#define NOW_TEXT_LEFT     (MARGIN + LARGE_ICON_CELLS * ICON_CELL_PIXELS + 24)
+/* What is now stands a little inside the rule under it, on both sides. */
+#define NOW_LEFT          (MARGIN + 6)
+/* From the ink of the large icon to the digits. */
+#define NOW_TEXT_GAP      22
 #define HERO_CHARACTERS_MAX 2
 #define DEGREE_SIZE       14 /* the degree sign is a small square with a hole */
 #define DEGREE_STROKE     4
@@ -204,7 +207,6 @@ void app_on_button(int32_t event)
  * starting at one edge beside it. A unit is in the small font. */
 #define DETAIL_TOP        30
 #define DETAIL_LINE       36
-#define DETAIL_LEFT       292
 #define DETAIL_ICON_GAP   10
 #define DETAIL_UNIT_GAP   5
 /* The rule stands as far under the large icon as the icon stands under
@@ -237,6 +239,27 @@ static void draw_icon(const char *const *rows, int32_t cells, int32_t left, int3
     }
 }
 
+/* The columns of an icon that have ink: icons are not all as wide as
+ * their cell. */
+static void icon_ink_columns(const char *const *rows, int32_t cells, int32_t *first, int32_t *end)
+{
+    *first = cells;
+    *end = 0;
+    for (int32_t row = 0; row < cells; row++) {
+        for (int32_t column = 0; column < cells; column++) {
+            if (rows[row][column] != '#') {
+                continue;
+            }
+            if (column < *first) {
+                *first = column;
+            }
+            if (column + 1 > *end) {
+                *end = column + 1;
+            }
+        }
+    }
+}
+
 static int32_t draw_text(int32_t left, int32_t top, int32_t font, const char *text)
 {
     return gfx_text(left, top, font, text, app_text_length(text));
@@ -257,17 +280,28 @@ static void draw_degree(int32_t left, int32_t top, int32_t size, int32_t stroke)
     gfx_color(HOST_INK);
 }
 
-/* One line of the details: a picture, the value, and a unit that is a word
- * in the small font. */
-static void draw_detail(int32_t line, detail_t detail, const char *value, const char *unit)
+/* How wide a line of the details is: the picture, the value, and a unit
+ * that is a word in the small font. */
+static int32_t detail_width(const char *value, const char *unit)
+{
+    int32_t width = DETAIL_ICON_CELLS * ICON_CELL_PIXELS + DETAIL_ICON_GAP +
+                    gfx_text_width(HOST_FONT_TEXT, value, app_text_length(value));
+    if (unit[0] != '\0') {
+        width += DETAIL_UNIT_GAP + gfx_text_width(HOST_FONT_SMALL, unit, app_text_length(unit));
+    }
+    return width;
+}
+
+static void draw_detail(int32_t left, int32_t line, detail_t detail, const char *value,
+                        const char *unit)
 {
     int32_t top = DETAIL_TOP + line * DETAIL_LINE;
     int32_t baseline = top + gfx_font_ascent(HOST_FONT_TEXT);
     int32_t icon_size = DETAIL_ICON_CELLS * ICON_CELL_PIXELS;
     /* The picture stands on the text's baseline. */
-    draw_icon(DETAIL_ICONS[detail], DETAIL_ICON_CELLS, DETAIL_LEFT, baseline - icon_size);
+    draw_icon(DETAIL_ICONS[detail], DETAIL_ICON_CELLS, left, baseline - icon_size);
 
-    int32_t value_left = DETAIL_LEFT + icon_size + DETAIL_ICON_GAP;
+    int32_t value_left = left + icon_size + DETAIL_ICON_GAP;
     int32_t value_right = value_left + draw_text(value_left, top, HOST_FONT_TEXT, value);
     draw_text(value_right + DETAIL_UNIT_GAP, baseline - gfx_font_ascent(HOST_FONT_SMALL),
               HOST_FONT_SMALL, unit);
@@ -276,31 +310,46 @@ static void draw_detail(int32_t line, detail_t detail, const char *value, const 
 static void draw_now(void)
 {
     const condition_t *now = condition_of(forecast.code);
-    draw_icon(LARGE_ICONS[now->icon], LARGE_ICON_CELLS, MARGIN, MARGIN);
+    /* The ink of the icon, not its cell, starts at the left edge and ends
+     * where the digits are counted from. */
+    int32_t ink_first;
+    int32_t ink_end;
+    icon_ink_columns(LARGE_ICONS[now->icon], LARGE_ICON_CELLS, &ink_first, &ink_end);
+    int32_t icon_left = NOW_LEFT - ink_first * ICON_CELL_PIXELS;
+    draw_icon(LARGE_ICONS[now->icon], LARGE_ICON_CELLS, icon_left, MARGIN);
 
     char buffer[24];
     app_text_t text;
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, shown_degrees(forecast.temperature));
     /* Two characters are as large as there is; "-12" at that size would run
-     * into the small print, and steps down one. */
+     * into the details, and steps down one. */
     int32_t font = app_text_length(buffer) <= HERO_CHARACTERS_MAX ? HOST_FONT_DISPLAY
                                                                  : HOST_FONT_LARGE;
     /* The digits stand in the middle of the large icon's height. */
     int32_t cap_height = gfx_font_cap_height(font);
     int32_t cap_top = MARGIN + (LARGE_ICON_CELLS * ICON_CELL_PIXELS - cap_height) / 2;
+    int32_t text_left = icon_left + ink_end * ICON_CELL_PIXELS + NOW_TEXT_GAP;
     int32_t digits_width =
-        draw_text(NOW_TEXT_LEFT, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
-    draw_degree(NOW_TEXT_LEFT + digits_width + DEGREE_GAP, cap_top, DEGREE_SIZE, DEGREE_STROKE);
+        draw_text(text_left, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
+    draw_degree(text_left + digits_width + DEGREE_GAP, cap_top, DEGREE_SIZE, DEGREE_STROKE);
 
-    app_text_start(&text, buffer, sizeof buffer);
+    char rain[8];
+    app_text_start(&text, rain, sizeof rain);
     app_text_add_number(&text, forecast.rain_chance);
     app_text_add(&text, "%");
-    draw_detail(0, DETAIL_RAIN, buffer, "");
-
-    app_text_start(&text, buffer, sizeof buffer);
+    char wind[8];
+    app_text_start(&text, wind, sizeof wind);
     app_text_add_number(&text, shown_speed(forecast.wind));
-    draw_detail(1, DETAIL_WIND, buffer, shows_fahrenheit() ? "mph" : "km/h");
+    const char *wind_unit = shows_fahrenheit() ? "mph" : "km/h";
+
+    /* The two lines are one block, as far from the right end of the rule as
+     * the large icon is from its left end; the pictures are one column. */
+    int32_t rain_width = detail_width(rain, "");
+    int32_t wind_width = detail_width(wind, wind_unit);
+    int32_t left = gfx_width() - NOW_LEFT - (rain_width > wind_width ? rain_width : wind_width);
+    draw_detail(left, 0, DETAIL_RAIN, rain, "");
+    draw_detail(left, 1, DETAIL_WIND, wind, wind_unit);
 }
 
 static void draw_days(void)
