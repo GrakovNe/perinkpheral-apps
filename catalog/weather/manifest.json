@@ -50,7 +50,7 @@
   ],
   "polls": [
     {
-      "url": "https://api.open-meteo.com/v1/forecast?latitude={{lat}}&longitude={{lon}}&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=auto",
+      "url": "https://api.open-meteo.com/v1/forecast?latitude={{lat}}&longitude={{lon}}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto",
       "every": 900,
       "pick": [
         "current.temperature_2m",
@@ -64,7 +64,9 @@
         "daily.temperature_2m_max[2]",
         "daily.temperature_2m_min[0]",
         "daily.temperature_2m_min[1]",
-        "daily.temperature_2m_min[2]"
+        "daily.temperature_2m_min[2]",
+        "current.apparent_temperature",
+        "daily.precipitation_probability_max[0]"
       ]
     }
   ]

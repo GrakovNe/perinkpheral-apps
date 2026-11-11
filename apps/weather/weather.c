@@ -28,6 +28,8 @@ enum {
     VALUE_DAY_CODE,                             /* three of each from here on */
     VALUE_DAY_HIGH = VALUE_DAY_CODE + 3,
     VALUE_DAY_LOW = VALUE_DAY_HIGH + 3,
+    VALUE_FEELS_LIKE = VALUE_DAY_LOW + 3,
+    VALUE_RAIN_CHANCE,
 };
 
 #define WEATHER_POLL  0
@@ -37,12 +39,14 @@ enum {
 
 /* What was learned last, as it lies in the store. */
 #define FORECAST_KEY     "forecast"
-#define FORECAST_VERSION 1
+#define FORECAST_VERSION 2
 typedef struct {
     int32_t version;
     int32_t temperature; /* whole degrees */
     int32_t code;        /* WMO weather code */
     int32_t wind;        /* km/h */
+    int32_t feels_like;  /* whole degrees */
+    int32_t rain_chance; /* of today, percent */
     struct {
         int32_t code, high, low;
     } days[DAYS];
@@ -153,7 +157,9 @@ void app_on_values(int32_t request, int32_t http_status)
     bool is_whole = http_status == HTTP_OK &&
                     app_value_number(VALUE_TEMPERATURE, 0, &fresh.temperature) &&
                     app_value_number(VALUE_CODE, 0, &fresh.code) &&
-                    app_value_number(VALUE_WIND, 0, &fresh.wind);
+                    app_value_number(VALUE_WIND, 0, &fresh.wind) &&
+                    app_value_number(VALUE_FEELS_LIKE, 0, &fresh.feels_like) &&
+                    app_value_number(VALUE_RAIN_CHANCE, 0, &fresh.rain_chance);
     for (int32_t day = 0; day < DAYS && is_whole; day++) {
         is_whole = app_value_number(VALUE_DAY_CODE + day, 0, &fresh.days[day].code) &&
                    app_value_number(VALUE_DAY_HIGH + day, 0, &fresh.days[day].high) &&
@@ -194,18 +200,24 @@ void app_on_button(int32_t event)
 
 #define MARGIN            16
 #define NOW_TEXT_LEFT     (MARGIN + LARGE_ICON_CELLS * ICON_CELL_PIXELS + 24)
-#define TEMPERATURE_TOP   0
+#define TEMPERATURE_TOP   2
 #define DEGREE_SIZE       14 /* the degree sign is a small square with a hole */
 #define DEGREE_STROKE     4
 #define DEGREE_GAP        6
-#define WORDS_TOP         72
-#define WIND_TOP          98
-/* The rule stands as far under the text above it as that text's block
- * stands under the header's rule: the same margin on both sides. */
-#define RULE_UNDER_TEXT   MARGIN
-#define DAY_NAME_TOP      144
-#define DAY_ICON_TOP      172
-#define DAY_RANGE_TOP     222
+#define SMALL_DEGREE_SIZE 8
+#define SMALL_DEGREE_STROKE 2
+#define SMALL_DEGREE_GAP  3
+#define WORDS_TOP         80
+/* The small print: three lines against the right edge, a picture before each. */
+#define DETAIL_TOP        14
+#define DETAIL_LINE       32
+#define DETAIL_ICON_GAP   8
+/* The rule stands as far under the large icon as the icon stands under
+ * the header's rule: the same margin on both sides. */
+#define RULE_TOP          (MARGIN + LARGE_ICON_CELLS * ICON_CELL_PIXELS + MARGIN)
+#define DAY_NAME_TOP      132
+#define DAY_ICON_TOP      162
+#define DAY_RANGE_TOP     214
 #define LINE_HEIGHT       30
 
 static void draw_icon(const char *const *rows, int32_t cells, int32_t left, int32_t top)
@@ -239,6 +251,44 @@ static void draw_centered(int32_t center, int32_t top, int32_t font, const char 
     gfx_text(center - gfx_text_width(font, text, length) / 2, top, font, text, length);
 }
 
+/* A degree sign the font does not have - it is ASCII: a square with a hole. */
+static void draw_degree(int32_t left, int32_t top, int32_t size, int32_t stroke)
+{
+    gfx_rect(left, top, size, size, HOST_RECT_FILLED);
+    gfx_color(HOST_PAPER);
+    gfx_rect(left + stroke, top + stroke, size - 2 * stroke, size - 2 * stroke, HOST_RECT_FILLED);
+    gfx_color(HOST_INK);
+}
+
+/* Where a line of the small print with this value would begin: at its picture. */
+static int32_t detail_left(const char *value)
+{
+    return gfx_width() - MARGIN - gfx_text_width(HOST_FONT_TEXT, value, app_text_length(value)) -
+           DETAIL_ICON_GAP - DETAIL_ICON_CELLS * ICON_CELL_PIXELS;
+}
+
+/* One line of the small print against the right edge: a picture, the value,
+ * and a degree sign after it when the value is a temperature. */
+static void draw_detail(int32_t line, detail_t detail, const char *value, bool is_degrees)
+{
+    int32_t top = DETAIL_TOP + line * DETAIL_LINE;
+    int32_t length = app_text_length(value);
+    int32_t degree_width = is_degrees ? SMALL_DEGREE_GAP + SMALL_DEGREE_SIZE : 0;
+    int32_t text_left = gfx_width() - MARGIN - degree_width -
+                        gfx_text_width(HOST_FONT_TEXT, value, length);
+    gfx_text(text_left, top, HOST_FONT_TEXT, value, length);
+    if (is_degrees) {
+        int32_t cap_top = top + gfx_font_ascent(HOST_FONT_TEXT) -
+                          gfx_font_cap_height(HOST_FONT_TEXT);
+        draw_degree(gfx_width() - MARGIN - SMALL_DEGREE_SIZE, cap_top, SMALL_DEGREE_SIZE,
+                    SMALL_DEGREE_STROKE);
+    }
+    /* The picture stands on the text's baseline. */
+    int32_t icon_size = DETAIL_ICON_CELLS * ICON_CELL_PIXELS;
+    draw_icon(DETAIL_ICONS[detail], DETAIL_ICON_CELLS, text_left - DETAIL_ICON_GAP - icon_size,
+              top + gfx_font_ascent(HOST_FONT_TEXT) - icon_size);
+}
+
 static void draw_now(void)
 {
     const condition_t *now = condition_of(forecast.code);
@@ -249,22 +299,33 @@ static void draw_now(void)
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, shown_degrees(forecast.temperature));
     int32_t digits_width = draw_text(NOW_TEXT_LEFT, TEMPERATURE_TOP, HOST_FONT_DISPLAY, buffer);
-    /* The font has no degree sign: it is ASCII. */
-    int32_t degree_left = NOW_TEXT_LEFT + digits_width + DEGREE_GAP;
-    int32_t degree_top = TEMPERATURE_TOP + gfx_font_ascent(HOST_FONT_DISPLAY) -
-                         gfx_font_cap_height(HOST_FONT_DISPLAY);
-    gfx_rect(degree_left, degree_top, DEGREE_SIZE, DEGREE_SIZE, HOST_RECT_FILLED);
-    gfx_color(HOST_PAPER);
-    gfx_rect(degree_left + DEGREE_STROKE, degree_top + DEGREE_STROKE,
-             DEGREE_SIZE - 2 * DEGREE_STROKE, DEGREE_SIZE - 2 * DEGREE_STROKE, HOST_RECT_FILLED);
-    gfx_color(HOST_INK);
+    draw_degree(NOW_TEXT_LEFT + digits_width + DEGREE_GAP,
+                TEMPERATURE_TOP + gfx_font_ascent(HOST_FONT_DISPLAY) -
+                    gfx_font_cap_height(HOST_FONT_DISPLAY),
+                DEGREE_SIZE, DEGREE_STROKE);
+    int32_t words_right = NOW_TEXT_LEFT +
+                          draw_text(NOW_TEXT_LEFT, WORDS_TOP, HOST_FONT_TEXT, now->words);
 
-    draw_text(NOW_TEXT_LEFT, WORDS_TOP, HOST_FONT_TEXT, now->words);
     app_text_start(&text, buffer, sizeof buffer);
-    app_text_add(&text, "Wind ");
+    app_text_add_number(&text, shown_degrees(forecast.feels_like));
+    draw_detail(0, DETAIL_FEELS_LIKE, buffer, true);
+
+    app_text_start(&text, buffer, sizeof buffer);
+    app_text_add_number(&text, forecast.rain_chance);
+    app_text_add(&text, "%");
+    draw_detail(1, DETAIL_RAIN, buffer, false);
+
+    /* The longest of the three goes last: it is below the large digits. */
+    app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, shown_speed(forecast.wind));
+    int32_t number_length = app_text_length(buffer);
     app_text_add(&text, shows_fahrenheit() ? " mph" : " km/h");
-    draw_text(NOW_TEXT_LEFT, WIND_TOP, HOST_FONT_TEXT, buffer);
+    /* It shares its line with the words on the left: when those are long
+     * - "Partly cloudy" - the unit gives way and the number stands alone. */
+    if (detail_left(buffer) < words_right + MARGIN) {
+        buffer[number_length] = '\0';
+    }
+    draw_detail(2, DETAIL_WIND, buffer, false);
 }
 
 static void draw_days(void)
@@ -274,8 +335,7 @@ static void draw_days(void)
     host_local_time_t today;
     bool knows_the_day = time_local(&today) == HOST_OK;
     int32_t column_width = gfx_width() / DAYS;
-    int32_t rule_top = WIND_TOP + gfx_font_ascent(HOST_FONT_TEXT) + RULE_UNDER_TEXT;
-    gfx_rect(MARGIN, rule_top, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
+    gfx_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     for (int32_t day = 0; day < DAYS; day++) {
         int32_t center = day * column_width + column_width / 2;
         const char *name = day == 0         ? "Today"

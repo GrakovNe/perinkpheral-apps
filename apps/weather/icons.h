@@ -521,3 +521,55 @@ static const char *const SMALL_ICONS[ICON_COUNT][22] = {
     },
 };
 
+
+/* The small print beside the temperature: what a value is, without a word. */
+#define DETAIL_ICON_CELLS 11
+
+typedef enum {
+    DETAIL_FEELS_LIKE,
+    DETAIL_RAIN,
+    DETAIL_WIND,
+    DETAIL_COUNT,
+} detail_t;
+
+static const char *const DETAIL_ICONS[DETAIL_COUNT][DETAIL_ICON_CELLS] = {
+    [DETAIL_FEELS_LIKE] = {
+        "....###....",
+        "....#.#....",
+        "....#.#....",
+        "....#.#....",
+        "....###....",
+        "....###....",
+        "...#####...",
+        "..#######..",
+        "..#######..",
+        "..#######..",
+        "...#####...",
+    },
+    [DETAIL_RAIN] = {
+        ".....#.....",
+        ".....#.....",
+        "....###....",
+        "....###....",
+        "...#####...",
+        "..#######..",
+        "..#######..",
+        "..#######..",
+        "..#######..",
+        "...#####...",
+        "....###....",
+    },
+    [DETAIL_WIND] = {
+        "...........",
+        "......##...",
+        ".......##..",
+        "########...",
+        "...........",
+        "###########",
+        "...........",
+        "######.....",
+        ".....##....",
+        "....##.....",
+        "...........",
+    },
+};
