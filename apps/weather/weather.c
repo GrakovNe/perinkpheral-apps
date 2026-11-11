@@ -66,8 +66,9 @@ static const condition_t CONDITIONS[] = {
     { 0, ICON_CLEAR },
     { 1, ICON_CLEAR },
     { 2, ICON_PARTLY_CLOUDY },
-    { 3, ICON_CLOUDY },
-    { 48, ICON_FOG },
+    /* Fog is shown as an overcast sky: no picture of fog reads as fog at
+     * this size. */
+    { 48, ICON_CLOUDY },
     { 57, ICON_RAIN },
     { 67, ICON_RAIN },
     { 77, ICON_SNOW },
