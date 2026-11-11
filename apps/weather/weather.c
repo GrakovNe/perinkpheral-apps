@@ -55,6 +55,8 @@ static bool       has_forecast;
 
 static const char PLACE_KEY[] = "lat";
 static const char CITY_KEY[] = "city";
+static const char HEADER_CITY_KEY[] = "header_city";
+static const char HEADER_DATE_KEY[] = "header_date";
 
 static const char *const WEEKDAYS[DAYS_PER_WEEK] = { "Sun", "Mon", "Tue", "Wed",
                                                      "Thu", "Fri", "Sat" };
@@ -148,11 +150,20 @@ static void apply_pace(void)
     poll_set_interval(WEATHER_POLL, minutes * 60);
 }
 
+/* A toggle of the settings is on until somebody turns it off. */
+static bool is_on(const char *key, int32_t key_length)
+{
+    char value[4];
+    return !(kv_get(key, key_length, value, sizeof value) == 1 && value[0] == '0');
+}
+
 /* The host's header: the city the weather is for, and the date as the
- * host itself writes it, "Wed 11 Nov". Without either the side is the
- * host's own again. */
+ * host itself writes it, "Wed 11 Nov"; each only while its setting is on.
+ * A side that is off is empty, not the host's. */
 static void show_header(void)
 {
+    static const char EMPTY[] = " ";
+
     /* The setting is "Saint Petersburg, Saint Petersburg, Russia": the city
      * is what stands before the first comma. */
     char city[128];
@@ -164,19 +175,24 @@ static void show_header(void)
     if (city_length > HOST_HEADER_TEXT_MAX) {
         city_length = HOST_HEADER_TEXT_MAX;
     }
-    header_text(HOST_HEADER_LEFT, city, city_length);
+    if (is_on(HEADER_CITY_KEY, sizeof HEADER_CITY_KEY - 1) && city_length > 0) {
+        header_text(HOST_HEADER_LEFT, city, city_length);
+    } else {
+        header_text(HOST_HEADER_LEFT, EMPTY, sizeof EMPTY - 1);
+    }
 
     char date[16];
-    date[0] = '\0';
+    app_text_t text;
+    app_text_start(&text, date, sizeof date);
     host_local_time_t today;
-    if (time_local(&today) == HOST_OK) {
-        app_text_t text;
-        app_text_start(&text, date, sizeof date);
+    if (is_on(HEADER_DATE_KEY, sizeof HEADER_DATE_KEY - 1) && time_local(&today) == HOST_OK) {
         app_text_add(&text, WEEKDAYS[today.weekday]);
         app_text_add(&text, today.day < 10 ? " 0" : " ");
         app_text_add_number(&text, today.day);
         app_text_add(&text, " ");
         app_text_add(&text, MONTHS[today.month - 1]);
+    } else {
+        app_text_add(&text, EMPTY);
     }
     header_text(HOST_HEADER_RIGHT, date, app_text_length(date));
 }

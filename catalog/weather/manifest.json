@@ -53,6 +53,18 @@
         "1 hour",
         "3 hours"
       ]
+    },
+    {
+      "key": "header_city",
+      "type": "toggle",
+      "title": "City in header",
+      "default": "1"
+    },
+    {
+      "key": "header_date",
+      "type": "toggle",
+      "title": "Date in header",
+      "default": "1"
     }
   ],
   "polls": [
