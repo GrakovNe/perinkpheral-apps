@@ -62,21 +62,20 @@ static const char PLACE_KEY[] = "lat";
 typedef struct {
     int32_t     up_to; /* the last code this line is for */
     icon_t      icon;
-    const char *words;
 } condition_t;
 
 static const condition_t CONDITIONS[] = {
-    { 0, ICON_CLEAR, "Clear" },
-    { 1, ICON_CLEAR, "Mostly clear" },
-    { 2, ICON_PARTLY_CLOUDY, "Partly cloudy" },
-    { 3, ICON_CLOUDY, "Overcast" },
-    { 48, ICON_FOG, "Fog" },
-    { 57, ICON_RAIN, "Drizzle" },
-    { 67, ICON_RAIN, "Rain" },
-    { 77, ICON_SNOW, "Snow" },
-    { 82, ICON_RAIN, "Showers" },
-    { 86, ICON_SNOW, "Snow showers" },
-    { 99, ICON_THUNDER, "Thunderstorm" },
+    { 0, ICON_CLEAR },
+    { 1, ICON_CLEAR },
+    { 2, ICON_PARTLY_CLOUDY },
+    { 3, ICON_CLOUDY },
+    { 48, ICON_FOG },
+    { 57, ICON_RAIN },
+    { 67, ICON_RAIN },
+    { 77, ICON_SNOW },
+    { 82, ICON_RAIN },
+    { 86, ICON_SNOW },
+    { 99, ICON_THUNDER },
 };
 #define CONDITION_COUNT ((int32_t)(sizeof CONDITIONS / sizeof CONDITIONS[0]))
 
@@ -200,14 +199,13 @@ void app_on_button(int32_t event)
 
 #define MARGIN            16
 #define NOW_TEXT_LEFT     (MARGIN + LARGE_ICON_CELLS * ICON_CELL_PIXELS + 24)
-#define TEMPERATURE_TOP   2
+#define HERO_CHARACTERS_MAX 2
 #define DEGREE_SIZE       14 /* the degree sign is a small square with a hole */
 #define DEGREE_STROKE     4
 #define DEGREE_GAP        6
 #define SMALL_DEGREE_SIZE 8
 #define SMALL_DEGREE_STROKE 2
 #define SMALL_DEGREE_GAP  3
-#define WORDS_TOP         80
 /* The small print: three lines against the right edge, a picture before each. */
 #define DETAIL_TOP        14
 #define DETAIL_LINE       32
@@ -260,13 +258,6 @@ static void draw_degree(int32_t left, int32_t top, int32_t size, int32_t stroke)
     gfx_color(HOST_INK);
 }
 
-/* Where a line of the small print with this value would begin: at its picture. */
-static int32_t detail_left(const char *value)
-{
-    return gfx_width() - MARGIN - gfx_text_width(HOST_FONT_TEXT, value, app_text_length(value)) -
-           DETAIL_ICON_GAP - DETAIL_ICON_CELLS * ICON_CELL_PIXELS;
-}
-
 /* One line of the small print against the right edge: a picture, the value,
  * and a degree sign after it when the value is a temperature. */
 static void draw_detail(int32_t line, detail_t detail, const char *value, bool is_degrees)
@@ -298,14 +289,16 @@ static void draw_now(void)
     app_text_t text;
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, shown_degrees(forecast.temperature));
-    int32_t digits_width = draw_text(NOW_TEXT_LEFT, TEMPERATURE_TOP, HOST_FONT_DISPLAY, buffer);
-    draw_degree(NOW_TEXT_LEFT + digits_width + DEGREE_GAP,
-                TEMPERATURE_TOP + gfx_font_ascent(HOST_FONT_DISPLAY) -
-                    gfx_font_cap_height(HOST_FONT_DISPLAY),
-                DEGREE_SIZE, DEGREE_STROKE);
-    int32_t words_right = NOW_TEXT_LEFT +
-                          draw_text(NOW_TEXT_LEFT, WORDS_TOP, HOST_FONT_TEXT, now->words);
-
+    /* Two characters are as large as there is; "-12" at that size would run
+     * into the small print, and steps down one. */
+    int32_t font = app_text_length(buffer) <= HERO_CHARACTERS_MAX ? HOST_FONT_DISPLAY
+                                                                 : HOST_FONT_LARGE;
+    /* The digits stand in the middle of the large icon's height. */
+    int32_t cap_height = gfx_font_cap_height(font);
+    int32_t cap_top = MARGIN + (LARGE_ICON_CELLS * ICON_CELL_PIXELS - cap_height) / 2;
+    int32_t digits_width =
+        draw_text(NOW_TEXT_LEFT, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
+    draw_degree(NOW_TEXT_LEFT + digits_width + DEGREE_GAP, cap_top, DEGREE_SIZE, DEGREE_STROKE);
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, shown_degrees(forecast.feels_like));
     draw_detail(0, DETAIL_FEELS_LIKE, buffer, true);
@@ -318,13 +311,7 @@ static void draw_now(void)
     /* The longest of the three goes last: it is below the large digits. */
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, shown_speed(forecast.wind));
-    int32_t number_length = app_text_length(buffer);
     app_text_add(&text, shows_fahrenheit() ? " mph" : " km/h");
-    /* It shares its line with the words on the left: when those are long
-     * - "Partly cloudy" - the unit gives way and the number stands alone. */
-    if (detail_left(buffer) < words_right + MARGIN) {
-        buffer[number_length] = '\0';
-    }
     draw_detail(2, DETAIL_WIND, buffer, false);
 }
 
