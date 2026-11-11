@@ -10,7 +10,8 @@
  * the store, and the picture is drawn from the store: the application is
  * unloaded between any two calls.
  *
- * The place is two settings, `lat` and `lon`, in the store too.
+ * The settings are in the store too, under the keys the manifest gives
+ * them: the place (`lat`, `lon`), the units and how often to ask.
  */
 #include <stdbool.h>
 
@@ -94,9 +95,55 @@ static void load_forecast(void)
                    forecast.version == FORECAST_VERSION;
 }
 
+/* ---- the settings ---- */
+
+static bool setting_is(const char *key, int32_t key_length, const char *wanted)
+{
+    char    value[16];
+    int32_t length = kv_get(key, key_length, value, sizeof value - 1);
+    if (length < 0) {
+        return false;
+    }
+    value[length] = '\0';
+    for (int32_t i = 0; i <= length; i++) {
+        if (value[i] != wanted[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+#define SETTING_IS(key, wanted) setting_is(key, sizeof key - 1, wanted)
+
+static bool shows_fahrenheit(void)
+{
+    return SETTING_IS("units", "fahrenheit");
+}
+
+/* The service is asked in Celsius and km/h whatever the user reads. */
+static int32_t shown_degrees(int32_t celsius)
+{
+    return shows_fahrenheit() ? (celsius * 9 + (celsius >= 0 ? 2 : -2)) / 5 + 32 : celsius;
+}
+
+static int32_t shown_speed(int32_t km_per_hour)
+{
+    return shows_fahrenheit() ? (km_per_hour * 621 + 500) / 1000 : km_per_hour;
+}
+
+/* The manifest asks every fifteen minutes; the user may want it rarer. */
+static void apply_pace(void)
+{
+    int32_t minutes = SETTING_IS("every", "30 min")    ? 30
+                      : SETTING_IS("every", "1 hour")  ? 60
+                      : SETTING_IS("every", "3 hours") ? 180
+                                                       : 15;
+    poll_set_interval(WEATHER_POLL, minutes * 60);
+}
+
 void app_init(void)
 {
     load_forecast();
+    apply_pace();
 }
 
 void app_on_values(int32_t request, int32_t http_status)
@@ -121,12 +168,13 @@ void app_on_values(int32_t request, int32_t http_status)
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
-/* The place changed: the forecast in hand is for somewhere else. The
- * host fetches a new one at once. */
+/* The place may have changed, and then the forecast in hand is for
+ * somewhere else: it is dropped, and the host fetches a new one at once. */
 void app_on_settings(void)
 {
     has_forecast = false;
     kv_set(FORECAST_KEY, sizeof FORECAST_KEY - 1, &forecast, 0);
+    apply_pace();
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
@@ -199,7 +247,7 @@ static void draw_now(void)
     char buffer[24];
     app_text_t text;
     app_text_start(&text, buffer, sizeof buffer);
-    app_text_add_number(&text, forecast.temperature);
+    app_text_add_number(&text, shown_degrees(forecast.temperature));
     int32_t digits_width = draw_text(NOW_TEXT_LEFT, TEMPERATURE_TOP, HOST_FONT_DISPLAY, buffer);
     /* The font has no degree sign: it is ASCII. */
     int32_t degree_left = NOW_TEXT_LEFT + digits_width + DEGREE_GAP;
@@ -214,8 +262,8 @@ static void draw_now(void)
     draw_text(NOW_TEXT_LEFT, WORDS_TOP, HOST_FONT_TEXT, now->words);
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add(&text, "Wind ");
-    app_text_add_number(&text, forecast.wind);
-    app_text_add(&text, " km/h");
+    app_text_add_number(&text, shown_speed(forecast.wind));
+    app_text_add(&text, shows_fahrenheit() ? " mph" : " km/h");
     draw_text(NOW_TEXT_LEFT, WIND_TOP, HOST_FONT_TEXT, buffer);
 }
 
@@ -239,9 +287,9 @@ static void draw_days(void)
         char buffer[16];
         app_text_t text;
         app_text_start(&text, buffer, sizeof buffer);
-        app_text_add_number(&text, forecast.days[day].high);
+        app_text_add_number(&text, shown_degrees(forecast.days[day].high));
         app_text_add(&text, " / ");
-        app_text_add_number(&text, forecast.days[day].low);
+        app_text_add_number(&text, shown_degrees(forecast.days[day].low));
         draw_centered(center, DAY_RANGE_TOP, HOST_FONT_TEXT, buffer);
     }
 }

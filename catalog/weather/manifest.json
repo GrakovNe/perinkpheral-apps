@@ -3,6 +3,19 @@
   "title": "Weather",
   "version": "0.1.0",
   "abi": 1,
+  "icon": [
+    "...#.......",
+    ".#...#.....",
+    "...##......",
+    "#.####.....",
+    "..####.###.",
+    "...#.######",
+    ".....######",
+    "...########",
+    "..#########",
+    "..#########",
+    "...#######."
+  ],
   "settings": [
     {
       "key": "lat",
@@ -15,6 +28,28 @@
       "type": "number",
       "title": "Longitude",
       "help": "East is positive: 37.62."
+    },
+    {
+      "key": "units",
+      "type": "choice",
+      "title": "Units",
+      "options": [
+        "celsius",
+        "fahrenheit"
+      ],
+      "help": "Celsius and km/h, or Fahrenheit and mph."
+    },
+    {
+      "key": "every",
+      "type": "choice",
+      "title": "Update every",
+      "options": [
+        "15 min",
+        "30 min",
+        "1 hour",
+        "3 hours"
+      ],
+      "help": "How often the forecast is fetched."
     }
   ],
   "polls": [
