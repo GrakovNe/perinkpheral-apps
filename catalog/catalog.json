@@ -139,7 +139,7 @@
         {
           "name": "app.wasm",
           "size": 11440,
-          "sha256": "02a6242eaf455a2e3b4c0cec233d8820de9e310f8fc1ec70d4fc0ecaf5ab2763"
+          "sha256": "fe331ce33ec277511d78a7563d64162a405a29d77e0db413ad459dce863aa450"
         },
         {
           "name": "manifest.json",

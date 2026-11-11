@@ -211,7 +211,7 @@ void app_on_button(int32_t event)
  * the header's rule: the same margin on both sides. */
 #define RULE_TOP          (MARGIN + LARGE_ICON_CELLS * ICON_CELL_PIXELS + MARGIN)
 /* A day: its name as a caption, its icon, and "high / low" in one line. */
-#define DAY_NAME_TOP      138
+#define DAY_NAME_TOP      133
 #define DAY_ICON_TOP      158
 #define DAY_RANGE_TOP     214
 #define DAY_SLASH_GAP     3
