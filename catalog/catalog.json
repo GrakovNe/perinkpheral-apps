@@ -5,7 +5,7 @@
       "name": "badapple",
       "title": "Bad Apple",
       "version": "0.1.0",
-      "abi": 1,
+      "abi": 2,
       "files": [
         {
           "name": "app.wasm",
@@ -20,7 +20,7 @@
         {
           "name": "manifest.json",
           "size": 330,
-          "sha256": "724c9401cb1855eecc774a21c9d6255f38b4d0f086d4f9c8b799a9cac733bd77"
+          "sha256": "6b6f4600e0990bef7c46b40b885d583ce2e838141bf158841851400dde72d1f8"
         }
       ],
       "icon": [
@@ -41,7 +41,7 @@
       "name": "clock",
       "title": "Clock",
       "version": "0.1.0",
-      "abi": 1,
+      "abi": 2,
       "files": [
         {
           "name": "app.wasm",
@@ -51,7 +51,7 @@
         {
           "name": "manifest.json",
           "size": 323,
-          "sha256": "e2f8b3d153823c4b354cd01c5f24a727906cc1af5d015694e5c53b757de807e7"
+          "sha256": "2acd665339efe9ceedcf843eb082d3cc8b3d723eebf928056949cf5979212bdc"
         }
       ],
       "icon": [
@@ -72,7 +72,7 @@
       "name": "timer",
       "title": "Timer",
       "version": "0.1.0",
-      "abi": 1,
+      "abi": 2,
       "files": [
         {
           "name": "app.wasm",
@@ -82,7 +82,7 @@
         {
           "name": "manifest.json",
           "size": 301,
-          "sha256": "cb4982b4c3b17aa87c8bd538377558d7b9226bf47d3876b3190bd70158cd01ef"
+          "sha256": "1e2ae467d414e6ba3054da6b6aa93a101085aa26c6d8a8ea18d037abf9f47d41"
         }
       ],
       "icon": [
@@ -103,7 +103,7 @@
       "name": "weather",
       "title": "Weather",
       "version": "0.1.0",
-      "abi": 1,
+      "abi": 2,
       "files": [
         {
           "name": "app.wasm",
@@ -113,7 +113,7 @@
         {
           "name": "manifest.json",
           "size": 1806,
-          "sha256": "b4e5ac8100962c0e688a211cfdb73fa0fbc337ea61523d118ab49e11980a7139"
+          "sha256": "07b544a80cfb50cefbb20dbed16626c1c84897c913e99d4f80c8acbed0ade02c"
         }
       ],
       "icon": [
