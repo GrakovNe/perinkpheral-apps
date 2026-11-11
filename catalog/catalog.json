@@ -138,8 +138,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 5646,
-          "sha256": "3bf111e3265f044deed0256cc14b1951d6d8c277f680bdaabc6867fadc897c38"
+          "size": 11055,
+          "sha256": "60dd8eb0fc3749c3288559940862ebdf625ebed840201a0e9254bd9d8ccd0750"
         },
         {
           "name": "manifest.json",

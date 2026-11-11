@@ -193,9 +193,7 @@ void app_on_button(int32_t event)
 /* ---- the picture ---- */
 
 #define MARGIN            16
-#define LARGE_ICON_CELL   4
-#define SMALL_ICON_CELL   2
-#define NOW_TEXT_LEFT     (MARGIN + ICON_CELLS * LARGE_ICON_CELL + 24)
+#define NOW_TEXT_LEFT     (MARGIN + LARGE_ICON_CELLS * ICON_CELL_PIXELS + 24)
 #define TEMPERATURE_TOP   0
 #define DEGREE_SIZE       14 /* the degree sign is a small square with a hole */
 #define DEGREE_STROKE     4
@@ -210,22 +208,22 @@ void app_on_button(int32_t event)
 #define DAY_RANGE_TOP     216
 #define LINE_HEIGHT       30
 
-static void draw_icon(icon_t icon, int32_t left, int32_t top, int32_t cell)
+static void draw_icon(const char *const *rows, int32_t cells, int32_t left, int32_t top)
 {
-    for (int32_t row = 0; row < ICON_CELLS; row++) {
-        const char *line = ICONS[icon][row];
+    for (int32_t row = 0; row < cells; row++) {
+        const char *line = rows[row];
         /* A run of ink in a row is one rectangle. */
-        for (int32_t column = 0; column < ICON_CELLS;) {
+        for (int32_t column = 0; column < cells;) {
             if (line[column] != '#') {
                 column++;
                 continue;
             }
             int32_t run_start = column;
-            while (column < ICON_CELLS && line[column] == '#') {
+            while (column < cells && line[column] == '#') {
                 column++;
             }
-            gfx_rect(left + run_start * cell, top + row * cell, (column - run_start) * cell, cell,
-                     HOST_RECT_FILLED);
+            gfx_rect(left + run_start * ICON_CELL_PIXELS, top + row * ICON_CELL_PIXELS,
+                     (column - run_start) * ICON_CELL_PIXELS, ICON_CELL_PIXELS, HOST_RECT_FILLED);
         }
     }
 }
@@ -244,7 +242,7 @@ static void draw_centered(int32_t center, int32_t top, int32_t font, const char 
 static void draw_now(void)
 {
     const condition_t *now = condition_of(forecast.code);
-    draw_icon(now->icon, MARGIN, MARGIN, LARGE_ICON_CELL);
+    draw_icon(LARGE_ICONS[now->icon], LARGE_ICON_CELLS, MARGIN, MARGIN);
 
     char buffer[24];
     app_text_t text;
@@ -284,8 +282,8 @@ static void draw_days(void)
                            : knows_the_day ? WEEKDAYS[(today.weekday + day) % DAYS_PER_WEEK]
                                            : "";
         draw_centered(center, DAY_NAME_TOP, HOST_FONT_TEXT, name);
-        draw_icon(condition_of(forecast.days[day].code)->icon,
-                  center - ICON_CELLS * SMALL_ICON_CELL / 2, DAY_ICON_TOP, SMALL_ICON_CELL);
+        draw_icon(SMALL_ICONS[condition_of(forecast.days[day].code)->icon], SMALL_ICON_CELLS,
+                  center - SMALL_ICON_CELLS * ICON_CELL_PIXELS / 2, DAY_ICON_TOP);
 
         char buffer[16];
         app_text_t text;
