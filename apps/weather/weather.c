@@ -213,9 +213,14 @@ void app_on_button(int32_t event)
 /* The rule stands as far under the large icon as the icon stands under
  * the header's rule: the same margin on both sides. */
 #define RULE_TOP          (MARGIN + LARGE_ICON_CELLS * ICON_CELL_PIXELS + MARGIN)
-#define DAY_NAME_TOP      132
-#define DAY_ICON_TOP      162
-#define DAY_RANGE_TOP     214
+#define DAY_NAME_TOP      138
+#define DAY_ICON_TOP      176
+/* The two numbers beside a day's icon, the high and the low: the pair is
+ * as tall as the icon. */
+#define DAY_NUMBERS       2
+#define DAY_NUMBERS_GAP   10
+#define DAY_HIGH_TOP      172
+#define DAY_NUMBERS_LINE  24
 #define LINE_HEIGHT       30
 
 static void draw_icon(const char *const *rows, int32_t cells, int32_t left, int32_t top)
@@ -329,16 +334,35 @@ static void draw_days(void)
                            : knows_the_day ? WEEKDAYS[(today.weekday + day) % DAYS_PER_WEEK]
                                            : "";
         draw_centered(center, DAY_NAME_TOP, HOST_FONT_TEXT, name);
-        draw_icon(SMALL_ICONS[condition_of(forecast.days[day].code)->icon], SMALL_ICON_CELLS,
-                  center - SMALL_ICON_CELLS * ICON_CELL_PIXELS / 2, DAY_ICON_TOP);
 
-        char buffer[16];
-        app_text_t text;
-        app_text_start(&text, buffer, sizeof buffer);
-        app_text_add_number(&text, shown_degrees(forecast.days[day].high));
-        app_text_add(&text, " / ");
-        app_text_add_number(&text, shown_degrees(forecast.days[day].low));
-        draw_centered(center, DAY_RANGE_TOP, HOST_FONT_TEXT, buffer);
+        /* The icon, and beside it the day's high over its low: two numbers
+         * one under the other need no sign between them, and the columns
+         * cannot run into each other however cold it gets. The pair is as
+         * wide as its longer number, and icon and pair stand under the
+         * day's name as one block. */
+        const int32_t numbers[DAY_NUMBERS] = { forecast.days[day].high, forecast.days[day].low };
+        char lines[DAY_NUMBERS][8];
+        int32_t widths[DAY_NUMBERS];
+        int32_t numbers_width = 0;
+        for (int32_t line = 0; line < DAY_NUMBERS; line++) {
+            app_text_t text;
+            app_text_start(&text, lines[line], sizeof lines[line]);
+            app_text_add_number(&text, shown_degrees(numbers[line]));
+            widths[line] = gfx_text_width(HOST_FONT_TEXT, lines[line], app_text_length(lines[line]));
+            if (widths[line] > numbers_width) {
+                numbers_width = widths[line];
+            }
+        }
+
+        int32_t icon_size = SMALL_ICON_CELLS * ICON_CELL_PIXELS;
+        int32_t group_left = center - (icon_size + DAY_NUMBERS_GAP + numbers_width) / 2;
+        int32_t numbers_right = group_left + icon_size + DAY_NUMBERS_GAP + numbers_width;
+        draw_icon(SMALL_ICONS[condition_of(forecast.days[day].code)->icon], SMALL_ICON_CELLS,
+                  group_left, DAY_ICON_TOP);
+        for (int32_t line = 0; line < DAY_NUMBERS; line++) {
+            gfx_text(numbers_right - widths[line], DAY_HIGH_TOP + line * DAY_NUMBERS_LINE,
+                     HOST_FONT_TEXT, lines[line], app_text_length(lines[line]));
+        }
     }
 }
 
