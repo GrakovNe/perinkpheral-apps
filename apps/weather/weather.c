@@ -304,9 +304,7 @@ void app_on_draw(void)
     char place[2];
     bool has_place = kv_get(PLACE_KEY, sizeof PLACE_KEY - 1, place, sizeof place) !=
                      HOST_ERR_NOT_FOUND;
-    draw_text(MARGIN, MARGIN, HOST_FONT_TEXT, "No forecast yet.");
+    draw_text(MARGIN, MARGIN, HOST_FONT_TEXT, "No data.");
     draw_text(MARGIN, MARGIN + 2 * LINE_HEIGHT, HOST_FONT_TEXT,
-              has_place ? "Waiting for an answer" : "Set the place on the");
-    draw_text(MARGIN, MARGIN + 3 * LINE_HEIGHT, HOST_FONT_TEXT,
-              has_place ? "from the network." : "device's web page.");
+              has_place ? "Waiting for network." : "Set location in settings.");
 }

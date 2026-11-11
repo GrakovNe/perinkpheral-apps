@@ -194,12 +194,8 @@ void app_on_draw(void)
                                           : state.minutes);
     draw_centered(NUMBER_TOP, HOST_FONT_HUGE, buffer);
     if (!state.is_up) {
-        bool is_one = (is_running ? (left + SECONDS_PER_MINUTE - 1) / SECONDS_PER_MINUTE
-                                  : state.minutes) == 1;
-        draw_centered(WORDS_TOP, HOST_FONT_MEDIUM,
-                      is_running ? (is_one ? "minute left" : "minutes left")
-                                 : (is_one ? "minute" : "minutes"));
+        draw_centered(WORDS_TOP, HOST_FONT_MEDIUM, is_running ? "min left" : "min");
     }
     draw_centered(HINT_TOP, HOST_FONT_TEXT,
-                  is_running || state.is_up ? "Ok stops" : "Up, Down set - Ok starts");
+                  is_running || state.is_up ? "OK: stop" : "Up/Down: set   OK: start");
 }

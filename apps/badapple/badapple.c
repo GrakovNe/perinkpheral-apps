@@ -218,13 +218,13 @@ static void draw_line(int32_t line, const char *label, int32_t value, const char
 static void draw_numbers(void)
 {
     int32_t shown = draws > 0 ? draws : 1;
-    draw_line(0, "Frames in the video: ", frame_count, "");
-    draw_line(1, "Frames drawn: ", draws, "");
-    draw_line(2, "A frame is ", width * height, " pixels");
-    draw_line(3, "Draw, average: ", draw_ms_total / shown, " ms");
-    draw_line(4, "Draw, worst: ", draw_ms_worst, " ms");
-    draw_line(5, "Rectangles a frame: ", rectangles / shown, "");
-    draw_line(6, "Up stop, Ok again, Back", 0, 0);
+    draw_line(0, "Frames: ", frame_count, "");
+    draw_line(1, "Drawn: ", draws, "");
+    draw_line(2, "Pixels per frame: ", width * height, "");
+    draw_line(3, "Draw avg: ", draw_ms_total / shown, " ms");
+    draw_line(4, "Draw max: ", draw_ms_worst, " ms");
+    draw_line(5, "Rects per frame: ", rectangles / shown, "");
+    draw_line(6, "Up: stop   OK: restart", 0, 0);
 
     /* Every grey the host can make, paper to ink: the video itself has
      * next to none, so this is where the panel shows what they look like. */
@@ -241,7 +241,7 @@ static void draw_numbers(void)
 void app_on_draw(void)
 {
     if (!has_video) {
-        draw_line(0, "No frames.bin to play.", 0, 0);
+        draw_line(0, "frames.bin not found.", 0, 0);
         return;
     }
     /* The video keeps real time: what the panel could not show is skipped,
@@ -257,7 +257,7 @@ void app_on_draw(void)
         return;
     }
     if (!load_frame(due_frame)) {
-        draw_line(0, "A frame cannot be read.", 0, 0);
+        draw_line(0, "Read error.", 0, 0);
         return;
     }
     draw_frame();

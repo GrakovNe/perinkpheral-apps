@@ -20,14 +20,12 @@
     {
       "key": "lat",
       "type": "number",
-      "title": "Latitude",
-      "help": "Of the place the forecast is for, in degrees: 55.75. North is positive."
+      "title": "Latitude"
     },
     {
       "key": "lon",
       "type": "number",
-      "title": "Longitude",
-      "help": "East is positive: 37.62."
+      "title": "Longitude"
     },
     {
       "key": "units",
@@ -36,20 +34,18 @@
       "options": [
         "celsius",
         "fahrenheit"
-      ],
-      "help": "Celsius and km/h, or Fahrenheit and mph."
+      ]
     },
     {
       "key": "every",
       "type": "choice",
-      "title": "Update every",
+      "title": "Update interval",
       "options": [
         "15 min",
         "30 min",
         "1 hour",
         "3 hours"
-      ],
-      "help": "How often the forecast is fetched."
+      ]
     }
   ],
   "polls": [

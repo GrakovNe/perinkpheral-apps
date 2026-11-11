@@ -96,9 +96,9 @@ void app_on_draw(void)
         app_text_start(&text, time_line, sizeof time_line);
         app_text_add(&text, "--:--");
         app_text_start(&text, weekday_line, sizeof weekday_line);
-        app_text_add(&text, "No time yet");
+        app_text_add(&text, "No time");
         app_text_start(&text, date_line, sizeof date_line);
-        app_text_add(&text, "Waiting for Wi-Fi");
+        app_text_add(&text, "Waiting for network");
     }
 
     int32_t time_bottom = draw_centered(TIME_CAP_TOP, TIME_FONT, time_line);
