@@ -57,13 +57,13 @@
     {
       "key": "header_city",
       "type": "toggle",
-      "title": "City in header",
+      "title": "Show Selected City",
       "default": "1"
     },
     {
       "key": "header_date",
       "type": "toggle",
-      "title": "Date in header",
+      "title": "Show Current Date",
       "default": "1"
     }
   ],
