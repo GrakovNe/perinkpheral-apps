@@ -18,6 +18,13 @@
   ],
   "settings": [
     {
+      "key": "city",
+      "type": "place",
+      "title": "City",
+      "latitude": "lat",
+      "longitude": "lon"
+    },
+    {
       "key": "lat",
       "type": "number",
       "title": "Latitude"
