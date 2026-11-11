@@ -193,8 +193,8 @@ void app_on_button(int32_t event)
 /* ---- the picture ---- */
 
 #define MARGIN            16
-#define LARGE_ICON_CELL   8
-#define SMALL_ICON_CELL   4
+#define LARGE_ICON_CELL   4
+#define SMALL_ICON_CELL   2
 #define NOW_TEXT_LEFT     (MARGIN + ICON_CELLS * LARGE_ICON_CELL + 24)
 #define TEMPERATURE_TOP   0
 #define DEGREE_SIZE       14 /* the degree sign is a small square with a hole */
@@ -202,10 +202,12 @@ void app_on_button(int32_t event)
 #define DEGREE_GAP        6
 #define WORDS_TOP         72
 #define WIND_TOP          98
-#define RULE_TOP          126
-#define DAY_NAME_TOP      134
-#define DAY_ICON_TOP      162
-#define DAY_RANGE_TOP     212
+/* The rule stands as far under the line above it as the header's rule
+ * stands under the header's text. */
+#define RULE_UNDER_TEXT   8
+#define DAY_NAME_TOP      138
+#define DAY_ICON_TOP      166
+#define DAY_RANGE_TOP     216
 #define LINE_HEIGHT       30
 
 static void draw_icon(icon_t icon, int32_t left, int32_t top, int32_t cell)
@@ -274,7 +276,8 @@ static void draw_days(void)
     host_local_time_t today;
     bool knows_the_day = time_local(&today) == HOST_OK;
     int32_t column_width = gfx_width() / DAYS;
-    gfx_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
+    int32_t rule_top = WIND_TOP + gfx_font_ascent(HOST_FONT_TEXT) + RULE_UNDER_TEXT;
+    gfx_rect(MARGIN, rule_top, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     for (int32_t day = 0; day < DAYS; day++) {
         int32_t center = day * column_width + column_width / 2;
         const char *name = day == 0         ? "Today"
