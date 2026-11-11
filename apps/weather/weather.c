@@ -54,6 +54,12 @@ static forecast_t forecast;
 static bool       has_forecast;
 
 static const char PLACE_KEY[] = "lat";
+static const char CITY_KEY[] = "city";
+
+static const char *const WEEKDAYS[DAYS_PER_WEEK] = { "Sun", "Mon", "Tue", "Wed",
+                                                     "Thu", "Fri", "Sat" };
+static const char *const MONTHS[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 /* ---- what a WMO code means ---- */
 
@@ -142,10 +148,49 @@ static void apply_pace(void)
     poll_set_interval(WEATHER_POLL, minutes * 60);
 }
 
+/* The host's header: the city the weather is for, and the date as the
+ * host itself writes it, "Wed 11 Nov". Without either the side is the
+ * host's own again. */
+static void show_header(void)
+{
+    /* The setting is "Saint Petersburg, Saint Petersburg, Russia": the city
+     * is what stands before the first comma. */
+    char city[128];
+    int32_t stored = kv_get(CITY_KEY, sizeof CITY_KEY - 1, city, sizeof city);
+    int32_t city_length = 0;
+    while (city_length < stored && city[city_length] != ',') {
+        city_length++;
+    }
+    if (city_length > HOST_HEADER_TEXT_MAX) {
+        city_length = HOST_HEADER_TEXT_MAX;
+    }
+    header_text(HOST_HEADER_LEFT, city, city_length);
+
+    char date[16];
+    date[0] = '\0';
+    host_local_time_t today;
+    if (time_local(&today) == HOST_OK) {
+        app_text_t text;
+        app_text_start(&text, date, sizeof date);
+        app_text_add(&text, WEEKDAYS[today.weekday]);
+        app_text_add(&text, today.day < 10 ? " 0" : " ");
+        app_text_add_number(&text, today.day);
+        app_text_add(&text, " ");
+        app_text_add(&text, MONTHS[today.month - 1]);
+    }
+    header_text(HOST_HEADER_RIGHT, date, app_text_length(date));
+}
+
 void app_init(void)
 {
     load_forecast();
     apply_pace();
+    show_header();
+}
+
+void app_on_focus(void)
+{
+    show_header();
 }
 
 void app_on_values(int32_t request, int32_t http_status)
@@ -168,6 +213,7 @@ void app_on_values(int32_t request, int32_t http_status)
     forecast = fresh;
     has_forecast = true;
     kv_set(FORECAST_KEY, sizeof FORECAST_KEY - 1, &forecast, sizeof forecast);
+    show_header(); /* the day may have turned since the last answer */
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
@@ -178,6 +224,7 @@ void app_on_settings(void)
     has_forecast = false;
     kv_set(FORECAST_KEY, sizeof FORECAST_KEY - 1, &forecast, 0);
     apply_pace();
+    show_header();
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
@@ -355,8 +402,6 @@ static void draw_now(void)
 
 static void draw_days(void)
 {
-    static const char *const WEEKDAYS[DAYS_PER_WEEK] = { "Sun", "Mon", "Tue", "Wed",
-                                                         "Thu", "Fri", "Sat" };
     host_local_time_t today;
     bool knows_the_day = time_local(&today) == HOST_OK;
     int32_t column_width = gfx_width() / DAYS;
