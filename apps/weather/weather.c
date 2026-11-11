@@ -206,21 +206,21 @@ void app_on_button(int32_t event)
 #define SMALL_DEGREE_SIZE 8
 #define SMALL_DEGREE_STROKE 2
 #define SMALL_DEGREE_GAP  3
-/* The small print: three lines against the right edge, a picture before each. */
+/* The details: three lines, their pictures in one column and the values
+ * starting at one edge beside it. A unit is in the small font. */
 #define DETAIL_TOP        14
 #define DETAIL_LINE       32
-#define DETAIL_ICON_GAP   8
+#define DETAIL_LEFT       292
+#define DETAIL_ICON_GAP   10
+#define DETAIL_UNIT_GAP   5
 /* The rule stands as far under the large icon as the icon stands under
  * the header's rule: the same margin on both sides. */
 #define RULE_TOP          (MARGIN + LARGE_ICON_CELLS * ICON_CELL_PIXELS + MARGIN)
+/* A day: its name as a caption, its icon, and "high / low" in one line. */
 #define DAY_NAME_TOP      138
-#define DAY_ICON_TOP      176
-/* The two numbers beside a day's icon, the high and the low: the pair is
- * as tall as the icon. */
-#define DAY_NUMBERS       2
-#define DAY_NUMBERS_GAP   10
-#define DAY_HIGH_TOP      172
-#define DAY_NUMBERS_LINE  24
+#define DAY_ICON_TOP      158
+#define DAY_RANGE_TOP     214
+#define DAY_SLASH_GAP     3
 #define LINE_HEIGHT       30
 
 static void draw_icon(const char *const *rows, int32_t cells, int32_t left, int32_t top)
@@ -263,26 +263,26 @@ static void draw_degree(int32_t left, int32_t top, int32_t size, int32_t stroke)
     gfx_color(HOST_INK);
 }
 
-/* One line of the small print against the right edge: a picture, the value,
- * and a degree sign after it when the value is a temperature. */
-static void draw_detail(int32_t line, detail_t detail, const char *value, bool is_degrees)
+/* One line of the details: a picture, the value, and after a temperature
+ * a degree sign; a unit that is a word is in the small font. */
+static void draw_detail(int32_t line, detail_t detail, const char *value, bool is_degrees,
+                        const char *unit)
 {
     int32_t top = DETAIL_TOP + line * DETAIL_LINE;
-    int32_t length = app_text_length(value);
-    int32_t degree_width = is_degrees ? SMALL_DEGREE_GAP + SMALL_DEGREE_SIZE : 0;
-    int32_t text_left = gfx_width() - MARGIN - degree_width -
-                        gfx_text_width(HOST_FONT_TEXT, value, length);
-    gfx_text(text_left, top, HOST_FONT_TEXT, value, length);
-    if (is_degrees) {
-        int32_t cap_top = top + gfx_font_ascent(HOST_FONT_TEXT) -
-                          gfx_font_cap_height(HOST_FONT_TEXT);
-        draw_degree(gfx_width() - MARGIN - SMALL_DEGREE_SIZE, cap_top, SMALL_DEGREE_SIZE,
-                    SMALL_DEGREE_STROKE);
-    }
-    /* The picture stands on the text's baseline. */
+    int32_t baseline = top + gfx_font_ascent(HOST_FONT_TEXT);
     int32_t icon_size = DETAIL_ICON_CELLS * ICON_CELL_PIXELS;
-    draw_icon(DETAIL_ICONS[detail], DETAIL_ICON_CELLS, text_left - DETAIL_ICON_GAP - icon_size,
-              top + gfx_font_ascent(HOST_FONT_TEXT) - icon_size);
+    /* The picture stands on the text's baseline. */
+    draw_icon(DETAIL_ICONS[detail], DETAIL_ICON_CELLS, DETAIL_LEFT, baseline - icon_size);
+
+    int32_t value_left = DETAIL_LEFT + icon_size + DETAIL_ICON_GAP;
+    int32_t value_right = value_left + draw_text(value_left, top, HOST_FONT_TEXT, value);
+    if (is_degrees) {
+        draw_degree(value_right + SMALL_DEGREE_GAP, baseline - gfx_font_cap_height(HOST_FONT_TEXT),
+                    SMALL_DEGREE_SIZE, SMALL_DEGREE_STROKE);
+    } else {
+        draw_text(value_right + DETAIL_UNIT_GAP, baseline - gfx_font_ascent(HOST_FONT_SMALL),
+                  HOST_FONT_SMALL, unit);
+    }
 }
 
 static void draw_now(void)
@@ -306,18 +306,16 @@ static void draw_now(void)
     draw_degree(NOW_TEXT_LEFT + digits_width + DEGREE_GAP, cap_top, DEGREE_SIZE, DEGREE_STROKE);
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, shown_degrees(forecast.feels_like));
-    draw_detail(0, DETAIL_FEELS_LIKE, buffer, true);
+    draw_detail(0, DETAIL_FEELS_LIKE, buffer, true, "");
 
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, forecast.rain_chance);
     app_text_add(&text, "%");
-    draw_detail(1, DETAIL_RAIN, buffer, false);
+    draw_detail(1, DETAIL_RAIN, buffer, false, "");
 
-    /* The longest of the three goes last: it is below the large digits. */
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, shown_speed(forecast.wind));
-    app_text_add(&text, shows_fahrenheit() ? " mph" : " km/h");
-    draw_detail(2, DETAIL_WIND, buffer, false);
+    draw_detail(2, DETAIL_WIND, buffer, false, shows_fahrenheit() ? "mph" : "km/h");
 }
 
 static void draw_days(void)
@@ -333,36 +331,28 @@ static void draw_days(void)
         const char *name = day == 0         ? "Today"
                            : knows_the_day ? WEEKDAYS[(today.weekday + day) % DAYS_PER_WEEK]
                                            : "";
-        draw_centered(center, DAY_NAME_TOP, HOST_FONT_TEXT, name);
-
-        /* The icon, and beside it the day's high over its low: two numbers
-         * one under the other need no sign between them, and the columns
-         * cannot run into each other however cold it gets. The pair is as
-         * wide as its longer number, and icon and pair stand under the
-         * day's name as one block. */
-        const int32_t numbers[DAY_NUMBERS] = { forecast.days[day].high, forecast.days[day].low };
-        char lines[DAY_NUMBERS][8];
-        int32_t widths[DAY_NUMBERS];
-        int32_t numbers_width = 0;
-        for (int32_t line = 0; line < DAY_NUMBERS; line++) {
-            app_text_t text;
-            app_text_start(&text, lines[line], sizeof lines[line]);
-            app_text_add_number(&text, shown_degrees(numbers[line]));
-            widths[line] = gfx_text_width(HOST_FONT_TEXT, lines[line], app_text_length(lines[line]));
-            if (widths[line] > numbers_width) {
-                numbers_width = widths[line];
-            }
-        }
-
+        draw_centered(center, DAY_NAME_TOP, HOST_FONT_SMALL, name);
         int32_t icon_size = SMALL_ICON_CELLS * ICON_CELL_PIXELS;
-        int32_t group_left = center - (icon_size + DAY_NUMBERS_GAP + numbers_width) / 2;
-        int32_t numbers_right = group_left + icon_size + DAY_NUMBERS_GAP + numbers_width;
         draw_icon(SMALL_ICONS[condition_of(forecast.days[day].code)->icon], SMALL_ICON_CELLS,
-                  group_left, DAY_ICON_TOP);
-        for (int32_t line = 0; line < DAY_NUMBERS; line++) {
-            gfx_text(numbers_right - widths[line], DAY_HIGH_TOP + line * DAY_NUMBERS_LINE,
-                     HOST_FONT_TEXT, lines[line], app_text_length(lines[line]));
-        }
+                  center - icon_size / 2, DAY_ICON_TOP);
+
+        /* "high / low", the slash closer to its numbers than a space would
+         * put it: three such ranges of a cold week have to stay apart. */
+        char high[8];
+        char low[8];
+        app_text_t text;
+        app_text_start(&text, high, sizeof high);
+        app_text_add_number(&text, shown_degrees(forecast.days[day].high));
+        app_text_start(&text, low, sizeof low);
+        app_text_add_number(&text, shown_degrees(forecast.days[day].low));
+        int32_t high_width = gfx_text_width(HOST_FONT_TEXT, high, app_text_length(high));
+        int32_t slash_width = gfx_text_width(HOST_FONT_TEXT, "/", 1);
+        int32_t low_width = gfx_text_width(HOST_FONT_TEXT, low, app_text_length(low));
+        int32_t left = center - (high_width + slash_width + low_width + 2 * DAY_SLASH_GAP) / 2;
+        draw_text(left, DAY_RANGE_TOP, HOST_FONT_TEXT, high);
+        left += high_width + DAY_SLASH_GAP;
+        draw_text(left, DAY_RANGE_TOP, HOST_FONT_TEXT, "/");
+        draw_text(left + slash_width + DAY_SLASH_GAP, DAY_RANGE_TOP, HOST_FONT_TEXT, low);
     }
 }
 
