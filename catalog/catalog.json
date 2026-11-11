@@ -138,13 +138,13 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 11661,
-          "sha256": "e9beca3f943b317117627982eb73cf878854ef3c3ae3e834bcc871d35fce7290"
+          "size": 11440,
+          "sha256": "02a6242eaf455a2e3b4c0cec233d8820de9e310f8fc1ec70d4fc0ecaf5ab2763"
         },
         {
           "name": "manifest.json",
-          "size": 1693,
-          "sha256": "216e91c4828a3f6515892db3a10b793ba375b13f7d901325f187d97ef7c7379d"
+          "size": 1632,
+          "sha256": "35e71d11567d1630aa1b39854e3b0e3deb41f6066ee698cee67a2b480d805349"
         }
       ],
       "icon": [

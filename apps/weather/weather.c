@@ -28,8 +28,7 @@ enum {
     VALUE_DAY_CODE,                             /* three of each from here on */
     VALUE_DAY_HIGH = VALUE_DAY_CODE + 3,
     VALUE_DAY_LOW = VALUE_DAY_HIGH + 3,
-    VALUE_FEELS_LIKE = VALUE_DAY_LOW + 3,
-    VALUE_RAIN_CHANCE,
+    VALUE_RAIN_CHANCE = VALUE_DAY_LOW + 3,
 };
 
 #define WEATHER_POLL  0
@@ -39,13 +38,12 @@ enum {
 
 /* What was learned last, as it lies in the store. */
 #define FORECAST_KEY     "forecast"
-#define FORECAST_VERSION 2
+#define FORECAST_VERSION 3
 typedef struct {
     int32_t version;
     int32_t temperature; /* whole degrees */
     int32_t code;        /* WMO weather code */
     int32_t wind;        /* km/h */
-    int32_t feels_like;  /* whole degrees */
     int32_t rain_chance; /* of today, percent */
     struct {
         int32_t code, high, low;
@@ -157,7 +155,6 @@ void app_on_values(int32_t request, int32_t http_status)
                     app_value_number(VALUE_TEMPERATURE, 0, &fresh.temperature) &&
                     app_value_number(VALUE_CODE, 0, &fresh.code) &&
                     app_value_number(VALUE_WIND, 0, &fresh.wind) &&
-                    app_value_number(VALUE_FEELS_LIKE, 0, &fresh.feels_like) &&
                     app_value_number(VALUE_RAIN_CHANCE, 0, &fresh.rain_chance);
     for (int32_t day = 0; day < DAYS && is_whole; day++) {
         is_whole = app_value_number(VALUE_DAY_CODE + day, 0, &fresh.days[day].code) &&
@@ -203,13 +200,10 @@ void app_on_button(int32_t event)
 #define DEGREE_SIZE       14 /* the degree sign is a small square with a hole */
 #define DEGREE_STROKE     4
 #define DEGREE_GAP        6
-#define SMALL_DEGREE_SIZE 8
-#define SMALL_DEGREE_STROKE 2
-#define SMALL_DEGREE_GAP  3
-/* The details: three lines, their pictures in one column and the values
+/* The details: two lines in the middle of the large icon's height, their pictures in one column and the values
  * starting at one edge beside it. A unit is in the small font. */
-#define DETAIL_TOP        14
-#define DETAIL_LINE       32
+#define DETAIL_TOP        30
+#define DETAIL_LINE       36
 #define DETAIL_LEFT       292
 #define DETAIL_ICON_GAP   10
 #define DETAIL_UNIT_GAP   5
@@ -263,10 +257,9 @@ static void draw_degree(int32_t left, int32_t top, int32_t size, int32_t stroke)
     gfx_color(HOST_INK);
 }
 
-/* One line of the details: a picture, the value, and after a temperature
- * a degree sign; a unit that is a word is in the small font. */
-static void draw_detail(int32_t line, detail_t detail, const char *value, bool is_degrees,
-                        const char *unit)
+/* One line of the details: a picture, the value, and a unit that is a word
+ * in the small font. */
+static void draw_detail(int32_t line, detail_t detail, const char *value, const char *unit)
 {
     int32_t top = DETAIL_TOP + line * DETAIL_LINE;
     int32_t baseline = top + gfx_font_ascent(HOST_FONT_TEXT);
@@ -276,13 +269,8 @@ static void draw_detail(int32_t line, detail_t detail, const char *value, bool i
 
     int32_t value_left = DETAIL_LEFT + icon_size + DETAIL_ICON_GAP;
     int32_t value_right = value_left + draw_text(value_left, top, HOST_FONT_TEXT, value);
-    if (is_degrees) {
-        draw_degree(value_right + SMALL_DEGREE_GAP, baseline - gfx_font_cap_height(HOST_FONT_TEXT),
-                    SMALL_DEGREE_SIZE, SMALL_DEGREE_STROKE);
-    } else {
-        draw_text(value_right + DETAIL_UNIT_GAP, baseline - gfx_font_ascent(HOST_FONT_SMALL),
-                  HOST_FONT_SMALL, unit);
-    }
+    draw_text(value_right + DETAIL_UNIT_GAP, baseline - gfx_font_ascent(HOST_FONT_SMALL),
+              HOST_FONT_SMALL, unit);
 }
 
 static void draw_now(void)
@@ -304,18 +292,15 @@ static void draw_now(void)
     int32_t digits_width =
         draw_text(NOW_TEXT_LEFT, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
     draw_degree(NOW_TEXT_LEFT + digits_width + DEGREE_GAP, cap_top, DEGREE_SIZE, DEGREE_STROKE);
-    app_text_start(&text, buffer, sizeof buffer);
-    app_text_add_number(&text, shown_degrees(forecast.feels_like));
-    draw_detail(0, DETAIL_FEELS_LIKE, buffer, true, "");
 
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, forecast.rain_chance);
     app_text_add(&text, "%");
-    draw_detail(1, DETAIL_RAIN, buffer, false, "");
+    draw_detail(0, DETAIL_RAIN, buffer, "");
 
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, shown_speed(forecast.wind));
-    draw_detail(2, DETAIL_WIND, buffer, false, shows_fahrenheit() ? "mph" : "km/h");
+    draw_detail(1, DETAIL_WIND, buffer, shows_fahrenheit() ? "mph" : "km/h");
 }
 
 static void draw_days(void)
