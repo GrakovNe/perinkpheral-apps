@@ -10,6 +10,7 @@ holds five applications at a time; this is where the rest of them wait.
 | `weather` | now and three days, from Open-Meteo: no key, no account |
 | `timer` | a countdown that ends wherever you have gone, and takes the screen back |
 | `badapple` | a 1-bit video: a test of the panel and of the interpreter |
+| `hello` | the SDK sample, from the perinkpheral repository |
 
 ## Installing
 

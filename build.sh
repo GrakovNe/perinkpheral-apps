@@ -11,4 +11,6 @@ if [ ! -f "$sdk/tools/catalog/mkcatalog.py" ]; then
     echo "no perinkpheral checkout at $sdk: set PERINKPHERAL to where it is" >&2
     exit 1
 fi
-exec python3 "$sdk/tools/catalog/mkcatalog.py" "$here/apps" --out "$here/catalog"
+# The SDK's sample goes into the catalog too: a device carries it from the
+# start, and one that removed it has to be able to get it back.
+exec python3 "$sdk/tools/catalog/mkcatalog.py" "$here/apps" "$sdk/sdk/apps" --out "$here/catalog"
