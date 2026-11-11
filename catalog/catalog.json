@@ -1,0 +1,82 @@
+{
+  "catalog": 1,
+  "apps": [
+    {
+      "name": "badapple",
+      "title": "Bad Apple",
+      "version": "0.1.0",
+      "abi": 1,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 3179,
+          "sha256": "861300b5daf9f13c804cc709ef0660e06b3d28fd7256105eb05939cffb3e7bd9"
+        },
+        {
+          "name": "frames.bin",
+          "size": 78692,
+          "sha256": "c18ef23b1a3780f67ad4ddc2893265a3e1aa3059ae623b3526b2ff3602761a04"
+        },
+        {
+          "name": "manifest.json",
+          "size": 105,
+          "sha256": "f93e44e41a1290be20bc5bf242bcb69264eaffbffd0e8578f286f9a56a9a2a37"
+        }
+      ]
+    },
+    {
+      "name": "clock",
+      "title": "Clock",
+      "version": "0.1.0",
+      "abi": 1,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 1734,
+          "sha256": "d666b240af3ccb0575bbd4586e1547f5586e36ed046e21b24d107480f32f7abb"
+        },
+        {
+          "name": "manifest.json",
+          "size": 98,
+          "sha256": "0d43faff695168c2d7b4cb8ccc88b8bb7eb2fc23aec43aa371b63581f3f92426"
+        }
+      ]
+    },
+    {
+      "name": "timer",
+      "title": "Timer",
+      "version": "0.1.0",
+      "abi": 1,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 2272,
+          "sha256": "e96b80f1dafa691ddcd7d48c9c76c60ff87708f58fa20fd09533c0d1fe1c3bb5"
+        },
+        {
+          "name": "manifest.json",
+          "size": 76,
+          "sha256": "3b2ff9ef089c4d01cc46aced79cc95c2be8a9cb73618462e0f10636332afe82c"
+        }
+      ]
+    },
+    {
+      "name": "weather",
+      "title": "Weather",
+      "version": "0.1.0",
+      "abi": 1,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 4113,
+          "sha256": "2332ecaeea272e5145a2c2725c2a287d206589f73665acaea3a01b9e3ff9aeb8"
+        },
+        {
+          "name": "manifest.json",
+          "size": 1132,
+          "sha256": "8d7c958f732da066e40d588d593f3bd43fcad28c11fa122587a10243682e80f8"
+        }
+      ]
+    }
+  ]
+}
