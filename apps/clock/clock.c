@@ -74,6 +74,16 @@ void app_on_timer(int32_t id)
     wake_for_the_next_picture();
 }
 
+/* The clock or the time zone was set to another: what is on the screen is
+ * the wrong time. Asked for in the manifest; off the screen there is
+ * nothing to do about it. */
+void app_on_intent(int32_t intent)
+{
+    if (intent == HOST_INTENT_TIME_CHANGED) {
+        request_redraw(HOST_REDRAW_SOON);
+    }
+}
+
 void app_on_draw(void)
 {
     char time_line[8], weekday_line[24], date_line[24];
