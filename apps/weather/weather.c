@@ -200,12 +200,12 @@ void app_on_button(int32_t event)
 #define DEGREE_GAP        6
 #define WORDS_TOP         72
 #define WIND_TOP          98
-/* The rule stands as far under the line above it as the header's rule
- * stands under the header's text. */
-#define RULE_UNDER_TEXT   8
-#define DAY_NAME_TOP      138
-#define DAY_ICON_TOP      166
-#define DAY_RANGE_TOP     216
+/* The rule stands as far under the text above it as that text's block
+ * stands under the header's rule: the same margin on both sides. */
+#define RULE_UNDER_TEXT   MARGIN
+#define DAY_NAME_TOP      144
+#define DAY_ICON_TOP      172
+#define DAY_RANGE_TOP     222
 #define LINE_HEIGHT       30
 
 static void draw_icon(const char *const *rows, int32_t cells, int32_t left, int32_t top)
