@@ -44,4 +44,5 @@ Text is ASCII; `°` is drawn. The whole of it is at most 1000 bytes.
 
 Settings of the application, on the device's page: the server's address,
 a long-lived access token (Home Assistant, your profile, Security), the
-sensor's name and how often to refresh. OK on the device refreshes now.
+sensor's name and how often to refresh. Opening the application or OK on
+the device refreshes now.

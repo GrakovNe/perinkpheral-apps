@@ -90,8 +90,12 @@ static int32_t refresh_seconds(void)
 
 /* One request: "render this attribute of that sensor". The server and the
  * token are the host's to put in - the application never sees the token. */
+/* One request is enough for an instance that has just asked. */
+static bool has_asked;
+
 static void ask(void)
 {
+    has_asked = true;
     static const char URL[] = "{{server}}/api/template";
     static const char HEADERS[] = "Authorization: Bearer {{token}}\nContent-Type: application/json";
     char entity[64];
@@ -179,6 +183,15 @@ void app_on_intent(int32_t intent)
 {
     if (intent == HOST_INTENT_STARTED) {
         keep_fresh(); /* a restart forgot the alarm */
+    }
+}
+
+/* Opened, it shows what is true now and not what was true at the last
+ * alarm. */
+void app_on_focus(void)
+{
+    if (!has_asked) {
+        ask();
     }
 }
 
