@@ -245,10 +245,14 @@ void app_on_button(int32_t event)
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
-/* The largest of the fonts the time fits in, whichever typeface is chosen. */
+/* The largest of the fonts the time fits in, whichever typeface is chosen -
+ * with its digits in columns, so that a second turning does not move the
+ * others. */
 static int32_t font_for(const char *line, int32_t length)
 {
-    static const int32_t LARGEST_FIRST[] = { HOST_FONT_HUGE, HOST_FONT_DISPLAY, HOST_FONT_LARGE };
+    static const int32_t LARGEST_FIRST[] = { HOST_FONT_HUGE | HOST_FONT_TABULAR,
+                                             HOST_FONT_DISPLAY | HOST_FONT_TABULAR,
+                                             HOST_FONT_LARGE | HOST_FONT_TABULAR };
     int32_t room = gfx_width() - 2 * HOST_UI_MARGIN;
     for (int32_t i = 0; i < 2; i++) {
         if (gfx_text_width(LARGEST_FIRST[i], line, length) <= room) {

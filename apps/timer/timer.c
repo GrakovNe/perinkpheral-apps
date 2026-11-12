@@ -226,7 +226,7 @@ void app_on_draw(void)
     }
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, is_running ? minutes_left() : state.minutes);
-    draw_centered(NUMBER_TOP, HOST_FONT_HUGE, buffer);
+    draw_centered(NUMBER_TOP, HOST_FONT_HUGE | HOST_FONT_TABULAR, buffer);
     if (!state.is_up) {
         draw_centered(WORDS_TOP, HOST_FONT_MEDIUM, is_running ? "min left" : "min");
     }

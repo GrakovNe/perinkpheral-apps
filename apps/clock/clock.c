@@ -18,7 +18,8 @@
 #define DAYS_PER_WEEK      7
 #define RETRY_MS           5000 /* how soon to look again while the time is unknown */
 
-#define TIME_FONT HOST_FONT_HUGE
+/* Its digits in columns: a minute turning does not move the hours. */
+#define TIME_FONT (HOST_FONT_HUGE | HOST_FONT_TABULAR)
 #define DATE_FONT HOST_FONT_MEDIUM
 /* Where the tops of the digits are, the room between the digits and the
  * date, and between the two lines of the date. */
