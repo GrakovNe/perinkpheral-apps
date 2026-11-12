@@ -1,0 +1,226 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2026 GrakovNe
+ *
+ * Every part of the host's look an application may ask for, each on a
+ * page of its own: what a developer copies from. The pages are a list;
+ * OK opens one, BACK returns.
+ */
+#include <stdbool.h>
+#include <stddef.h>
+
+#include "app_text.h"
+#include "app_ui.h"
+#include "host_api.h"
+
+#define COUNT_OF(array) ((int32_t)(sizeof(array) / sizeof(array)[0]))
+#define REDRAW          HOST_REDRAW_NO_BLINK
+
+typedef enum {
+    PAGE_PRIMITIVES,
+    PAGE_LIST,
+    PAGE_OPTIONS,
+    PAGE_DETAILS,
+    PAGE_PICKER,
+    PAGE_DATE,
+    PAGE_TIME,
+    PAGE_MESSAGE,
+    PAGE_QUESTION,
+    PAGE_WORKING,
+    PAGE_COUNT,
+    PAGE_CONTENTS = PAGE_COUNT, /* the list of the pages above */
+} page_t;
+
+static const char *const PAGE_NAMES[PAGE_COUNT] = {
+    "Text and parts", "List", "Options", "Details", "Picker",
+    "Date and time",  "Time", "Message", "Question", "Working",
+};
+
+static page_t     page = PAGE_CONTENTS;
+static app_list_t contents = { .count = PAGE_COUNT };
+
+static const char *const UNITS[] = { "Celsius", "Fahrenheit", "Kelvin" };
+static app_list_t        units = { .count = COUNT_OF(UNITS) };
+static int32_t           unit_set;
+
+static const char *const PACES[] = { "1 min", "5 min", "10 min", "15 min", "30 min", "1 h" };
+static app_picker_t      pace = { .count = COUNT_OF(PACES), .chosen = 3 };
+
+static app_list_t settings = { .count = 3 };
+static app_date_t when;
+static int32_t    bar_value = 3;
+
+static int32_t length_of(const char *text)
+{
+    return app_text_length(text);
+}
+
+static void open(page_t next)
+{
+    page = next;
+    if (page == PAGE_DATE) {
+        app_date_start(&when, HOST_DATE_HAS_TIME | HOST_DATE_HAS_DATE, 2026, 2099);
+    } else if (page == PAGE_TIME) {
+        app_date_start(&when, HOST_DATE_HAS_TIME, 2026, 2099);
+    } else if (page == PAGE_OPTIONS) {
+        units.selected = unit_set;
+    }
+    request_redraw(REDRAW);
+}
+
+/* What one of the library's screens said about a press. */
+static void follow(app_ui_result_t result)
+{
+    if (result == APP_UI_CHANGED) {
+        request_redraw(REDRAW);
+    } else if (result == APP_UI_DONE || result == APP_UI_CANCELLED) {
+        open(PAGE_CONTENTS);
+    }
+}
+
+void app_on_button(int32_t event)
+{
+    switch (page) {
+    case PAGE_CONTENTS: {
+        app_ui_result_t result = app_list_button(&contents, event);
+        if (result == APP_UI_DONE) {
+            open((page_t)contents.selected);
+        } else if (result == APP_UI_CANCELLED) {
+            request_exit();
+        } else if (result == APP_UI_CHANGED) {
+            request_redraw(REDRAW);
+        }
+        break;
+    }
+    case PAGE_LIST:
+        follow(app_list_button(&settings, event));
+        break;
+    case PAGE_OPTIONS: {
+        app_ui_result_t result = app_list_button(&units, event);
+        if (result == APP_UI_DONE) {
+            unit_set = units.selected; /* OK sets the one under the bar */
+            result = APP_UI_CHANGED;
+        }
+        follow(result);
+        break;
+    }
+    case PAGE_PICKER:
+        follow(app_picker_button(&pace, event));
+        break;
+    case PAGE_DATE:
+    case PAGE_TIME:
+        follow(app_date_button(&when, event));
+        break;
+    case PAGE_PRIMITIVES:
+        if (event == BTN_UP_PRESSED && bar_value < 10) {
+            bar_value++;
+            request_redraw(REDRAW);
+        } else if (event == BTN_DOWN_PRESSED && bar_value > 0) {
+            bar_value--;
+            request_redraw(REDRAW);
+        } else if (event == BTN_BACK_PRESSED || event == BTN_OK_PRESSED) {
+            open(PAGE_CONTENTS);
+        }
+        break;
+    default:
+        if (event == BTN_BACK_PRESSED || event == BTN_OK_PRESSED) {
+            open(PAGE_CONTENTS);
+        }
+        break;
+    }
+}
+
+static void draw_rows(const app_list_t *list, const char *const *labels, const char *const *values,
+                      int32_t checked)
+{
+    int32_t first = ui_list_first(list->count, list->selected);
+    for (int32_t i = first; i < first + ui_list_visible() && i < list->count; i++) {
+        const char *value = values != NULL ? values[i] : "";
+        ui_list_row(list->count, list->selected, i, labels[i], length_of(labels[i]), value,
+                    length_of(value), i == checked ? HOST_ICON_CHECK : HOST_ICON_NONE);
+    }
+}
+
+static void draw_primitives(void)
+{
+    static const char TEXT[] = "Text, as it is read";
+    static const char CAPTION[] = "UP AND DOWN MOVE THE BAR";
+    int32_t top = ui_title("Title", 5);
+    ui_text(16, top, HOST_UI_TEXT, TEXT, sizeof TEXT - 1, 0);
+    ui_text(16, top + 30, HOST_UI_CAPTION, CAPTION, sizeof CAPTION - 1, 0);
+    int32_t row = top + 54;
+    ui_icon(16, row + 22, HOST_ICON_BELL, HOST_UI_ICON_SMALL);
+    ui_icon(52, row, HOST_ICON_BELL, HOST_UI_ICON_MEDIUM);
+    char number[8];
+    app_text_t text;
+    app_text_start(&text, number, sizeof number);
+    app_text_add_number(&text, bar_value);
+    ui_text(120, row - 12, HOST_UI_VALUE, number, length_of(number), 0);
+    ui_button(262, row + 14, "UP", 2, "More", 4, false);
+    ui_bar(16, row + 58, gfx_width() - 32, bar_value, 10);
+    ui_actions("", 0, "Close", 5);
+}
+
+static void copy(char *to, int32_t size, const char *from)
+{
+    app_text_t text;
+    app_text_start(&text, to, size);
+    app_text_add(&text, from);
+}
+
+void app_on_draw(void)
+{
+    static const char *const SETTING_LABELS[] = { "Units", "Refresh", "Show the city" };
+    static const char *const SETTING_VALUES[] = { "Celsius", "15 min", "On" };
+    static const char *const FACT_LABELS[] = { "Network", "Address", "Firmware" };
+    static const char *const FACT_VALUES[] = { "Home", "192.168.1.70", "0.1.0" };
+    static const app_list_t  facts = { .count = 3, .selected = -1 };
+    host_notice_t notice = { .icon = HOST_ICON_NONE };
+
+    switch (page) {
+    case PAGE_CONTENTS:
+        draw_rows(&contents, PAGE_NAMES, NULL, -1);
+        break;
+    case PAGE_PRIMITIVES:
+        draw_primitives();
+        break;
+    case PAGE_LIST:
+        draw_rows(&settings, SETTING_LABELS, SETTING_VALUES, -1);
+        break;
+    case PAGE_OPTIONS:
+        draw_rows(&units, UNITS, NULL, unit_set);
+        break;
+    case PAGE_DETAILS:
+        draw_rows(&facts, FACT_LABELS, FACT_VALUES, -1);
+        break;
+    case PAGE_PICKER:
+        app_picker_draw(&pace, PACES);
+        break;
+    case PAGE_DATE:
+    case PAGE_TIME:
+        app_date_draw(&when);
+        break;
+    case PAGE_MESSAGE:
+        copy(notice.first, sizeof notice.first, "Not set up");
+        copy(notice.detail, sizeof notice.detail, "Open the page");
+        notice.icon = HOST_ICON_GEAR;
+        ui_notice(&notice);
+        break;
+    case PAGE_QUESTION:
+        copy(notice.first, sizeof notice.first, "Remove");
+        copy(notice.second, sizeof notice.second, "everything?");
+        copy(notice.ok, sizeof notice.ok, "Remove");
+        copy(notice.back, sizeof notice.back, "Cancel");
+        notice.icon = HOST_ICON_TRASH;
+        ui_notice(&notice);
+        break;
+    case PAGE_WORKING:
+        copy(notice.first, sizeof notice.first, "Loading");
+        copy(notice.second, sizeof notice.second, "in progress");
+        notice.is_working = 1;
+        ui_notice(&notice);
+        break;
+    default:
+        break;
+    }
+}
