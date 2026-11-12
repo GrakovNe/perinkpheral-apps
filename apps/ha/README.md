@@ -35,6 +35,7 @@ failed value leaves the whole screen empty.
 Pictures: the states of a weather entity as they are (`sunny`, `cloudy`,
 `rainy`, `snowy`, `lightning`, `partlycloudy`, `clear-night`, ...), and
 `drop`, `gauge`, `thermometer`, `battery`, `bulb`, `door`, `home`, `moon`,
+`plug`, `bolt`, `chip`, `network`,
 `umbrella`, `wind`, `bell`, `clock`, `check`, `warning`, `info`, `play`.
 
 Text is ASCII; `°` is drawn. The whole of it is at most 1000 bytes.
