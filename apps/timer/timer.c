@@ -89,13 +89,45 @@ void app_on_timer(int32_t id)
     wake_at_the_next_minute();
 }
 
-/* The application has a few alarms; the countdown is this one. */
+/* The application has a few alarms: the countdown's end, and one that
+ * comes every minute to keep the minutes in the header right. */
 #define COUNTDOWN_ALARM 0
+#define MINUTE_ALARM    1
+
+static int32_t minutes_left(void)
+{
+    /* The minute in hand counts: 61 seconds left reads 2, the last second 1. */
+    return (seconds_left() + SECONDS_PER_MINUTE - 1) / SECONDS_PER_MINUTE;
+}
+
+/* While it counts, the header says so wherever the user has gone: the
+ * hourglass and the minutes left. */
+static void show_in_header(void)
+{
+    char line[HOST_STATUS_TEXT_MAX + 1];
+    app_text_t text;
+    app_text_start(&text, line, sizeof line);
+    app_text_add_number(&text, minutes_left());
+    app_text_add(&text, " min");
+    header_status(HOST_ICON_HOURGLASS, line, app_text_length(line));
+}
+
+static void leave_the_header(void)
+{
+    header_status(HOST_ICON_NONE, "", 0);
+    alarm_set(MINUTE_ALARM, 0);
+}
 
 /* Loaded for this one call when the application is not on the screen. */
 void app_on_alarm(int32_t id)
 {
-    (void)id; /* the only one it sets */
+    if (id == MINUTE_ALARM) {
+        if (seconds_left() > 0) {
+            show_in_header();
+        }
+        return;
+    }
+    leave_the_header();
     state.ends_at = 0;
     state.is_up = 1;
     save();
@@ -108,6 +140,8 @@ static void start(void)
     state.ends_at = uptime_seconds() + state.minutes * SECONDS_PER_MINUTE;
     state.is_up = 0;
     alarm_set(COUNTDOWN_ALARM, state.minutes * SECONDS_PER_MINUTE);
+    alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE);
+    show_in_header();
     wake_at_the_next_minute();
 }
 
@@ -116,6 +150,7 @@ static void stop(void)
     state.ends_at = 0;
     state.is_up = 0;
     alarm_set(COUNTDOWN_ALARM, 0);
+    leave_the_header();
     timer_set(MINUTE_TIMER, 0);
 }
 
@@ -190,9 +225,7 @@ void app_on_draw(void)
         gfx_color(HOST_INK);
     }
     app_text_start(&text, buffer, sizeof buffer);
-    /* The minute in hand counts: 61 seconds left reads 2, the last second 1. */
-    app_text_add_number(&text, is_running ? (left + SECONDS_PER_MINUTE - 1) / SECONDS_PER_MINUTE
-                                          : state.minutes);
+    app_text_add_number(&text, is_running ? minutes_left() : state.minutes);
     draw_centered(NUMBER_TOP, HOST_FONT_HUGE, buffer);
     if (!state.is_up) {
         draw_centered(WORDS_TOP, HOST_FONT_MEDIUM, is_running ? "min left" : "min");
