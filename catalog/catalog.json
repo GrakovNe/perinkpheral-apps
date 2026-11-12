@@ -131,6 +131,37 @@
       ]
     },
     {
+      "name": "stopwatch",
+      "title": "Stopwatch",
+      "version": "0.1.0",
+      "abi": 2,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 1990,
+          "sha256": "dae8e77f60cb9aa5410a98df4d2860f9991b4e3e403abf7474a183a1454edcf9"
+        },
+        {
+          "name": "manifest.json",
+          "size": 309,
+          "sha256": "556b55ad64adf44e319f352e75641028b3b07914258f4ccb6e823f9769e4ec1e"
+        }
+      ],
+      "icon": [
+        "....###....",
+        ".....#.....",
+        "...#####...",
+        "..#.....#..",
+        ".#...#...#.",
+        ".#...#...#.",
+        ".#...###.#.",
+        ".#.......#.",
+        ".#.......#.",
+        "..#.....#..",
+        "...#####..."
+      ]
+    },
+    {
       "name": "timer",
       "title": "Timer",
       "version": "0.1.0",
@@ -138,8 +169,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 2132,
-          "sha256": "1a070b7e5e228dcbc789681cc9590e0479efd0de0b34b71e465ca98d00bde308"
+          "size": 2134,
+          "sha256": "cf40e51d8cef4ed9079ad7cc67da0c000602a56ee81d435cdd745ddc5727c98c"
         },
         {
           "name": "manifest.json",

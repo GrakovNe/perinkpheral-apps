@@ -140,7 +140,7 @@ static void start(void)
     state.ends_at = uptime_seconds() + state.minutes * SECONDS_PER_MINUTE;
     state.is_up = 0;
     alarm_set(COUNTDOWN_ALARM, state.minutes * SECONDS_PER_MINUTE);
-    alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE);
+    alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, 0);
     show_in_header();
     wake_at_the_next_minute();
 }
