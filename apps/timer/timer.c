@@ -101,7 +101,7 @@ static int32_t minutes_left(void)
 }
 
 /* While it counts, the header says so wherever the user has gone: the
- * hourglass and the minutes left. */
+ * minutes left and the hourglass, on the right where the date was. */
 static void show_in_header(void)
 {
     char line[HOST_STATUS_TEXT_MAX + 1];
@@ -109,12 +109,12 @@ static void show_in_header(void)
     app_text_start(&text, line, sizeof line);
     app_text_add_number(&text, minutes_left());
     app_text_add(&text, " min");
-    header_status(HOST_ICON_HOURGLASS, line, app_text_length(line));
+    header_status(HOST_HEADER_RIGHT, HOST_ICON_HOURGLASS, line, app_text_length(line));
 }
 
 static void leave_the_header(void)
 {
-    header_status(HOST_ICON_NONE, "", 0);
+    header_status(HOST_HEADER_RIGHT, HOST_ICON_NONE, "", 0);
     alarm_set(MINUTE_ALARM, 0);
 }
 
