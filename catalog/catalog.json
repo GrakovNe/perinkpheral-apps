@@ -9,8 +9,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 3133,
-          "sha256": "7269117735e6d476fa8d0d4ddcb92a72c0eff271497ea0e1bfc39cd316d95869"
+          "size": 2895,
+          "sha256": "e7226726c992ea44613187ff8dc19dd34a6d36161230c2fdcd039e5341159194"
         },
         {
           "name": "frames.bin",
@@ -45,8 +45,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 1772,
-          "sha256": "5319b1c16cb75d990e9e2050571e1e630dc82d164deae46111b09bf2c8ecf75b"
+          "size": 1729,
+          "sha256": "4d2fce8d84a881a5303c8fac17debbcd21c0186625982e7b40d654c1f9145826"
         },
         {
           "name": "manifest.json",
@@ -76,8 +76,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 1088,
-          "sha256": "67a0aed57be468a80c1e0a8f44bd1f5bf1489ebe1920023f7b4c25d223bb97bc"
+          "size": 871,
+          "sha256": "1580ebafe2e83aadc1c00dd7bd1e5b0dc80ec3f074dbedb966a22c6e2d0a71a6"
         },
         {
           "name": "manifest.json",
@@ -107,8 +107,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 2192,
-          "sha256": "ab7451caedaa7317ba9dcb90b2cce5a43538184bf9cf523c8c20b167ed7de3c7"
+          "size": 1704,
+          "sha256": "75bea416d6fca758b51139e0a9957b5ab47a9a8003c4e0d79d72da11673d4214"
         },
         {
           "name": "manifest.json",
@@ -138,8 +138,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 13585,
-          "sha256": "895c6e56e8e83172306e9634f0373d3aa5ce702bf0945914a51331e59258bf9d"
+          "size": 13274,
+          "sha256": "6ad67b842c34434e7b27c8ed0cf351b77840acf13514c8dc233485cb3855e695"
         },
         {
           "name": "manifest.json",
