@@ -8,9 +8,10 @@ holds five applications at a time; this is where the rest of them wait.
 |---|---|
 | `clock` | the time, the day of the week and the date, across the whole screen |
 | `weather` | now and three days, from Open-Meteo: no key, no account |
-| `timer` | a countdown that ends wherever you have gone, and takes the screen back |
+| `timer` | a countdown that ends wherever you have gone, and takes the screen back; the minutes left stay in the header |
 | `badapple` | a 1-bit video: a test of the panel and of the interpreter |
-| `hello` | the SDK sample, from the perinkpheral repository |
+| `stopwatch` | minutes and seconds for the first hour, hours and minutes after; it goes on counting wherever you have gone |
+| `kit` | every part of the host's look an application may ask for, each on a page of its own |
 
 ## Installing
 

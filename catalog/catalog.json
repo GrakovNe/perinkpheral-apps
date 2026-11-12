@@ -69,37 +69,6 @@
       ]
     },
     {
-      "name": "hello",
-      "title": "Hello",
-      "version": "0.1.0",
-      "abi": 2,
-      "files": [
-        {
-          "name": "app.wasm",
-          "size": 846,
-          "sha256": "2215ed3fd869bb13e533c4cae9765a46944f5d4ce789e759a9d22d30bcf85df7"
-        },
-        {
-          "name": "manifest.json",
-          "size": 324,
-          "sha256": "81ad8ecda579e4a09b38de24c42b0374623ae8b771faca1949de152e7e186121"
-        }
-      ],
-      "icon": [
-        "...#####...",
-        "..#.....#..",
-        ".#.......#.",
-        "#..#...#..#",
-        "#..#...#..#",
-        "#.........#",
-        "#.#.....#.#",
-        "#..#####..#",
-        ".#.......#.",
-        "..#.....#..",
-        "...#####..."
-      ]
-    },
-    {
       "name": "kit",
       "title": "UI Kit",
       "version": "0.1.0",
@@ -138,13 +107,13 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 2359,
-          "sha256": "409f72d48a328d56d60a567d1947b1c17479bf005c9845e2333819151981f897"
+          "size": 2527,
+          "sha256": "e03f6bc0e7cbf1ff524b639331c3022199998bcd9fba787e82fae8a72339a7f9"
         },
         {
           "name": "manifest.json",
-          "size": 309,
-          "sha256": "556b55ad64adf44e319f352e75641028b3b07914258f4ccb6e823f9769e4ec1e"
+          "size": 335,
+          "sha256": "54a3c51f611fdc3dc3b4c6c886f263965fb33458ab5ae89d528445db6707b1d5"
         }
       ],
       "icon": [

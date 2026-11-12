@@ -68,6 +68,21 @@ static int64_t run_ms(void)
     return is_same_start ? by_uptime_ms : by_clock_s * MS_PER_SECOND;
 }
 
+/* A run that began before the device knew the time gets its place on the
+ * clock as soon as there is one: from then on a restart does not lose it. */
+static void note_start_on_the_clock(void)
+{
+    int64_t now = time_now();
+    if (!state.is_running || state.started_at != 0 || now == 0) {
+        return;
+    }
+    int64_t by_uptime_ms = time_uptime_ms() - state.started_uptime_ms;
+    if (by_uptime_ms >= 0) {
+        state.started_at = now - by_uptime_ms / MS_PER_SECOND;
+        kv_set(STATE_KEY, sizeof STATE_KEY - 1, &state, sizeof state);
+    }
+}
+
 static int64_t elapsed_ms(void)
 {
     if (!state.is_running) {
@@ -132,14 +147,21 @@ static void wake_at_the_next_turn(void)
     timer_set(TURN_TIMER, (int32_t)(turn_ms - into_turn_ms) + TURN_SLACK_MS);
 }
 
+/* What a running stopwatch keeps going outside itself: its line in the
+ * header, and the alarm that turns it every minute. */
+static void keep_the_header(void)
+{
+    int32_t into_minute_s = elapsed_seconds() % SECONDS_PER_MINUTE;
+    alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, SECONDS_PER_MINUTE - into_minute_s);
+    show_in_header();
+}
+
 static void start(void)
 {
     state.is_running = 1;
     state.started_uptime_ms = time_uptime_ms();
     state.started_at = time_now();
-    int32_t into_minute_s = elapsed_seconds() % SECONDS_PER_MINUTE;
-    alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, SECONDS_PER_MINUTE - into_minute_s);
-    show_in_header();
+    keep_the_header();
     wake_at_the_next_turn();
 }
 
@@ -169,6 +191,16 @@ void app_init(void)
         /* The run began without a clock and the device has restarted: how
          * long it lasted is not to be had. What was counted before it is. */
         state.is_running = 0;
+    }
+    note_start_on_the_clock();
+}
+
+/* The device restarted: the alarm and the header's line went with it, the
+ * run did not. */
+void app_on_intent(int32_t intent)
+{
+    if (intent == HOST_INTENT_STARTED && state.is_running) {
+        keep_the_header();
     }
 }
 
