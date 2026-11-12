@@ -47,6 +47,14 @@ static const char *const PACES[] = { "1 min", "5 min", "10 min", "15 min", "30 m
 static app_picker_t      pace = { .count = COUNT_OF(PACES), .chosen = 3 };
 
 static app_list_t settings = { .count = 3 };
+
+/* Facts nobody chooses from, more of them than fit: UP and DOWN move the
+ * list itself. It stands under a title and over the row of buttons. */
+static const char *const FACT_LABELS[] = { "Network", "Address", "Signal", "Firmware",
+                                           "Slot",    "Memory",  "Uptime" };
+static const char *const FACT_VALUES[] = { "Home",  "192.168.1.70", "-62 dBm", "0.1.0",
+                                           "ota_0", "122 KB",       "3 h 12 min" };
+static app_list_t facts = { .count = COUNT_OF(FACT_LABELS), .selected = -1 };
 static app_date_t when;
 static int32_t    bar_value = 3;
 
@@ -94,6 +102,11 @@ void app_on_button(int32_t event)
     }
     case PAGE_LIST:
         follow(app_list_button(&settings, event));
+        break;
+    case PAGE_DETAILS:
+        if (app_list_button(&facts, event) == APP_UI_CHANGED) {
+            request_redraw(REDRAW);
+        }
         break;
     case PAGE_OPTIONS: {
         app_ui_result_t result = app_list_button(&units, event);
@@ -143,14 +156,14 @@ void app_on_back(void)
     }
 }
 
-static void draw_rows(const app_list_t *list, const char *const *labels, const char *const *values,
+static void draw_rows(app_list_t *list, const char *const *labels, const char *const *values,
                       int32_t checked)
 {
-    int32_t first = ui_list_first(list->count, list->selected);
-    for (int32_t i = first; i < first + ui_list_visible() && i < list->count; i++) {
+    int32_t first = app_list_first(list);
+    for (int32_t i = first; i < first + ui_list_visible(list) && i < list->count; i++) {
         const char *value = values != NULL ? values[i] : "";
-        ui_list_row(list->count, list->selected, i, labels[i], length_of(labels[i]), value,
-                    length_of(value), i == checked ? HOST_ICON_CHECK : HOST_ICON_NONE);
+        ui_list_row(list, i, labels[i], length_of(labels[i]), value, length_of(value),
+                    i == checked ? HOST_ICON_CHECK : HOST_ICON_NONE);
     }
 }
 
@@ -185,9 +198,6 @@ void app_on_draw(void)
 {
     static const char *const SETTING_LABELS[] = { "Units", "Refresh", "Show the city" };
     static const char *const SETTING_VALUES[] = { "Celsius", "15 min", "On" };
-    static const char *const FACT_LABELS[] = { "Network", "Address", "Firmware" };
-    static const char *const FACT_VALUES[] = { "Home", "192.168.1.70", "0.1.0" };
-    static const app_list_t  facts = { .count = 3, .selected = -1 };
     host_notice_t notice = { .icon = HOST_ICON_NONE };
 
     switch (page) {
@@ -204,7 +214,10 @@ void app_on_draw(void)
         draw_rows(&units, UNITS, NULL, unit_set);
         break;
     case PAGE_DETAILS:
+        facts.top = ui_title("Details", 7);
+        facts.height = gfx_height() - facts.top - HOST_UI_ACTIONS_HEIGHT;
         draw_rows(&facts, FACT_LABELS, FACT_VALUES, -1);
+        ui_actions("", 0, "Back", 4);
         break;
     case PAGE_PICKER:
         app_picker_draw(&pace, PACES);
