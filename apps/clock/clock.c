@@ -60,13 +60,6 @@ void app_on_focus(void)
     wake_for_the_next_picture();
 }
 
-void app_on_button(int32_t event)
-{
-    if (event == BTN_BACK_PRESSED) {
-        request_exit();
-    }
-}
-
 void app_on_timer(int32_t id)
 {
     (void)id;

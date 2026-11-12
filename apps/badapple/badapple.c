@@ -195,9 +195,6 @@ void app_on_timer(int32_t id)
 void app_on_button(int32_t event)
 {
     switch (event) {
-    case BTN_BACK_PRESSED:
-        request_exit();
-        break;
     case BTN_OK_PRESSED:
         start_over();
         break;

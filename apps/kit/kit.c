@@ -118,15 +118,28 @@ void app_on_button(int32_t event)
         } else if (event == BTN_DOWN_PRESSED && bar_value > 0) {
             bar_value--;
             request_redraw(REDRAW);
-        } else if (event == BTN_BACK_PRESSED || event == BTN_OK_PRESSED) {
+        } else if (event == BTN_OK_PRESSED) {
             open(PAGE_CONTENTS);
         }
         break;
     default:
-        if (event == BTN_BACK_PRESSED || event == BTN_OK_PRESSED) {
+        if (event == BTN_OK_PRESSED) {
             open(PAGE_CONTENTS);
         }
         break;
+    }
+}
+
+/* It has pages of its own, so BACK is its to answer: a part back on the
+ * date, the contents from any other page, and out from the contents. */
+void app_on_back(void)
+{
+    if (page == PAGE_CONTENTS) {
+        request_exit();
+    } else if (page == PAGE_DATE || page == PAGE_TIME) {
+        follow(app_date_button(&when, BTN_BACK_PRESSED));
+    } else {
+        open(PAGE_CONTENTS);
     }
 }
 

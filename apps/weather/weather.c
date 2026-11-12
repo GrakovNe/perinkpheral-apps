@@ -247,9 +247,6 @@ void app_on_settings(void)
 void app_on_button(int32_t event)
 {
     switch (event) {
-    case BTN_BACK_PRESSED:
-        request_exit();
-        break;
     case BTN_OK_PRESSED:
         poll_now(WEATHER_POLL); /* "refresh": the answer redraws the screen */
         break;

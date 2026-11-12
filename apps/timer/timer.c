@@ -136,9 +136,6 @@ static void change_minutes(int32_t by)
 void app_on_button(int32_t event)
 {
     switch (event) {
-    case BTN_BACK_PRESSED:
-        request_exit();
-        return;
     case BTN_UP_PRESSED:
         change_minutes(1);
         break;
