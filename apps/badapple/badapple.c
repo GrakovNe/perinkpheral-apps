@@ -5,7 +5,7 @@
  * A video on e-paper: not something to watch, a test. It asks the panel
  * for a new picture as often as the host lets it and asks for none of
  * them to become a full refresh, which shows what the panel does under
- * two hundred partial refreshes in a row; and it unpacks every frame
+ * hundreds of partial refreshes in a row; and it unpacks every frame
  * pixel by pixel and draws it as a few hundred rectangles, which shows
  * what the interpreter costs. When the video ends, the numbers are on
  * the screen.
@@ -178,6 +178,13 @@ void app_on_timer(int32_t id)
 {
     (void)id;
     if (!has_video) {
+        return;
+    }
+    int32_t due_frame =
+        (int32_t)((time_uptime_ms() - started_ms) * frames_per_10_s / MS_PER_10_S);
+    if (due_frame >= frame_count) {
+        /* The row is over: the numbers on a panel cleaned of its traces. */
+        request_redraw(HOST_REDRAW_CLEAN);
         return;
     }
     /* Nobody pressed anything, it is wanted now, and it is one of a row. */

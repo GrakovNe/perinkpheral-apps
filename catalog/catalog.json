@@ -9,13 +9,13 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 2895,
-          "sha256": "e7226726c992ea44613187ff8dc19dd34a6d36161230c2fdcd039e5341159194"
+          "size": 2957,
+          "sha256": "b4c2e7a8a8fc88fcd644a72c371933fc61c88713974ca8a01be04212da1d7383"
         },
         {
           "name": "frames.bin",
-          "size": 78692,
-          "sha256": "c18ef23b1a3780f67ad4ddc2893265a3e1aa3059ae623b3526b2ff3602761a04"
+          "size": 117712,
+          "sha256": "e0713e838b04ccfb6b5ee7715a1616a0d925ac83da05681d76e839cb6b35b54f"
         },
         {
           "name": "manifest.json",
