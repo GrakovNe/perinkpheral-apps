@@ -15,13 +15,16 @@ template:
         state: ok
         attributes:
           screen: |
-            hero|{{ state_attr('weather.home','temperature') | round }}°|{{ states('weather.home') }}
+            hero|{{ state_attr('weather.home','temperature') | round(0, default='--') }}°|{{ states('weather.home') }}
             detail|{{ state_attr('weather.home','humidity') }}|%|drop
-            detail|{{ state_attr('weather.home','pressure') | round }}|hPa|gauge
-            column|Room|thermometer|{{ states('sensor.room_temperature') | round(1) }}°
+            detail|{{ state_attr('weather.home','pressure') | round(0, default='--') }}|hPa|gauge
+            column|Room|thermometer|{{ states('sensor.room_temperature') | round(1, default='--') }}°
             column|Fridge|thermometer|{{ states('sensor.fridge_temperature') }}°
             column|CO2|gauge|{{ states('sensor.co2') }}
 ```
+
+A `round` without `default` fails when its entity is unavailable, and one
+failed value leaves the whole screen empty.
 
 | Place | Parts | What it is |
 |---|---|---|
