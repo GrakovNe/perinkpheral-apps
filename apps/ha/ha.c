@@ -330,53 +330,59 @@ static void draw_centered(int32_t center, int32_t top, int32_t font, const char 
 
 /* ---- pictures, by the names a screen may use ---- */
 
-#define NO_PICTURE (-1)
+/* Where a picture is drawn from: each kind is a sheet of its own grid. */
+typedef enum {
+    PICTURE_WEATHER, /* an icon_t: the weather's own, 44 and 22 cells */
+    PICTURE_DETAIL,  /* a detail_t, 11 cells */
+    PICTURE_THING,   /* a thing_t, 11 cells */
+    PICTURE_FINE,    /* a fine_t, 22 cells */
+    PICTURE_HOST,    /* a HOST_ICON_*, 11 cells */
+} picture_kind_t;
 
 typedef struct {
-    const char *name;
-    int32_t     weather; /* an icon_t: the weather's own three sizes */
-    int32_t     detail;  /* a detail_t */
-    int32_t     thing;   /* a thing_t */
-    int32_t     host;    /* a HOST_ICON_* */
+    const char    *name;
+    picture_kind_t kind;
+    int32_t        index;
 } picture_t;
 
 /* The states of a weather entity are names here, so that
  * "{{ states('weather.home') }}" is a picture as it stands. */
 static const picture_t PICTURES[] = {
-    { "sunny", ICON_CLEAR, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "clear-night", NO_PICTURE, NO_PICTURE, THING_MOON, NO_PICTURE },
-    { "partlycloudy", ICON_PARTLY_CLOUDY, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "cloudy", ICON_CLOUDY, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "fog", ICON_CLOUDY, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "windy", ICON_CLOUDY, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "windy-variant", ICON_CLOUDY, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "rainy", ICON_RAIN, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "pouring", ICON_RAIN, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "snowy", ICON_SNOW, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "snowy-rainy", ICON_SNOW, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "hail", ICON_SNOW, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "lightning", ICON_THUNDER, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "lightning-rainy", ICON_THUNDER, NO_PICTURE, NO_PICTURE, NO_PICTURE },
-    { "umbrella", NO_PICTURE, DETAIL_RAIN, NO_PICTURE, NO_PICTURE },
-    { "wind", NO_PICTURE, DETAIL_WIND, NO_PICTURE, NO_PICTURE },
-    { "drop", NO_PICTURE, NO_PICTURE, THING_DROP, NO_PICTURE },
-    { "gauge", NO_PICTURE, NO_PICTURE, THING_GAUGE, NO_PICTURE },
-    { "thermometer", NO_PICTURE, NO_PICTURE, THING_THERMOMETER, NO_PICTURE },
-    { "battery", NO_PICTURE, NO_PICTURE, THING_BATTERY, NO_PICTURE },
-    { "bulb", NO_PICTURE, NO_PICTURE, THING_BULB, NO_PICTURE },
-    { "door", NO_PICTURE, NO_PICTURE, THING_DOOR, NO_PICTURE },
-    { "home", NO_PICTURE, NO_PICTURE, THING_HOME, NO_PICTURE },
-    { "moon", NO_PICTURE, NO_PICTURE, THING_MOON, NO_PICTURE },
-    { "plug", NO_PICTURE, NO_PICTURE, THING_PLUG, NO_PICTURE },
-    { "bolt", NO_PICTURE, NO_PICTURE, THING_BOLT, NO_PICTURE },
-    { "chip", NO_PICTURE, NO_PICTURE, THING_CHIP, NO_PICTURE },
-    { "network", NO_PICTURE, NO_PICTURE, THING_NETWORK, NO_PICTURE },
-    { "bell", NO_PICTURE, NO_PICTURE, NO_PICTURE, HOST_ICON_BELL },
-    { "clock", NO_PICTURE, NO_PICTURE, NO_PICTURE, HOST_ICON_CLOCK },
-    { "check", NO_PICTURE, NO_PICTURE, NO_PICTURE, HOST_ICON_CHECK },
-    { "warning", NO_PICTURE, NO_PICTURE, NO_PICTURE, HOST_ICON_WARNING },
-    { "info", NO_PICTURE, NO_PICTURE, NO_PICTURE, HOST_ICON_INFO },
-    { "play", NO_PICTURE, NO_PICTURE, NO_PICTURE, HOST_ICON_PLAY },
+    { "sunny", PICTURE_WEATHER, ICON_CLEAR },
+    { "partlycloudy", PICTURE_WEATHER, ICON_PARTLY_CLOUDY },
+    { "cloudy", PICTURE_WEATHER, ICON_CLOUDY },
+    { "fog", PICTURE_WEATHER, ICON_CLOUDY },
+    { "windy", PICTURE_WEATHER, ICON_CLOUDY },
+    { "windy-variant", PICTURE_WEATHER, ICON_CLOUDY },
+    { "rainy", PICTURE_WEATHER, ICON_RAIN },
+    { "pouring", PICTURE_WEATHER, ICON_RAIN },
+    { "snowy", PICTURE_WEATHER, ICON_SNOW },
+    { "snowy-rainy", PICTURE_WEATHER, ICON_SNOW },
+    { "hail", PICTURE_WEATHER, ICON_SNOW },
+    { "lightning", PICTURE_WEATHER, ICON_THUNDER },
+    { "lightning-rainy", PICTURE_WEATHER, ICON_THUNDER },
+    { "clear-night", PICTURE_THING, THING_MOON },
+    { "umbrella", PICTURE_DETAIL, DETAIL_RAIN },
+    { "wind", PICTURE_DETAIL, DETAIL_WIND },
+    { "drop", PICTURE_FINE, FINE_DROP },
+    { "co2", PICTURE_FINE, FINE_CO2 },
+    { "bolt", PICTURE_FINE, FINE_BOLT },
+    { "gauge", PICTURE_THING, THING_GAUGE },
+    { "thermometer", PICTURE_THING, THING_THERMOMETER },
+    { "battery", PICTURE_THING, THING_BATTERY },
+    { "bulb", PICTURE_THING, THING_BULB },
+    { "door", PICTURE_THING, THING_DOOR },
+    { "home", PICTURE_THING, THING_HOME },
+    { "moon", PICTURE_THING, THING_MOON },
+    { "plug", PICTURE_THING, THING_PLUG },
+    { "chip", PICTURE_THING, THING_CHIP },
+    { "network", PICTURE_THING, THING_NETWORK },
+    { "bell", PICTURE_HOST, HOST_ICON_BELL },
+    { "clock", PICTURE_HOST, HOST_ICON_CLOCK },
+    { "check", PICTURE_HOST, HOST_ICON_CHECK },
+    { "warning", PICTURE_HOST, HOST_ICON_WARNING },
+    { "info", PICTURE_HOST, HOST_ICON_INFO },
+    { "play", PICTURE_HOST, HOST_ICON_PLAY },
 };
 
 static const picture_t *picture_named(const char *name)
@@ -418,21 +424,32 @@ static void draw_cells(const char *const *rows, int32_t cells, int32_t left, int
 
 static void draw_picture(const picture_t *picture, int32_t left, int32_t top, int32_t side)
 {
-    if (picture->weather != NO_PICTURE) {
+    switch (picture->kind) {
+    case PICTURE_WEATHER:
         if (side == HERO_PICTURE) {
-            draw_cells(LARGE_ICONS[picture->weather], LARGE_ICON_CELLS, left, top,
-                       ICON_CELL_PIXELS);
+            draw_cells(LARGE_ICONS[picture->index], LARGE_ICON_CELLS, left, top, ICON_CELL_PIXELS);
         } else {
-            draw_cells(SMALL_ICONS[picture->weather], SMALL_ICON_CELLS, left, top,
+            draw_cells(SMALL_ICONS[picture->index], SMALL_ICON_CELLS, left, top,
                        side / SMALL_ICON_CELLS);
         }
-    } else if (picture->detail != NO_PICTURE) {
-        draw_cells(DETAIL_ICONS[picture->detail], DETAIL_ICON_CELLS, left, top,
+        break;
+    case PICTURE_DETAIL:
+        draw_cells(DETAIL_ICONS[picture->index], DETAIL_ICON_CELLS, left, top,
                    side / DETAIL_ICON_CELLS);
-    } else if (picture->thing != NO_PICTURE) {
-        draw_cells(THING_ICONS[picture->thing], THING_CELLS, left, top, side / THING_CELLS);
-    } else {
-        gfx_icon(picture->host, left, top, side / HOST_ICON_CELLS);
+        break;
+    case PICTURE_THING:
+        if (picture->index == THING_THERMOMETER && side == HERO_PICTURE) {
+            draw_cells(LARGE_THERMOMETER, LARGE_ICON_CELLS, left, top, ICON_CELL_PIXELS);
+        } else {
+            draw_cells(THING_ICONS[picture->index], THING_CELLS, left, top, side / THING_CELLS);
+        }
+        break;
+    case PICTURE_FINE:
+        draw_cells(FINE_ICONS[picture->index], FINE_CELLS, left, top, side / FINE_CELLS);
+        break;
+    case PICTURE_HOST:
+        gfx_icon(picture->index, left, top, side / HOST_ICON_CELLS);
+        break;
     }
 }
 
