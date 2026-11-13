@@ -40,7 +40,7 @@
     {
       "name": "calendar",
       "title": "Calendar",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "abi": 2,
       "files": [
         {
@@ -50,8 +50,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 492,
-          "sha256": "810b0855c5a5c5c37102f12a0efa3211a2a91b23365bc520a80e7be2ed8e5fe3"
+          "size": 479,
+          "sha256": "e3928a8902d439df47dbad4c145baba573acc579027eca7b0ca9f824eb0fa592"
         },
         {
           "name": "strings.ru",
@@ -61,7 +61,7 @@
         {
           "name": "manifest.json",
           "size": 884,
-          "sha256": "0444b00be19138182b402f16927da47970f667764e983406df1233ddd6ca837d"
+          "sha256": "5ec48211463848fa95b4b3390b7126d02e02a9776469903083fc64393b3addae"
         }
       ],
       "icon": [
@@ -122,7 +122,7 @@
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.3.3",
+      "version": "0.3.4",
       "abi": 2,
       "files": [
         {
@@ -132,8 +132,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 316,
-          "sha256": "0fda8d5b40d4876108537639a9d964345f7f7ff867ed684ba54b169a435bcca4"
+          "size": 308,
+          "sha256": "520feed11e78ead6f91c271b2af003b28b42b532d879d96864767251310d7b19"
         },
         {
           "name": "strings.ru",
@@ -143,7 +143,7 @@
         {
           "name": "manifest.json",
           "size": 739,
-          "sha256": "28bad468bada8bbb4938f6264e7a131f81f8fcc511a5f5ab8e46a75667ece245"
+          "sha256": "a6a95f3704f982a718b68b8a420af8e0a682aa323dcbc254c553a727900f331b"
         }
       ],
       "icon": [
@@ -276,7 +276,7 @@
     {
       "name": "weather",
       "title": "Weather",
-      "version": "0.2.3",
+      "version": "0.2.4",
       "abi": 2,
       "files": [
         {
@@ -286,8 +286,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 435,
-          "sha256": "850c60099ab162711999f389d28dd96c0d8a9051b838c384849a85290a0e2a30"
+          "size": 476,
+          "sha256": "149e30b78b9e5ceb327c5022d4a193aedfdd356ec2cf04619f67dc6166c25dd8"
         },
         {
           "name": "strings.ru",
@@ -297,7 +297,7 @@
         {
           "name": "manifest.json",
           "size": 1893,
-          "sha256": "e3b9226c8fa007aa76ed2e8710be46eb8b5507950affd5200f6fb9238dc126a6"
+          "sha256": "a42b4e93a5ad257046c3532e888eec38807b6f8991c713ebeb56db218058ea93"
         }
       ],
       "icon": [
