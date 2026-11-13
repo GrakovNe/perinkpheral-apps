@@ -27,11 +27,12 @@
 /* What survives being unloaded. `ends_at` is uptime in seconds: the wall
  * clock may not be known, and it may jump when it is set. */
 #define STATE_KEY     "state"
-#define STATE_VERSION 1
+#define STATE_VERSION 2
 typedef struct {
     int32_t version;
     int32_t minutes; /* what the user set */
-    int32_t ends_at; /* 0: not running */
+    int32_t ends_at; /* 0: not running; else in seconds since the device started */
+    uint32_t boot;   /* the run of the device `ends_at` is of */
     int32_t is_up;   /* the alarm came and nobody has answered it yet */
 } timer_state_t;
 
@@ -53,8 +54,7 @@ void app_init(void)
                          sizeof state &&
                      state.version == STATE_VERSION;
     /* A countdown from before a restart is over: uptime began again. */
-    bool is_stale = is_stored && state.ends_at != 0 &&
-                    state.ends_at - uptime_seconds() > state.minutes * SECONDS_PER_MINUTE;
+    bool is_stale = is_stored && state.ends_at != 0 && state.boot != time_boot_id();
     if (!is_stored || is_stale) {
         state = (timer_state_t){ .version = STATE_VERSION, .minutes = MINUTES_DEFAULT };
     }
@@ -138,6 +138,7 @@ void app_on_alarm(int32_t id)
 static void start(void)
 {
     state.ends_at = uptime_seconds() + state.minutes * SECONDS_PER_MINUTE;
+    state.boot = time_boot_id();
     state.is_up = 0;
     alarm_set(COUNTDOWN_ALARM, state.minutes * SECONDS_PER_MINUTE);
     alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, 0);

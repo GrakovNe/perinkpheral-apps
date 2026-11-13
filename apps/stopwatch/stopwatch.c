@@ -26,9 +26,6 @@
 #define TURN_TIMER   0 /* the picture, while the application is on the screen */
 #define MINUTE_ALARM 0 /* the header, wherever the user is */
 
-/* The two clocks tell the same run apart by no more than this when the
- * device has not restarted in between. */
-#define SAME_START_SLACK_S 2
 /* A little past the turn, so that the second has turned when it is drawn. */
 #define TURN_SLACK_MS 20
 
@@ -36,12 +33,13 @@
  * time since the device started, which is exact but begins anew at a
  * restart, and on the clock, which goes on through one. */
 #define STATE_KEY     "state"
-#define STATE_VERSION 2
+#define STATE_VERSION 3
 typedef struct {
     int32_t version;
     int32_t is_running;
     int64_t banked_ms;         /* what the runs before this one added up to */
     int64_t started_uptime_ms; /* of the run in hand */
+    uint32_t boot;             /* the run of the device that moment is of */
     int64_t started_at;        /* the same moment in unix seconds; 0: the clock was not known */
 } stopwatch_t;
 
@@ -56,16 +54,11 @@ static void save(void)
  * any more: it began without a clock, and the device has restarted. */
 static int64_t run_ms(void)
 {
-    int64_t by_uptime_ms = time_uptime_ms() - state.started_uptime_ms;
-    int64_t now = time_now();
-    if (state.started_at == 0 || now == 0) {
-        return by_uptime_ms;
+    if (state.boot == time_boot_id()) {
+        return time_uptime_ms() - state.started_uptime_ms;
     }
-    int64_t by_clock_s = now - state.started_at;
-    int64_t apart_s = by_clock_s - by_uptime_ms / MS_PER_SECOND;
-    bool is_same_start = by_uptime_ms >= 0 && apart_s >= -SAME_START_SLACK_S &&
-                         apart_s <= SAME_START_SLACK_S;
-    return is_same_start ? by_uptime_ms : by_clock_s * MS_PER_SECOND;
+    int64_t now = time_now();
+    return state.started_at != 0 && now != 0 ? (now - state.started_at) * MS_PER_SECOND : -1;
 }
 
 /* A run that began before the device knew the time gets its place on the
@@ -73,7 +66,7 @@ static int64_t run_ms(void)
 static void note_start_on_the_clock(void)
 {
     int64_t now = time_now();
-    if (!state.is_running || state.started_at != 0 || now == 0) {
+    if (!state.is_running || state.started_at != 0 || now == 0 || state.boot != time_boot_id()) {
         return;
     }
     int64_t by_uptime_ms = time_uptime_ms() - state.started_uptime_ms;
@@ -160,6 +153,7 @@ static void start(void)
 {
     state.is_running = 1;
     state.started_uptime_ms = time_uptime_ms();
+    state.boot = time_boot_id();
     state.started_at = time_now();
     keep_the_header();
     wake_at_the_next_turn();
