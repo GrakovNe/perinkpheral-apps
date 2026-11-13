@@ -315,6 +315,8 @@ void app_on_settings(void)
 static int32_t    shown[ICS_EVENTS_MAX];
 static app_list_t list;
 static bool       is_reading_one; /* the page of one event, opened with OK */
+static uint32_t   read_uid;       /* which: the list under it may change */
+static int64_t    read_start;
 
 static int32_t count_the_shown(int64_t now)
 {
@@ -338,7 +340,11 @@ void app_on_button(int32_t event)
     }
     switch (app_list_button(&list, event)) {
     case APP_UI_DONE:
-        is_reading_one = list.count > 0;
+        is_reading_one = list.count > 0 && list.selected < list.count;
+        if (is_reading_one) {
+            read_uid = stored.events[shown[list.selected]].uid;
+            read_start = stored.events[shown[list.selected]].start;
+        }
         request_redraw(HOST_REDRAW_NORMAL);
         break;
     case APP_UI_CHANGED:
@@ -446,8 +452,17 @@ void app_on_draw(void)
         list.selected = count - 1;
     }
     if (is_reading_one) {
-        draw_one(&stored.events[shown[list.selected]]);
-        return;
+        /* The event being read, wherever it is now; one that is over, or
+         * gone from the calendar, gives the screen back to the list. */
+        for (int32_t row = 0; row < count; row++) {
+            const ics_event_t *event = &stored.events[shown[row]];
+            if (event->uid == read_uid && event->start == read_start) {
+                list.selected = row;
+                draw_one(event);
+                return;
+            }
+        }
+        is_reading_one = false;
     }
     int32_t first = app_list_first(&list), visible = ui_list_visible(&list);
     for (int32_t row = first; row < first + visible && row < count; row++) {
