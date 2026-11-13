@@ -40,13 +40,13 @@
     {
       "name": "calendar",
       "title": "Calendar",
-      "version": "0.3.2",
+      "version": "0.4.0",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 12014,
-          "sha256": "58665080b9e885abd9ceee4c1a1ef09c7acb2c4077478ab4fe4bedd3764025a2"
+          "size": 12666,
+          "sha256": "021c183d8a1d19164754c687c9e3655fa5312f0b0dfe472fbaa2e871fc3561fb"
         },
         {
           "name": "manifest.ru",
@@ -55,13 +55,13 @@
         },
         {
           "name": "strings.ru",
-          "size": 169,
-          "sha256": "d52dc0945ca5ea75d44a033f51907f88dafd71c3ff762f90186e6f08fd74df4d"
+          "size": 202,
+          "sha256": "bbc662ecbda231a9e4d9c6a946d4de9817fa7856580c6967d80eb1f1d1d01e8a"
         },
         {
           "name": "manifest.json",
           "size": 884,
-          "sha256": "032dd3667b6952d5870012520dcbc6ff709f2e22bfc9c1dc3d7a90ba6c74a405"
+          "sha256": "0444b00be19138182b402f16927da47970f667764e983406df1233ddd6ca837d"
         }
       ],
       "icon": [

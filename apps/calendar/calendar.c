@@ -311,14 +311,51 @@ void app_on_settings(void)
 
 /* ---- the buttons ---- */
 
-static app_list_t list = { .selected = -1 };
+/* What is over is not shown; the events are in order of their start. */
+static int32_t    shown[ICS_EVENTS_MAX];
+static app_list_t list;
+static bool       is_reading_one; /* the page of one event, opened with OK */
+
+static int32_t count_the_shown(int64_t now)
+{
+    int32_t count = 0;
+    for (int32_t i = 0; i < stored.count; i++) {
+        if (stored.events[i].end > now) {
+            shown[count++] = i;
+        }
+    }
+    return count;
+}
 
 void app_on_button(int32_t event)
 {
-    if (event == BTN_OK_PRESSED) {
+    if (event == BTN_OK_LONG_PRESSED) {
         poll_now(FEED_POLL);
-    } else if (app_list_button(&list, event) == APP_UI_CHANGED) {
+        return;
+    }
+    if (is_reading_one) {
+        return;
+    }
+    switch (app_list_button(&list, event)) {
+    case APP_UI_DONE:
+        is_reading_one = list.count > 0;
+        request_redraw(HOST_REDRAW_NORMAL);
+        break;
+    case APP_UI_CHANGED:
         request_redraw(HOST_REDRAW_NO_BLINK);
+        break;
+    default:
+        break;
+    }
+}
+
+void app_on_back(void)
+{
+    if (is_reading_one) {
+        is_reading_one = false;
+        request_redraw(HOST_REDRAW_NORMAL);
+    } else {
+        request_exit();
     }
 }
 
@@ -364,37 +401,61 @@ static void draw_reason(void)
     ui_notice(&notice);
 }
 
-/* From the row's left edge to its value, and what the scroll bar takes. */
-#define ROW_GAP      16
-#define ROW_BAR_ROOM 12
+#define MOMENT_MAX  47 /* "Завтра 15:04" is two bytes a letter */
+#define TITLE_LINES 4
+
+/* One event, whole: when it is, and its name over as many lines as it takes. */
+static void draw_one(const ics_event_t *event)
+{
+    char       when[2 * MOMENT_MAX + 8], moment[MOMENT_MAX + 1];
+    app_text_t line;
+    int32_t    width = gfx_width() - 2 * HOST_UI_MARGIN;
+
+    moment[time_text(event->start, HOST_TIME_DATE, moment, MOMENT_MAX)] = '\0';
+    int32_t top = ui_title(moment, app_text_length(moment));
+
+    app_text_start(&line, when, sizeof when);
+    if (event->is_all_day) {
+        app_text_add(&line, app_string(STR_ALL_DAY));
+    } else {
+        moment[time_text(event->start, HOST_TIME_CLOCK, moment, MOMENT_MAX)] = '\0';
+        app_text_add(&line, moment);
+        app_text_add(&line, " - ");
+        moment[time_text(event->end, HOST_TIME_CLOCK, moment, MOMENT_MAX)] = '\0';
+        app_text_add(&line, moment);
+    }
+    ui_text(HOST_UI_MARGIN, top, HOST_UI_TITLE, when, app_text_length(when), width);
+    top += ui_text_height(HOST_UI_TITLE) + HOST_UI_MARGIN / 2;
+
+    const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
+    ui_text_lines(HOST_UI_MARGIN, top, HOST_UI_TEXT, name, app_text_length(name), width, TITLE_LINES);
+    ui_actions(NULL, 0, app_string(STR_BACK), app_text_length(app_string(STR_BACK)));
+}
 
 void app_on_draw(void)
 {
     int64_t now = time_now();
-    /* What is over is not shown; the events are in order of their start. */
-    static int32_t shown[ICS_EVENTS_MAX];
-    int32_t        count = 0;
-    for (int32_t i = 0; i < stored.count; i++) {
-        if (stored.events[i].end > now) {
-            shown[count++] = i;
-        }
-    }
+    int32_t count = count_the_shown(now);
     if (count == 0 || now == 0) {
+        is_reading_one = false;
         draw_reason();
         return;
     }
     list.count = count;
+    if (list.selected >= count) {
+        list.selected = count - 1;
+    }
+    if (is_reading_one) {
+        draw_one(&stored.events[shown[list.selected]]);
+        return;
+    }
     int32_t first = app_list_first(&list), visible = ui_list_visible(&list);
     for (int32_t row = first; row < first + visible && row < count; row++) {
         const ics_event_t *event = &stored.events[shown[row]];
-        char when[16], title[ICS_TITLE_MAX + 1];
-        int32_t when_length = say_when(event, now, when, sizeof when);
-        /* The title has what the moment leaves of the row. */
-        int32_t room = gfx_width() - 2 * HOST_UI_MARGIN - ROW_GAP - (count > visible ? ROW_BAR_ROOM : 0) -
-                       gfx_text_width(HOST_FONT_TEXT, when, when_length);
+        char when[MOMENT_MAX + 1];
+        int32_t when_length = say_when(event, now, when, MOMENT_MAX);
+        /* The host's row keeps the moment whole and cuts the name. */
         const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
-        int32_t title_length = gfx_text_fit(HOST_FONT_TEXT, name, app_text_length(name), room, title,
-                                            sizeof title);
-        ui_list_row(&list, row, title, title_length, when, when_length, HOST_ICON_NONE);
+        ui_list_row(&list, row, name, app_text_length(name), when, when_length, HOST_ICON_NONE);
     }
 }

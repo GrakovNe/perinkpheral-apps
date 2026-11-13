@@ -6,6 +6,8 @@
   "not_a_calendar": "Не календарь",
   "check_the_address": "Проверьте адрес",
   "no_time_yet": "Время неизвестно",
+  "all_day": "Весь день",
+  "back": "Назад",
   "manifest": {
     "title": "Календарь",
     "settings": {
