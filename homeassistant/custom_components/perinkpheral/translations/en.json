@@ -1,0 +1,121 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "New screen",
+        "description": "A screen for the perINKpheral display. Its name becomes a sensor: put that sensor's name into HA Companion on the device.",
+        "data": {
+          "name": "Name",
+          "layout": "Layout"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "What the screen shows",
+        "description": "Choose an entity for each place. An empty place is left out. Names are shown in ASCII only.",
+        "data": {
+          "hero_entity": "Main value",
+          "hero_label": "Main value: name",
+          "hero_picture": "Main value: picture",
+          "detail_1_entity": "Detail 1",
+          "detail_1_label": "Detail 1: name",
+          "detail_1_picture": "Detail 1: picture",
+          "detail_2_entity": "Detail 2",
+          "detail_2_label": "Detail 2: name",
+          "detail_2_picture": "Detail 2: picture",
+          "column_1_entity": "Column 1",
+          "column_1_label": "Column 1: name",
+          "column_1_picture": "Column 1: picture",
+          "column_2_entity": "Column 2",
+          "column_2_label": "Column 2: name",
+          "column_2_picture": "Column 2: picture",
+          "column_3_entity": "Column 3",
+          "column_3_label": "Column 3: name",
+          "column_3_picture": "Column 3: picture",
+          "column_4_entity": "Column 4",
+          "column_4_label": "Column 4: name",
+          "column_4_picture": "Column 4: picture",
+          "tile_1_entity": "Tile 1",
+          "tile_1_label": "Tile 1: name",
+          "tile_1_picture": "Tile 1: picture",
+          "tile_2_entity": "Tile 2",
+          "tile_2_label": "Tile 2: name",
+          "tile_2_picture": "Tile 2: picture",
+          "tile_3_entity": "Tile 3",
+          "tile_3_label": "Tile 3: name",
+          "tile_3_picture": "Tile 3: picture",
+          "tile_4_entity": "Tile 4",
+          "tile_4_label": "Tile 4: name",
+          "tile_4_picture": "Tile 4: picture",
+          "value_entity": "Value",
+          "value_label": "Value: name",
+          "value_picture": "Value: picture",
+          "row_1_entity": "Row 1",
+          "row_1_label": "Row 1: name",
+          "row_1_picture": "Row 1: picture",
+          "row_2_entity": "Row 2",
+          "row_2_label": "Row 2: name",
+          "row_2_picture": "Row 2: picture",
+          "row_3_entity": "Row 3",
+          "row_3_label": "Row 3: name",
+          "row_3_picture": "Row 3: picture",
+          "row_4_entity": "Row 4",
+          "row_4_label": "Row 4: name",
+          "row_4_picture": "Row 4: picture",
+          "row_5_entity": "Row 5",
+          "row_5_label": "Row 5: name",
+          "row_5_picture": "Row 5: picture",
+          "row_6_entity": "Row 6",
+          "row_6_label": "Row 6: name",
+          "row_6_picture": "Row 6: picture",
+          "row_7_entity": "Row 7",
+          "row_7_label": "Row 7: name",
+          "row_7_picture": "Row 7: picture",
+          "row_8_entity": "Row 8",
+          "row_8_label": "Row 8: name",
+          "row_8_picture": "Row 8: picture"
+        }
+      }
+    }
+  },
+  "selector": {
+    "layout": {
+      "options": {
+        "hero": "One large value, two details, up to four columns",
+        "tiles": "Up to four tiles",
+        "single": "One value, as large as it goes",
+        "list": "A list of names and values"
+      }
+    },
+    "picture": {
+      "options": {
+        "auto": "Automatic",
+        "none": "None",
+        "thermometer": "Thermometer",
+        "drop": "Drop",
+        "co2": "CO2",
+        "gauge": "Gauge",
+        "plug": "Plug",
+        "bolt": "Bolt",
+        "chip": "Chip",
+        "network": "Network",
+        "battery": "Battery",
+        "bulb": "Bulb",
+        "door": "Door",
+        "home": "Home",
+        "moon": "Moon",
+        "umbrella": "Umbrella",
+        "wind": "Wind",
+        "bell": "Bell",
+        "clock": "Clock",
+        "check": "Check",
+        "warning": "Warning",
+        "info": "Info",
+        "play": "Play"
+      }
+    }
+  }
+}
