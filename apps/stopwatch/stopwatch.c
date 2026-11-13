@@ -17,6 +17,7 @@
 
 #include "app_text.h"
 #include "host_api.h"
+#include "strings.h" /* made of the `strings` folder by tools/mkapp */
 
 #define MS_PER_SECOND      1000
 #define SECONDS_PER_MINUTE 60
@@ -270,11 +271,15 @@ void app_on_draw(void)
 
     bool is_stopped_with_a_time = !state.is_running && state.banked_ms > 0;
     if (is_stopped_with_a_time) {
-        static const char HINT[] = "HOLD OK TO RESET";
+        const char *hint = app_string(STR_HOLD_TO_RESET);
+        int32_t hint_length = app_text_length(hint);
         int32_t hint_top = body - ui_text_height(HOST_UI_CAPTION) - HOST_UI_MARGIN / 2;
-        ui_text((gfx_width() - ui_text_width(HOST_UI_CAPTION, HINT, sizeof HINT - 1)) / 2, hint_top,
-                HOST_UI_CAPTION, HINT, sizeof HINT - 1, 0);
+        ui_text((gfx_width() - ui_text_width(HOST_UI_CAPTION, hint, hint_length)) / 2, hint_top,
+                HOST_UI_CAPTION, hint, hint_length, 0);
     }
-    const char *ok = state.is_running ? "Stop" : is_stopped_with_a_time ? "Continue" : "Start";
-    ui_actions(ok, app_text_length(ok), "Close", 5);
+    const char *ok = app_string(state.is_running           ? STR_STOP
+                                : is_stopped_with_a_time ? STR_CONTINUE_
+                                                         : STR_START);
+    const char *close = app_string(STR_CLOSE);
+    ui_actions(ok, app_text_length(ok), close, app_text_length(close));
 }

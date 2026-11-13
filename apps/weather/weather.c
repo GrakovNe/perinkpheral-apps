@@ -18,6 +18,7 @@
 #include "app_text.h"
 #include "app_values.h"
 #include "host_api.h"
+#include "strings.h" /* made of the `strings` folder by tools/mkapp */
 #include "icons.h"
 
 /* The order of "pick" in the manifest. */
@@ -352,7 +353,7 @@ static void draw_now(void)
     char wind[8];
     app_text_start(&text, wind, sizeof wind);
     app_text_add_number(&text, shown_speed(forecast.wind));
-    const char *wind_unit = shows_fahrenheit() ? "mph" : "km/h";
+    const char *wind_unit = app_string(shows_fahrenheit() ? STR_MILES_PER_HOUR : STR_KM_PER_HOUR);
 
     /* The two lines are one block, as far from the right end of the rule as
      * the large icon is from its left end; the pictures are one column. */
@@ -370,13 +371,23 @@ static void draw_days(void)
     gfx_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     for (int32_t day = 0; day < DAYS; day++) {
         int32_t center = day * column_width + column_width / 2;
-        /* "Sat", from the host's "Sat 14 Nov". */
-        char name[16] = "Today";
-        if (day > 0) {
+        /* "Sat", from the host's "Sat 14 Nov": its first word, in the
+         * device's language. */
+        char name[32];
+        if (day == 0) {
+            app_text_t text;
+            app_text_start(&text, name, sizeof name);
+            app_text_add(&text, app_string(STR_TODAY));
+        } else {
             int32_t length = now != 0 ? time_text(now + (int64_t)day * 86400, HOST_TIME_DATE, name,
                                                   sizeof name - 1)
                                       : 0;
-            name[length > 3 ? 3 : length] = '\0';
+            name[length] = '\0';
+            for (int32_t i = 0; i < length; i++) {
+                if (name[i] == ' ') {
+                    name[i] = '\0';
+                }
+            }
         }
         draw_centered(center, DAY_NAME_TOP, HOST_FONT_SMALL, name);
         int32_t icon_size = SMALL_ICON_CELLS * ICON_CELL_PIXELS;
@@ -413,7 +424,10 @@ void app_on_draw(void)
     /* Why not, as every application says it; an answer that came without
      * a forecast in it is this one's own to name. */
     if (ui_reason(last_status) == 0) {
-        static const host_notice_t NO_DATA = { .first = "No data", .icon = HOST_ICON_WARNING };
-        ui_notice(&NO_DATA);
+        host_notice_t no_data = { .icon = HOST_ICON_WARNING };
+        app_text_t    text;
+        app_text_start(&text, no_data.first, sizeof no_data.first);
+        app_text_add(&text, app_string(STR_NO_DATA));
+        ui_notice(&no_data);
     }
 }

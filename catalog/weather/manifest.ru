@@ -1,0 +1,1 @@
+{"title":"Погода","settings":{"city":{"title":"Город"},"lat":{"title":"Широта"},"lon":{"title":"Долгота"},"units":{"title":"Единицы","options":{"celsius":"Цельсий","fahrenheit":"Фаренгейт"}},"every":{"title":"Обновление","options":{"15 min":"15 мин","30 min":"30 мин","1 hour":"1 час","3 hours":"3 часа"}},"header_city":{"title":"Показывать город"}}}
