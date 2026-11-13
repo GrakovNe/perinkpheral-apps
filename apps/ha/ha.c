@@ -59,6 +59,9 @@ static int32_t coming_status;
 #define HTTP_UNAUTHORIZED 401
 static int32_t last_status;
 
+/* The list layout: the row at its top, moved with UP and DOWN. */
+static int32_t list_first;
+
 static int32_t length_of(const char *text)
 {
     return app_text_length(text);
@@ -210,6 +213,12 @@ void app_on_button(int32_t event)
 {
     if (event == BTN_OK_PRESSED) {
         ask(); /* "refresh" */
+    } else if (event == BTN_UP_PRESSED && list_first > 0) {
+        list_first--;
+        request_redraw(HOST_REDRAW_NO_BLINK);
+    } else if (event == BTN_DOWN_PRESSED) {
+        list_first++; /* held to the list's end when it is drawn */
+        request_redraw(HOST_REDRAW_NO_BLINK);
     }
 }
 
@@ -565,7 +574,182 @@ static void draw_column(int32_t number, int32_t count, const line_t *line)
     draw_centered(center, COLUMN_VALUE_TOP, HOST_FONT_TEXT, line->parts[2]);
 }
 
-static void draw_screen(void)
+/* ---- the other layouts: items in cells, one large, or in a list ----
+ *
+ * "layout|tiles", "layout|single" or "layout|list" as the first line, and
+ * then lines of one shape whatever the layout: "item|name|picture|value".
+ * The description still says what is shown and never where: a layout is
+ * chosen whole, and the items fall into its places in their order. */
+
+#define ITEMS_MAX 12
+
+typedef struct {
+    char name[24];
+    char value[24];
+    const picture_t *picture;
+} item_t;
+
+static int32_t read_items(item_t items[ITEMS_MAX])
+{
+    line_t  line;
+    int32_t at = 0, count = 0;
+    while (count < ITEMS_MAX && next_line(&at, &line)) {
+        if (is(line.place, "item")) {
+            copy(items[count].name, sizeof items[count].name, line.parts[0]);
+            items[count].picture = picture_named(line.parts[1]);
+            copy(items[count].value, sizeof items[count].value, line.parts[2]);
+            count++;
+        }
+    }
+    return count;
+}
+
+/* Which of the fonts, from the largest, the text fits `width` in; the
+ * last when none does. */
+static int32_t step_that_fits(const int32_t *fonts, int32_t count, const char *text, int32_t width)
+{
+    for (int32_t i = 0; i < count - 1; i++) {
+        if (text_width(fonts[i] | HOST_FONT_TABULAR, text) <= width) {
+            return i;
+        }
+    }
+    return count - 1;
+}
+
+#define CELL_PADDING     12
+#define CELL_PICTURE_GAP 14
+
+/* One item in a cell of any size: its name across the top, and under it
+ * the picture and the value side by side, in the middle of what is left.
+ * A cell that is the whole screen gets everything a size larger. */
+static const int32_t CELL_FONTS[] = { HOST_FONT_HUGE, HOST_FONT_DISPLAY, HOST_FONT_LARGE,
+                                      HOST_FONT_MEDIUM, HOST_FONT_TEXT };
+#define CELL_FONT_COUNT ((int32_t)(sizeof CELL_FONTS / sizeof CELL_FONTS[0]))
+#define CELL_FONT_FIRST_OF_SMALL 2 /* a cell that is not the whole screen begins here */
+
+static bool is_whole_screen(int32_t width, int32_t height)
+{
+    return width >= gfx_width() && height >= gfx_height();
+}
+
+static int32_t cell_picture(const item_t *item, bool is_large)
+{
+    return item->picture == NULL ? 0 : is_large ? HERO_PICTURE : COLUMN_PICTURE;
+}
+
+/* The size of value this item can have in a cell so wide. */
+static int32_t cell_font_step(int32_t width, int32_t height, const item_t *item)
+{
+    bool    is_large = is_whole_screen(width, height);
+    int32_t picture = cell_picture(item, is_large);
+    int32_t room = width - 2 * CELL_PADDING - (picture > 0 ? picture + CELL_PICTURE_GAP : 0);
+    int32_t first = is_large ? 0 : CELL_FONT_FIRST_OF_SMALL;
+    return first + step_that_fits(CELL_FONTS + first, CELL_FONT_COUNT - first, item->value, room);
+}
+
+static void draw_cell(int32_t left, int32_t top, int32_t width, int32_t height, const item_t *item,
+                      int32_t font_step)
+{
+    bool    is_large = is_whole_screen(width, height);
+    int32_t name_font = is_large ? HOST_FONT_TEXT : HOST_FONT_SMALL;
+    int32_t picture = cell_picture(item, is_large);
+    int32_t name_height = item->name[0] != '\0' ? gfx_font_height(name_font) + CELL_PADDING / 2 : 0;
+    int32_t font = CELL_FONTS[font_step] | HOST_FONT_TABULAR;
+
+    draw_centered(left + width / 2, top + CELL_PADDING, name_font, item->name);
+
+    int32_t value_width = text_width(font, item->value);
+    int32_t row_width = value_width + (picture > 0 ? picture + CELL_PICTURE_GAP : 0);
+    int32_t row_left = left + (width - row_width) / 2;
+    int32_t middle = top + CELL_PADDING + name_height + (height - 2 * CELL_PADDING - name_height) / 2;
+    if (picture > 0) {
+        draw_picture(item->picture, row_left, middle - picture / 2, picture);
+        row_left += picture + CELL_PICTURE_GAP;
+    }
+    int32_t cap_height = gfx_font_cap_height(font);
+    draw_text(row_left, middle - cap_height / 2 - (gfx_font_ascent(font) - cap_height), font,
+              item->value);
+}
+
+/* One item is the whole screen, two are halves side by side, three and
+ * four are quarters, with a rule between neighbours. */
+static void draw_cells_of(const item_t *items, int32_t count)
+{
+    int32_t columns = count > 1 ? 2 : 1, rows = count > 2 ? 2 : 1;
+    int32_t width = gfx_width() / columns, height = gfx_height() / rows;
+    int32_t shown = count < columns * rows ? count : columns * rows;
+    /* One size for all of them: the size the longest value can have. */
+    int32_t font_step = 0;
+    for (int32_t i = 0; i < shown; i++) {
+        int32_t step = cell_font_step(width, height, &items[i]);
+        font_step = step > font_step ? step : font_step;
+    }
+    for (int32_t i = 0; i < shown; i++) {
+        draw_cell(i % columns * width, i / columns * height, width, height, &items[i], font_step);
+    }
+    if (columns > 1) {
+        gfx_rect(width, MARGIN, 1, gfx_height() - 2 * MARGIN, HOST_RECT_FILLED);
+    }
+    if (rows > 1) {
+        gfx_rect(MARGIN, height, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
+    }
+}
+
+/* A list: a name at the left edge, its value at the right, as the host's
+ * own lists have them - drawn here because a value may have a degree
+ * sign, which the host's fonts do not. UP and DOWN move it when it is
+ * longer than the screen. */
+#define LIST_ROW_HEIGHT  36
+#define LIST_BAR_WIDTH   4
+#define LIST_BAR_ROOM    12
+
+static int32_t list_rows_shown(void)
+{
+    return gfx_height() / LIST_ROW_HEIGHT;
+}
+
+static void draw_list_of(const item_t *items, int32_t count)
+{
+    int32_t shown = list_rows_shown();
+    if (list_first > count - shown) {
+        list_first = count > shown ? count - shown : 0;
+    }
+    int32_t right = gfx_width() - MARGIN - (count > shown ? LIST_BAR_ROOM : 0);
+    for (int32_t row = 0; row < shown && list_first + row < count; row++) {
+        const item_t *item = &items[list_first + row];
+        int32_t top = MARGIN / 4 + row * LIST_ROW_HEIGHT +
+                      (LIST_ROW_HEIGHT - gfx_font_height(HOST_FONT_TEXT)) / 2;
+        draw_text(MARGIN, top, HOST_FONT_TEXT, item->name);
+        draw_text(right - text_width(HOST_FONT_TEXT, item->value), top, HOST_FONT_TEXT, item->value);
+    }
+    if (count > shown) {
+        /* How much of the list is in sight, and where in it. */
+        int32_t track = gfx_height() - 2 * MARGIN;
+        int32_t bar_left = gfx_width() - MARGIN / 2 - LIST_BAR_WIDTH;
+        gfx_rect(bar_left + LIST_BAR_WIDTH / 2, MARGIN, 1, track, HOST_RECT_FILLED);
+        gfx_rect(bar_left, MARGIN + track * list_first / count, LIST_BAR_WIDTH,
+                 track * shown / count, HOST_RECT_FILLED);
+    }
+}
+
+typedef enum { LAYOUT_HERO, LAYOUT_TILES, LAYOUT_SINGLE, LAYOUT_LIST } layout_t;
+
+static layout_t layout_asked(void)
+{
+    line_t  line;
+    int32_t at = 0;
+    while (next_line(&at, &line)) {
+        if (is(line.place, "layout")) {
+            return is(line.parts[0], "tiles")    ? LAYOUT_TILES
+                   : is(line.parts[0], "single") ? LAYOUT_SINGLE
+                   : is(line.parts[0], "list")   ? LAYOUT_LIST
+                                                 : LAYOUT_HERO;
+        }
+    }
+    return LAYOUT_HERO;
+}
+
+static void draw_hero_layout(void)
 {
     line_t line;
     detail_line_t details[DETAILS_MAX];
@@ -647,7 +831,16 @@ static void draw_reason(void)
 void app_on_draw(void)
 {
     if (screen_length > 0) {
-        draw_screen();
+        static item_t items[ITEMS_MAX]; /* too large for the stack */
+        layout_t      layout = layout_asked();
+        int32_t       count = layout == LAYOUT_HERO ? 0 : read_items(items);
+        if (layout == LAYOUT_HERO) {
+            draw_hero_layout();
+        } else if (layout == LAYOUT_LIST) {
+            draw_list_of(items, count);
+        } else {
+            draw_cells_of(items, layout == LAYOUT_SINGLE && count > 1 ? 1 : count);
+        }
     } else {
         draw_reason();
     }

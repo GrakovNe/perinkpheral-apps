@@ -32,6 +32,28 @@ failed value leaves the whole screen empty.
 | `detail` | value, unit, picture | up to two, beside the hero |
 | `column` | name, picture, value | up to four, in a row under the rule |
 
+## Layouts
+
+The table above is the layout a screen has when it names none. Three more are chosen by a
+first line `layout|<name>`, and then every line is one shape, `item|name|picture|value`,
+the items falling into the layout's places in their order:
+
+| Layout | What it is |
+|---|---|
+| `tiles` | up to four items: one is the whole screen, two are halves, three and four are quarters; one size of value for all |
+| `single` | the first item, as large as it goes |
+| `list` | up to twelve rows, a name and its value; UP and DOWN move a list longer than the screen |
+
+```
+layout|tiles
+item|Living room|thermometer|{{ states('sensor.room_temperature') | round(1, default='--') }}°
+item|CO2|co2|{{ states('sensor.co2') }}
+item|Input|plug|{{ states('sensor.input_voltage') | round(0, default='--') }}V
+item|Network|network|{{ states('sensor.network_speed') | round(1, default='--') }}
+```
+
+A picture may be left empty (`item|Door||Closed`).
+
 Pictures: the states of a weather entity as they are (`sunny`, `cloudy`,
 `rainy`, `snowy`, `lightning`, `partlycloudy`, `clear-night`, ...), and
 `drop`, `co2`, `gauge`, `thermometer`, `battery`, `bulb`, `door`, `home`,
