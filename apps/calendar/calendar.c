@@ -40,7 +40,7 @@
 /* ---- what is kept ---- */
 
 #define EVENTS_FILE    "events"
-#define EVENTS_VERSION 2
+#define EVENTS_VERSION 3
 typedef struct {
     int32_t     version;
     int32_t     count;

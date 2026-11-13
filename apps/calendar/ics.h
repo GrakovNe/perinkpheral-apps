@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define ICS_TITLE_MAX  63
+#define ICS_TITLE_MAX  127
 #define ICS_EVENTS_MAX 24
 
 typedef struct {
