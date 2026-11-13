@@ -261,9 +261,8 @@ void app_on_button(int32_t event)
 /* From the ink of the large icon to the digits. */
 #define NOW_TEXT_GAP      22
 #define HERO_CHARACTERS_MAX 2
-#define DEGREE_SIZE       14 /* the degree sign is a small square with a hole */
-#define DEGREE_STROKE     4
-#define DEGREE_GAP        6
+/* The host draws the sign; the fonts are ASCII and have none. */
+#define DEGREE_SIGN       "\xC2\xB0"
 /* The details: two lines in the middle of the large icon's height, their pictures in one column and the values
  * starting at one edge beside it. A unit is in the small font. */
 #define DETAIL_TOP        30
@@ -332,15 +331,6 @@ static void draw_centered(int32_t center, int32_t top, int32_t font, const char 
     gfx_text(center - gfx_text_width(font, text, length) / 2, top, font, text, length);
 }
 
-/* A degree sign the font does not have - it is ASCII: a square with a hole. */
-static void draw_degree(int32_t left, int32_t top, int32_t size, int32_t stroke)
-{
-    gfx_rect(left, top, size, size, HOST_RECT_FILLED);
-    gfx_color(HOST_PAPER);
-    gfx_rect(left + stroke, top + stroke, size - 2 * stroke, size - 2 * stroke, HOST_RECT_FILLED);
-    gfx_color(HOST_INK);
-}
-
 /* How wide a line of the details is: the picture, the value, and a unit
  * that is a word in the small font. */
 static int32_t detail_width(const char *value, const char *unit)
@@ -391,9 +381,8 @@ static void draw_now(void)
     int32_t cap_height = gfx_font_cap_height(font);
     int32_t cap_top = MARGIN + (LARGE_ICON_CELLS * ICON_CELL_PIXELS - cap_height) / 2;
     int32_t text_left = icon_left + ink_end * ICON_CELL_PIXELS + NOW_TEXT_GAP;
-    int32_t digits_width =
-        draw_text(text_left, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
-    draw_degree(text_left + digits_width + DEGREE_GAP, cap_top, DEGREE_SIZE, DEGREE_STROKE);
+    app_text_add(&text, DEGREE_SIGN);
+    draw_text(text_left, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
 
     char rain[8];
     app_text_start(&text, rain, sizeof rain);

@@ -71,18 +71,18 @@
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 18117,
-          "sha256": "a25c538d242518c167844606edd9993c901b6de26e1ff5cd5b1fcd711164e71f"
+          "size": 17564,
+          "sha256": "a4a3b9bb081c05f48420e6e440d19c9a81958c019f84ae56ff0fd1628aff8d11"
         },
         {
           "name": "manifest.json",
           "size": 739,
-          "sha256": "1c7b0ba66337ff272c30c2ae3ce98a71ec407c879ebb1a7df4fe0d6ffdc72b20"
+          "sha256": "a2be5d511e9f8d4dc1efd87b842a191d9800aa8bf23ec14ad30d2988d20d5eb9"
         }
       ],
       "icon": [
@@ -164,18 +164,18 @@
     {
       "name": "timer",
       "title": "Timer",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2199,
-          "sha256": "d16ded04508a90c5e15cb76ecaa824520d110b48262e81f770f99e6d6c78cb53"
+          "size": 2671,
+          "sha256": "3675cfc36e855364b21fa1283868c535f793c3dff4ce75e9747108556295808a"
         },
         {
           "name": "manifest.json",
           "size": 301,
-          "sha256": "1e2ae467d414e6ba3054da6b6aa93a101085aa26c6d8a8ea18d037abf9f47d41"
+          "sha256": "04d6d3d934e8e08ffc51d792a8659978616790b83a14f5ecae43f3cd9adac967"
         }
       ],
       "icon": [
@@ -195,18 +195,18 @@
     {
       "name": "weather",
       "title": "Weather",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 13237,
-          "sha256": "a06a8597856581c274431e0b376392216e0bafba4d90c1af605739329d446c95"
+          "size": 13170,
+          "sha256": "ee756c9f7ee15afc393594e7d01c838da1c7a2fd505b3f48fdd140e530d8e242"
         },
         {
           "name": "manifest.json",
           "size": 2007,
-          "sha256": "64d8b0836eb88a69b1c624d4df6288842e2bef8d07c763801645f430b5675ce4"
+          "sha256": "baa57a642712804a2ff722b85a2f7ea2ed9fc4541092051e3d4b5a4569b7b837"
         }
       ],
       "icon": [

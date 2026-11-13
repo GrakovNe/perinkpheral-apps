@@ -59,8 +59,8 @@ static int32_t coming_status;
 #define HTTP_UNAUTHORIZED 401
 static int32_t last_status;
 
-/* The list layout: the row at its top, moved with UP and DOWN. */
-static int32_t list_first;
+/* The list layout: the host's list of facts, moved with UP and DOWN. */
+static host_list_t list = { .selected = -1 };
 
 static int32_t length_of(const char *text)
 {
@@ -223,11 +223,11 @@ void app_on_button(int32_t event)
 {
     if (event == BTN_OK_PRESSED) {
         ask(); /* "refresh" */
-    } else if (event == BTN_UP_PRESSED && list_first > 0) {
-        list_first--;
+    } else if (event == BTN_UP_PRESSED && list.first > 0) {
+        list.first--;
         request_redraw(HOST_REDRAW_NO_BLINK);
     } else if (event == BTN_DOWN_PRESSED) {
-        list_first++; /* held to the list's end when it is drawn */
+        list.first++; /* held to the list's end when it is drawn */
         request_redraw(HOST_REDRAW_NO_BLINK);
     }
 }
@@ -282,11 +282,10 @@ static bool is(const char *text, const char *word)
     return *text == *word;
 }
 
-/* ---- text with a degree sign ----
+/* ---- text ----
  *
- * The fonts are ASCII, and a temperature is nothing without its sign: the
- * two bytes of "°" are taken out of the text and a small square with a
- * hole is drawn in their place, as the weather draws it. */
+ * A value may have a degree sign in it, as Home Assistant gives it: the
+ * host draws that one, and everything else beyond ASCII as "?". */
 
 #define DEGREE_FIRST  ((char)0xC2)
 #define DEGREE_SECOND ((char)0xB0)
@@ -301,58 +300,15 @@ static int32_t degree_at(const char *text)
     return -1;
 }
 
-/* The sign for a font: 14 pixels with a stroke of 4 beside the largest
- * digits, and smaller with them. */
-static int32_t degree_size(int32_t font)
-{
-    return gfx_font_cap_height(font) >= 40 ? 14 : gfx_font_cap_height(font) >= 24 ? 10 : 6;
-}
-
-static int32_t degree_stroke(int32_t font)
-{
-    return degree_size(font) >= 14 ? 4 : degree_size(font) >= 10 ? 3 : 2;
-}
-
-static int32_t degree_gap(int32_t font)
-{
-    return degree_size(font) >= 14 ? 6 : 2;
-}
-
 static int32_t text_width(int32_t font, const char *text)
 {
-    int32_t degree = degree_at(text);
-    if (degree < 0) {
-        return gfx_text_width(font, text, app_text_length(text));
-    }
-    const char *after = text + degree + 2;
-    int32_t after_width = gfx_text_width(font, after, app_text_length(after));
-    return gfx_text_width(font, text, degree) + degree_gap(font) + degree_size(font) +
-           (after_width > 0 ? degree_gap(font) + after_width : 0);
+    return gfx_text_width(font, text, app_text_length(text));
 }
 
 /* `top` is the top of the line, as gfx_text takes it. Returns the width. */
 static int32_t draw_text(int32_t left, int32_t top, int32_t font, const char *text)
 {
-    int32_t degree = degree_at(text);
-    if (degree < 0) {
-        return gfx_text(left, top, font, text, app_text_length(text));
-    }
-    int32_t start = left;
-    int32_t size = degree_size(font), stroke = degree_stroke(font);
-    int32_t cap_top = top + gfx_font_ascent(font) - gfx_font_cap_height(font);
-    left += gfx_text(left, top, font, text, degree) + degree_gap(font);
-    gfx_rect(left, cap_top, size, size, HOST_RECT_FILLED);
-    gfx_color(HOST_PAPER);
-    gfx_rect(left + stroke, cap_top + stroke, size - 2 * stroke, size - 2 * stroke,
-             HOST_RECT_FILLED);
-    gfx_color(HOST_INK);
-    left += size;
-    const char *after = text + degree + 2;
-    if (after[0] != '\0') {
-        left += degree_gap(font);
-        left += gfx_text(left, top, font, after, app_text_length(after));
-    }
-    return left - start;
+    return gfx_text(left, top, font, text, app_text_length(text));
 }
 
 static void draw_centered(int32_t center, int32_t top, int32_t font, const char *text)
@@ -705,40 +661,19 @@ static void draw_cells_of(const item_t *items, int32_t count)
     }
 }
 
-/* A list: a name at the left edge, its value at the right, as the host's
- * own lists have them - drawn here because a value may have a degree
- * sign, which the host's fonts do not. UP and DOWN move it when it is
- * longer than the screen. */
-#define LIST_ROW_HEIGHT  36
-#define LIST_BAR_WIDTH   4
-#define LIST_BAR_ROOM    12
-
-static int32_t list_rows_shown(void)
-{
-    return gfx_height() / LIST_ROW_HEIGHT;
-}
-
+/* A list: the host's own, of facts nobody chooses from - a name at the
+ * left edge, its value at the right. UP and DOWN move it when it is longer
+ * than the screen. */
 static void draw_list_of(const item_t *items, int32_t count)
 {
-    int32_t shown = list_rows_shown();
-    if (list_first > count - shown) {
-        list_first = count > shown ? count - shown : 0;
+    list.count = count;
+    int32_t shown = ui_list_visible(&list);
+    if (list.first > count - shown) {
+        list.first = count > shown ? count - shown : 0;
     }
-    int32_t right = gfx_width() - MARGIN - (count > shown ? LIST_BAR_ROOM : 0);
-    for (int32_t row = 0; row < shown && list_first + row < count; row++) {
-        const item_t *item = &items[list_first + row];
-        int32_t top = MARGIN / 4 + row * LIST_ROW_HEIGHT +
-                      (LIST_ROW_HEIGHT - gfx_font_height(HOST_FONT_TEXT)) / 2;
-        draw_text(MARGIN, top, HOST_FONT_TEXT, item->name);
-        draw_text(right - text_width(HOST_FONT_TEXT, item->value), top, HOST_FONT_TEXT, item->value);
-    }
-    if (count > shown) {
-        /* How much of the list is in sight, and where in it. */
-        int32_t track = gfx_height() - 2 * MARGIN;
-        int32_t bar_left = gfx_width() - MARGIN / 2 - LIST_BAR_WIDTH;
-        gfx_rect(bar_left + LIST_BAR_WIDTH / 2, MARGIN, 1, track, HOST_RECT_FILLED);
-        gfx_rect(bar_left, MARGIN + track * list_first / count, LIST_BAR_WIDTH,
-                 track * shown / count, HOST_RECT_FILLED);
+    for (int32_t i = list.first; i < list.first + shown && i < count; i++) {
+        ui_list_row(&list, i, items[i].name, app_text_length(items[i].name), items[i].value,
+                    app_text_length(items[i].value), HOST_ICON_NONE);
     }
 }
 

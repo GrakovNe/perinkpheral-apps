@@ -198,39 +198,68 @@ void app_on_button(int32_t event)
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
-static void draw_centered(int32_t top, int32_t font, const char *text)
+/* ---- the picture: the host's parts ----
+ *
+ * The minutes are the page. Being set, they stand in the frame with the
+ * arrows UP and DOWN have; counting, over a bar of how much has gone; and
+ * when the time is up the host's notice says so. The row of buttons along
+ * the bottom names what OK and BACK do in each. */
+
+#define FRAME_WIDTH   260
+#define FRAME_PADDING 16
+#define CAPTION_GAP   30 /* from the frame, past its arrow, to the caption */
+#define BAR_GAP       12
+
+static void draw_caption(int32_t top, const char *words)
 {
-    int32_t length = app_text_length(text);
-    gfx_text((gfx_width() - gfx_text_width(font, text, length)) / 2, top, font, text, length);
+    int32_t length = app_text_length(words);
+    ui_text((gfx_width() - ui_text_width(HOST_UI_CAPTION, words, length)) / 2, top,
+            HOST_UI_CAPTION, words, length, 0);
 }
 
-#define NUMBER_TOP  30
-#define WORDS_TOP   150
-#define HINT_TOP    216
-#define BAR_INSET   16
-#define BAR_HEIGHT  40
+static void draw_time_is_up(void)
+{
+    static const host_notice_t NOTICE = {
+        .first = "Time", .second = "is up", .ok = "Stop", .back = "Close",
+        .icon = HOST_ICON_BELL,
+    };
+    ui_notice(&NOTICE);
+}
 
 void app_on_draw(void)
 {
-    char buffer[24];
-    app_text_t text;
-    int32_t left = seconds_left();
-    bool is_running = left > 0;
-
     if (state.is_up) {
-        /* White on a black bar: the one thing on this screen that is news. */
-        gfx_rect(BAR_INSET, WORDS_TOP - 6, gfx_width() - 2 * BAR_INSET, BAR_HEIGHT,
-                 HOST_RECT_FILLED);
-        gfx_color(HOST_PAPER);
-        draw_centered(WORDS_TOP, HOST_FONT_TEXT, "Time is up");
-        gfx_color(HOST_INK);
+        draw_time_is_up();
+        return;
     }
-    app_text_start(&text, buffer, sizeof buffer);
+    bool    is_running = seconds_left() > 0;
+    int32_t font = HOST_FONT_HUGE | HOST_FONT_TABULAR;
+    int32_t capitals = gfx_font_cap_height(font);
+    int32_t body = gfx_height() - HOST_UI_ACTIONS_HEIGHT;
+    int32_t frame_height = capitals + 2 * FRAME_PADDING;
+    int32_t frame_left = (gfx_width() - FRAME_WIDTH) / 2;
+    /* The frame and what stands under it are one block in the middle. */
+    int32_t frame_top = (body - frame_height - CAPTION_GAP - ui_text_height(HOST_UI_CAPTION)) / 2 + 6;
+
+    char       number[8];
+    app_text_t text;
+    app_text_start(&text, number, sizeof number);
     app_text_add_number(&text, is_running ? minutes_left() : state.minutes);
-    draw_centered(NUMBER_TOP, HOST_FONT_HUGE | HOST_FONT_TABULAR, buffer);
-    if (!state.is_up) {
-        draw_centered(WORDS_TOP, HOST_FONT_MEDIUM, is_running ? "min left" : "min");
+    int32_t length = app_text_length(number);
+    gfx_text((gfx_width() - gfx_text_width(font, number, length)) / 2,
+             frame_top + FRAME_PADDING - (gfx_font_ascent(font) - capitals), font, number, length);
+
+    int32_t under = frame_top + frame_height;
+    if (is_running) {
+        ui_bar(frame_left, under + BAR_GAP, FRAME_WIDTH, state.minutes - minutes_left(),
+               state.minutes);
+        draw_caption(under + CAPTION_GAP, "MIN LEFT");
+        ui_actions("Stop", 4, "Close", 5);
+    } else {
+        ui_frame(frame_left, frame_top, FRAME_WIDTH, frame_height,
+                 (state.minutes < MINUTES_MAX ? HOST_UI_ARROW_UP : 0) |
+                     (state.minutes > MINUTES_MIN ? HOST_UI_ARROW_DOWN : 0));
+        draw_caption(under + CAPTION_GAP, "MIN");
+        ui_actions("Start", 5, "Close", 5);
     }
-    draw_centered(HINT_TOP, HOST_FONT_TEXT,
-                  is_running || state.is_up ? "OK: stop" : "Up/Down: set   OK: start");
 }
