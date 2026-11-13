@@ -64,7 +64,7 @@ check(render("hero", {
     "detail|34|%|drop",
     "detail|850|ppm|co2",
     "column|Room|thermometer|22.9°",   # 22.85 as a float is a hair above
-    "column|Fridge||--°",
+    "column|Fridge||--",                      # what is not available has no unit either
     "column|Input||228 V",
 ]))
 

@@ -52,9 +52,9 @@ def value_and_unit(state):
 
 def joined(value, unit):
     """A value with its unit in one piece: "22.8°", "34%", "228 V"."""
-    if unit in (DEGREE, "%") or not unit or value == NOTHING:
-        return value + (unit if value != NOTHING or unit == DEGREE else "")
-    return "%s %s" % (value, unit)
+    if value == NOTHING or not unit:
+        return value
+    return value + unit if unit in (DEGREE, "%") else "%s %s" % (value, unit)
 
 
 def picture_of(state, chosen):
