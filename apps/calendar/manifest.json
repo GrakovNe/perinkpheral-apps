@@ -1,0 +1,32 @@
+{
+  "name": "calendar",
+  "version": "0.1.0",
+  "title": "Calendar",
+  "abi": 2,
+  "settings": [
+    { "key": "feed", "type": "link", "title": "Calendar address",
+      "help": "The secret iCal address of the calendar." },
+    { "key": "every", "type": "choice", "title": "Refresh",
+      "options": ["15 min", "30 min", "1 h", "3 h"], "default": "15 min" },
+    { "key": "remind", "type": "choice", "title": "Reminder",
+      "options": ["Off", "At start", "5 min", "10 min", "15 min", "30 min"], "default": "10 min" }
+  ],
+  "polls": [
+    { "url": "{{feed}}", "every": 900 }
+  ],
+  "hosts": ["{{feed}}"],
+  "intents": ["started", "time_changed"],
+  "icon": [
+    "..#.....#..",
+    ".#########.",
+    ".#########.",
+    ".#.......#.",
+    ".#.#.#.#.#.",
+    ".#.......#.",
+    ".#.#.#.#.#.",
+    ".#.......#.",
+    ".#.#.#...#.",
+    ".#.......#.",
+    ".#########."
+  ]
+}
