@@ -1,0 +1,7 @@
+[
+  { "name": "latin", "title": "Latin with marks", "file": "latin.glyphs",
+    "languages": "German, French, Spanish, Italian, Portuguese, Polish, Czech, Turkish, Nordic, Baltic" },
+  { "name": "cyrillic", "title": "Cyrillic", "file": "cyrillic.glyphs",
+    "languages": "Russian, Ukrainian, Belarusian, Serbian, Bulgarian, Kazakh" },
+  { "name": "greek", "title": "Greek", "file": "greek.glyphs", "languages": "Greek" }
+]
