@@ -40,18 +40,23 @@
     {
       "name": "calendar",
       "title": "Calendar",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 11687,
-          "sha256": "45a8a885a91b34623d026959033f4daa7460c5efa91c45fb460b6b0135404002"
+          "size": 11925,
+          "sha256": "1e071c3aafe169a458803252c0561d064f741ad697a5c6fafdf5b81a9d9f8e44"
+        },
+        {
+          "name": "strings.ru",
+          "size": 169,
+          "sha256": "d52dc0945ca5ea75d44a033f51907f88dafd71c3ff762f90186e6f08fd74df4d"
         },
         {
           "name": "manifest.json",
           "size": 884,
-          "sha256": "1a46375d62b4d2c46680dbf76c884cf7dd53be4141c341d162d657cdc558f157"
+          "sha256": "9a899559071d82584df489fc97c6a9759aee9b54616c57e05c094a2d2930f79a"
         }
       ],
       "icon": [
@@ -195,18 +200,23 @@
     {
       "name": "timer",
       "title": "Timer",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2556,
-          "sha256": "98e5e35f234480cdbd58722d980e85cfaa3ec6f959f7d71a96eb7caaf1bbf1c2"
+          "size": 2603,
+          "sha256": "2bfb749e421170bc39dbc438b8fc6129a19395aa3b7275792e04c224e8b8c4d4"
+        },
+        {
+          "name": "strings.ru",
+          "size": 119,
+          "sha256": "1a48a6c4de006bcb6bbcf247e091a47d635e6b7bf5553fe6de17d9d34bea3127"
         },
         {
           "name": "manifest.json",
           "size": 301,
-          "sha256": "d4114c9bc50a753cede1f5c5ee9044358e366c91140dbdfab03c654092172d2c"
+          "sha256": "cd0abb322623edb256898d08cd32a52f0da84c02b23689970f3a176077dd5e92"
         }
       ],
       "icon": [

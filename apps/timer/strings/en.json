@@ -1,0 +1,10 @@
+{
+  "minutes": "min",
+  "minutes_left": "min left",
+  "in_header": "{0} min",
+  "start": "Start",
+  "stop": "Stop",
+  "close": "Close",
+  "time": "Time",
+  "is_up": "is up"
+}

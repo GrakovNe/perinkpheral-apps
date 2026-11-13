@@ -15,6 +15,7 @@
 
 #include "app_text.h"
 #include "host_api.h"
+#include "strings.h" /* made of the `strings` folder by tools/mkapp */
 
 #define MINUTE_TIMER       0
 #define SECONDS_PER_MINUTE 60
@@ -103,11 +104,12 @@ static int32_t minutes_left(void)
  * minutes left and the hourglass, on the right where the date was. */
 static void show_in_header(void)
 {
+    /* "{0} min", the number where the language wants it. */
     char line[HOST_STATUS_TEXT_MAX + 1];
-    app_text_t text;
-    app_text_start(&text, line, sizeof line);
-    app_text_add_number(&text, minutes_left());
-    app_text_add(&text, " min");
+    const char *pattern = app_string(STR_IN_HEADER);
+    const host_text_argument_t minutes = { .number = minutes_left() };
+    int32_t length = text_fill(pattern, app_text_length(pattern), &minutes, 1, line, sizeof line - 1);
+    line[length > 0 ? length : 0] = '\0';
     header_status(HOST_HEADER_RIGHT, HOST_ICON_HOURGLASS, line, app_text_length(line));
 }
 
@@ -130,9 +132,13 @@ void app_on_alarm(int32_t id)
     state.ends_at = 0;
     save();
     /* The host tells it, over whatever has the screen, until it is seen. */
-    static const host_notice_t TIME_IS_UP = { .first = "Time", .second = "is up",
-                                              .icon = HOST_ICON_BELL };
-    notify(&TIME_IS_UP);
+    host_notice_t time_is_up = { .icon = HOST_ICON_BELL };
+    app_text_t    text;
+    app_text_start(&text, time_is_up.first, sizeof time_is_up.first);
+    app_text_add(&text, app_string(STR_TIME));
+    app_text_start(&text, time_is_up.second, sizeof time_is_up.second);
+    app_text_add(&text, app_string(STR_IS_UP));
+    notify(&time_is_up);
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
@@ -221,7 +227,7 @@ void app_on_draw(void)
     app_text_t text;
     app_text_start(&text, number, sizeof number);
     app_text_add_number(&text, is_running ? minutes_left() : state.minutes);
-    const char *unit = is_running ? "min left" : "min";
+    const char *unit = app_string(is_running ? STR_MINUTES_LEFT : STR_MINUTES);
     int32_t length = app_text_length(number), unit_length = app_text_length(unit);
     ui_value((gfx_width() - ui_value_width(font, number, length, unit, unit_length)) / 2,
              frame_top + FRAME_PADDING - (gfx_font_ascent(font) - capitals), font, number, length,
@@ -232,11 +238,13 @@ void app_on_draw(void)
         int32_t digits_bottom = frame_top + FRAME_PADDING + capitals;
         ui_bar(frame_left, (digits_bottom + body - BAR_HEIGHT) / 2, FRAME_WIDTH, minutes_left(),
                state.minutes);
-        ui_actions("Stop", 4, "Close", 5);
+        ui_actions(app_string(STR_STOP), app_text_length(app_string(STR_STOP)),
+                   app_string(STR_CLOSE), app_text_length(app_string(STR_CLOSE)));
     } else {
         ui_frame(frame_left, frame_top, FRAME_WIDTH, frame_height,
                  (state.minutes < MINUTES_MAX ? HOST_UI_ARROW_UP : 0) |
                      (state.minutes > MINUTES_MIN ? HOST_UI_ARROW_DOWN : 0));
-        ui_actions("Start", 5, "Close", 5);
+        ui_actions(app_string(STR_START), app_text_length(app_string(STR_START)),
+                   app_string(STR_CLOSE), app_text_length(app_string(STR_CLOSE)));
     }
 }

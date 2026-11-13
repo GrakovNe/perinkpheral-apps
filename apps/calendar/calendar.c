@@ -21,6 +21,7 @@
 #include "app_ui.h"
 #include "host_api.h"
 #include "ics.h"
+#include "strings.h" /* made of the `strings` folder by tools/mkapp */
 
 #define FEED_POLL          0
 #define REMIND_ALARM       0
@@ -134,7 +135,7 @@ static void remind_of(const ics_event_t *event)
 {
     host_notice_t notice = { .icon = HOST_ICON_BELL };
     notice.first[time_text(event->start, HOST_TIME_CLOCK, notice.first, sizeof notice.first - 1)] = '\0';
-    const char *title = event->title[0] != '\0' ? event->title : "Event";
+    const char *title = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
     int32_t length = 0;
     while (title[length] != '\0' && length < (int32_t)sizeof notice.detail - 1) {
         notice.detail[length] = title[length];
@@ -329,7 +330,7 @@ void app_on_button(int32_t event)
 static int32_t say_when(const ics_event_t *event, int64_t now, char *line, int32_t size)
 {
     if (event->start <= now) {
-        const char *word = event->is_all_day ? "Today" : "Now";
+        const char *word = app_string(event->is_all_day ? STR_TODAY : STR_NOW);
         int32_t     length = app_text_length(word);
         for (int32_t i = 0; i < length; i++) {
             line[i] = word[i];
@@ -349,13 +350,13 @@ static void draw_reason(void)
     app_text_start(&first, notice.first, sizeof notice.first);
     app_text_start(&detail, notice.detail, sizeof notice.detail);
     if (state.status == STATUS_NOT_A_CALENDAR) {
-        app_text_add(&first, "Not a calendar");
-        app_text_add(&detail, "Check the address");
+        app_text_add(&first, app_string(STR_NOT_A_CALENDAR));
+        app_text_add(&detail, app_string(STR_CHECK_THE_ADDRESS));
     } else if (state.status == STATUS_NO_TIME) {
-        app_text_add(&first, "No time yet");
+        app_text_add(&first, app_string(STR_NO_TIME_YET));
         notice.icon = HOST_ICON_CLOCK;
     } else if (ui_reason(state.status) == 0) {
-        app_text_add(&first, "No events");
+        app_text_add(&first, app_string(STR_NO_EVENTS));
         notice.icon = HOST_ICON_CHECK;
     } else {
         return;
@@ -391,7 +392,7 @@ void app_on_draw(void)
         /* The title has what the moment leaves of the row. */
         int32_t room = gfx_width() - 2 * HOST_UI_MARGIN - ROW_GAP - (count > visible ? ROW_BAR_ROOM : 0) -
                        gfx_text_width(HOST_FONT_TEXT, when, when_length);
-        const char *name = event->title[0] != '\0' ? event->title : "Event";
+        const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
         int32_t title_length = gfx_text_fit(HOST_FONT_TEXT, name, app_text_length(name), room, title,
                                             sizeof title);
         ui_list_row(&list, row, title, title_length, when, when_length, HOST_ICON_NONE);

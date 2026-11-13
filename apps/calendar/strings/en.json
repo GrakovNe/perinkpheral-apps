@@ -1,0 +1,9 @@
+{
+  "event": "Event",
+  "now": "Now",
+  "today": "Today",
+  "no_events": "No events",
+  "not_a_calendar": "Not a calendar",
+  "check_the_address": "Check the address",
+  "no_time_yet": "No time yet"
+}
