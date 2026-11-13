@@ -107,7 +107,7 @@ static int32_t lead_seconds(void)
 /* ---- the reminder ---- */
 
 /* The alarm for the reminder that comes next, or none. */
-static void set_the_alarm(void)
+static void schedule_reminder(void)
 {
     int64_t now = time_now();
     int32_t lead = lead_seconds();
@@ -166,7 +166,7 @@ void app_on_alarm(int32_t id)
         state.reminded_to = now;
     }
     save_state();
-    set_the_alarm();
+    schedule_reminder();
 }
 
 /* ---- the feed ---- */
@@ -175,7 +175,7 @@ static ics_t       reader;
 static ics_event_t incoming[ICS_EVENTS_MAX];
 static bool        is_reading;
 
-static void take_the_events(int32_t count)
+static void store_events(int32_t count)
 {
     static stored_events_t fresh;
     fresh = (stored_events_t){ .version = EVENTS_VERSION, .count = count };
@@ -189,18 +189,18 @@ static void take_the_events(int32_t count)
     }
 }
 
-static void end_the_fetch(int32_t status)
+static void finish_fetch(int32_t status)
 {
     is_reading = false;
     if (state.status != status) {
         state.status = status;
         save_state();
     }
-    set_the_alarm();
+    schedule_reminder();
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
-static bool begins_a_calendar(const uint8_t *data, int32_t length)
+static bool is_calendar_start(const uint8_t *data, int32_t length)
 {
     static const char OPENING[] = "BEGIN:VCALENDAR";
     int32_t at = 0;
@@ -223,18 +223,18 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
         return;
     }
     if (flags & HOST_DATA_FAILED) {
-        end_the_fetch(http_status); /* what was there stays */
+        finish_fetch(http_status); /* what was there stays */
         return;
     }
     if (flags & HOST_DATA_FIRST) {
         int64_t now = time_now();
         is_reading = false;
         if (http_status != HTTP_OK) {
-            end_the_fetch(http_status);
+            finish_fetch(http_status);
         } else if (now == 0) {
-            end_the_fetch(STATUS_NO_TIME); /* "the next two weeks" needs a today */
-        } else if (!begins_a_calendar(data, length)) {
-            end_the_fetch(STATUS_NOT_A_CALENDAR);
+            finish_fetch(STATUS_NO_TIME); /* "the next two weeks" needs a today */
+        } else if (!is_calendar_start(data, length)) {
+            finish_fetch(STATUS_NOT_A_CALENDAR);
         } else {
             ics_begin(&reader, incoming, now, now + (int64_t)DAYS_AHEAD * SECONDS_PER_DAY,
                       time_zone_offset());
@@ -246,15 +246,15 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
     }
     ics_feed(&reader, (const char *)data, length);
     if (flags & HOST_DATA_LAST) {
-        take_the_events(ics_end(&reader));
-        end_the_fetch(HTTP_OK);
+        store_events(ics_end(&reader));
+        finish_fetch(HTTP_OK);
     }
 }
 
 /* ---- when things happen ---- */
 
 /* The list changes by itself when an event begins or ends. */
-static void wake_at_the_next_turn(void)
+static void schedule_next_change(void)
 {
     int64_t now = time_now(), next = 0;
     for (int32_t i = 0; i < stored.count && now != 0; i++) {
@@ -285,14 +285,14 @@ void app_init(void)
 
 void app_on_focus(void)
 {
-    wake_at_the_next_turn();
+    schedule_next_change();
 }
 
 void app_on_timer(int32_t id)
 {
     (void)id;
     request_redraw(HOST_REDRAW_NORMAL);
-    wake_at_the_next_turn();
+    schedule_next_change();
 }
 
 void app_on_intent(int32_t intent)
@@ -300,12 +300,12 @@ void app_on_intent(int32_t intent)
     /* A restart forgot the alarm, and a clock set anew moves "in ten
      * minutes" to another moment. */
     (void)intent;
-    set_the_alarm();
+    schedule_reminder();
 }
 
 void app_on_settings(void)
 {
-    set_the_alarm();
+    schedule_reminder();
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
@@ -318,7 +318,7 @@ static bool       is_reading_one; /* the page of one event, opened with OK */
 static uint32_t   read_uid;       /* which: the list under it may change */
 static int64_t    read_start;
 
-static int32_t count_the_shown(int64_t now)
+static int32_t count_visible_events(int64_t now)
 {
     int32_t count = 0;
     for (int32_t i = 0; i < stored.count; i++) {
@@ -411,7 +411,7 @@ static void draw_reason(void)
 #define TITLE_LINES 4
 
 /* One event, whole: when it is, and its name over as many lines as it takes. */
-static void draw_one(const ics_event_t *event)
+static void draw_event(const ics_event_t *event)
 {
     char       when[2 * MOMENT_MAX + 8], moment[MOMENT_MAX + 1];
     app_text_t line;
@@ -441,7 +441,7 @@ static void draw_one(const ics_event_t *event)
 void app_on_draw(void)
 {
     int64_t now = time_now();
-    int32_t count = count_the_shown(now);
+    int32_t count = count_visible_events(now);
     if (count == 0 || now == 0) {
         is_reading_one = false;
         draw_reason();
@@ -458,7 +458,7 @@ void app_on_draw(void)
             const ics_event_t *event = &stored.events[shown[row]];
             if (event->uid == read_uid && event->start == read_start) {
                 list.selected = row;
-                draw_one(event);
+                draw_event(event);
                 return;
             }
         }

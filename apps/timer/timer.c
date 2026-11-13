@@ -67,7 +67,7 @@ static int32_t seconds_left(void)
 }
 
 /* The picture shows whole minutes: it changes when one of them is over. */
-static void wake_at_the_next_minute(void)
+static void schedule_minute_tick(void)
 {
     int32_t left = seconds_left();
     if (left > 0) {
@@ -79,14 +79,14 @@ static void wake_at_the_next_minute(void)
 
 void app_on_focus(void)
 {
-    wake_at_the_next_minute();
+    schedule_minute_tick();
 }
 
 void app_on_timer(int32_t id)
 {
     (void)id;
     request_redraw(HOST_REDRAW_NORMAL);
-    wake_at_the_next_minute();
+    schedule_minute_tick();
 }
 
 /* The application has a few alarms: the countdown's end, and one that
@@ -113,7 +113,7 @@ static void show_in_header(void)
     header_status(HOST_HEADER_RIGHT, HOST_ICON_HOURGLASS, line, app_text_length(line));
 }
 
-static void leave_the_header(void)
+static void release_header_status(void)
 {
     header_status(HOST_HEADER_RIGHT, HOST_ICON_NONE, "", 0);
     alarm_set(MINUTE_ALARM, 0);
@@ -128,7 +128,7 @@ void app_on_alarm(int32_t id)
         }
         return;
     }
-    leave_the_header();
+    release_header_status();
     state.ends_at = 0;
     save();
     /* The host tells it, over whatever has the screen, until it is seen. */
@@ -149,14 +149,14 @@ static void start(void)
     alarm_set(COUNTDOWN_ALARM, state.minutes * SECONDS_PER_MINUTE);
     alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, 0);
     show_in_header();
-    wake_at_the_next_minute();
+    schedule_minute_tick();
 }
 
 static void stop(void)
 {
     state.ends_at = 0;
     alarm_set(COUNTDOWN_ALARM, 0);
-    leave_the_header();
+    release_header_status();
     timer_set(MINUTE_TIMER, 0);
 }
 

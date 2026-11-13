@@ -134,13 +134,13 @@ static void keep_fresh(void)
 
 /* ---- the answer ---- */
 
-static void take_the_answer(void)
+static void accept_answer(void)
 {
     last_status = coming_status;
     kv_set(STATUS_KEY, sizeof STATUS_KEY - 1, &last_status, sizeof last_status);
     /* A sensor that is not there renders as "None": not a screen. */
-    bool is_a_screen = coming_status == HTTP_OK && coming_length > 0 && coming[0] != 'N';
-    if (!is_a_screen) {
+    bool is_screen_payload = coming_status == HTTP_OK && coming_length > 0 && coming[0] != 'N';
+    if (!is_screen_payload) {
         return; /* what was shown before stays */
     }
     for (int32_t i = 0; i < coming_length; i++) {
@@ -160,7 +160,7 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
     if (flags & HOST_DATA_FAILED) {
         coming_status = http_status;
         coming_length = 0;
-        take_the_answer();
+        accept_answer();
         request_redraw(HOST_REDRAW_NORMAL);
         return;
     }
@@ -172,7 +172,7 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
         coming[coming_length++] = (char)data[i];
     }
     if (flags & HOST_DATA_LAST) {
-        take_the_answer();
+        accept_answer();
         request_redraw(HOST_REDRAW_NORMAL);
     }
 }

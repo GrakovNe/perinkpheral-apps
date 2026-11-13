@@ -167,7 +167,7 @@ static void test_repeating(void)
     CHECK(birthdays == 1);
 }
 
-static void test_what_is_not_a_calendar(void)
+static void test_rejects_non_calendar(void)
 {
     CHECK(read_file("", 0, 14, 0, 8) == 0);
     CHECK(read_file("<html><body>Sign in</body></html>", 0, 14, 0, 8) == 0);
@@ -188,7 +188,7 @@ int main(void)
     test_single_events();
     test_summer_time();
     test_repeating();
-    test_what_is_not_a_calendar();
+    test_rejects_non_calendar();
     printf("%d checks, %d failed\n", checks, failures);
     return failures != 0;
 }

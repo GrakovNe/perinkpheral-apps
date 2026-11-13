@@ -28,7 +28,7 @@
 #define DATE_LINE_GAP    16
 
 
-static void wake_for_the_next_picture(void)
+static void schedule_next_frame(void)
 {
     int64_t utc_seconds = time_now();
     if (utc_seconds == 0) {
@@ -53,14 +53,14 @@ static int32_t draw_centered(int32_t cap_top, int32_t font, const char *text)
 
 void app_on_focus(void)
 {
-    wake_for_the_next_picture();
+    schedule_next_frame();
 }
 
 void app_on_timer(int32_t id)
 {
     (void)id;
     request_redraw(HOST_REDRAW_NORMAL);
-    wake_for_the_next_picture();
+    schedule_next_frame();
 }
 
 /* The clock or the time zone was set to another: what is on the screen is

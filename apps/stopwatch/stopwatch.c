@@ -64,7 +64,7 @@ static int64_t run_ms(void)
 
 /* A run that began before the device knew the time gets its place on the
  * clock as soon as there is one: from then on a restart does not lose it. */
-static void note_start_on_the_clock(void)
+static void record_start_time(void)
 {
     int64_t now = time_now();
     if (!state.is_running || state.started_at != 0 || now == 0 || state.boot != time_boot_id()) {
@@ -131,7 +131,7 @@ static void show_in_header(void)
 
 /* When the number on the screen is next another: at the next second in
  * the first hour, at the next minute after it. */
-static void wake_at_the_next_turn(void)
+static void schedule_next_change(void)
 {
     if (!state.is_running) {
         return;
@@ -143,7 +143,7 @@ static void wake_at_the_next_turn(void)
 
 /* What a running stopwatch keeps going outside itself: its line in the
  * header, and the alarm that turns it every minute. */
-static void keep_the_header(void)
+static void update_header_status(void)
 {
     int32_t into_minute_s = elapsed_seconds() % SECONDS_PER_MINUTE;
     alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, SECONDS_PER_MINUTE - into_minute_s);
@@ -156,8 +156,8 @@ static void start(void)
     state.started_uptime_ms = time_uptime_ms();
     state.boot = time_boot_id();
     state.started_at = time_now();
-    keep_the_header();
-    wake_at_the_next_turn();
+    update_header_status();
+    schedule_next_change();
 }
 
 static void stop(void)
@@ -187,7 +187,7 @@ void app_init(void)
          * long it lasted is not to be had. What was counted before it is. */
         state.is_running = 0;
     }
-    note_start_on_the_clock();
+    record_start_time();
 }
 
 /* The device restarted: the alarm and the header's line went with it, the
@@ -195,13 +195,13 @@ void app_init(void)
 void app_on_intent(int32_t intent)
 {
     if (intent == HOST_INTENT_STARTED && state.is_running) {
-        keep_the_header();
+        update_header_status();
     }
 }
 
 void app_on_focus(void)
 {
-    wake_at_the_next_turn();
+    schedule_next_change();
 }
 
 void app_on_timer(int32_t id)
@@ -210,7 +210,7 @@ void app_on_timer(int32_t id)
     /* A second after a second: one picture of a row, with no full refresh
      * between them. A minute is an ordinary change. */
     request_redraw(shows_seconds() ? HOST_REDRAW_NO_BLINK : HOST_REDRAW_NORMAL);
-    wake_at_the_next_turn();
+    schedule_next_change();
 }
 
 /* Every minute, on the screen or off it: the header's line is the one
@@ -269,8 +269,8 @@ void app_on_draw(void)
     int32_t top = (body - cap) / 2 - (gfx_font_ascent(font) - cap);
     gfx_text((gfx_width() - gfx_text_width(font, line, length)) / 2, top, font, line, length);
 
-    bool is_stopped_with_a_time = !state.is_running && state.banked_ms > 0;
-    if (is_stopped_with_a_time) {
+    bool is_stopped_with_time = !state.is_running && state.banked_ms > 0;
+    if (is_stopped_with_time) {
         const char *hint = app_string(STR_HOLD_TO_RESET);
         int32_t hint_length = app_text_length(hint);
         int32_t hint_top = body - ui_text_height(HOST_UI_CAPTION) - HOST_UI_MARGIN / 2;
@@ -278,7 +278,7 @@ void app_on_draw(void)
                 HOST_UI_CAPTION, hint, hint_length, 0);
     }
     const char *ok = app_string(state.is_running           ? STR_STOP
-                                : is_stopped_with_a_time ? STR_CONTINUE_
+                                : is_stopped_with_time ? STR_CONTINUE_
                                                          : STR_START);
     const char *close = app_string(STR_CLOSE);
     ui_actions(ok, app_text_length(ok), close, app_text_length(close));

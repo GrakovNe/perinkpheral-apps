@@ -708,10 +708,10 @@ static void take_line(ics_t *ics)
     bool has_parameters = *parameters == ';';
     *parameters = '\0';
     *value++ = '\0';
-    const char *its_parameters = has_parameters ? parameters + 1 : "";
+    const char *parameter_text = has_parameters ? parameters + 1 : "";
 
     if (ics->in_event) {
-        event_line(ics, line, its_parameters, value);
+        event_line(ics, line, parameter_text, value);
     } else if (ics->in_zone) {
         zone_line(ics, line, value);
     } else if (is(line, "BEGIN") && is(value, "VEVENT")) {
