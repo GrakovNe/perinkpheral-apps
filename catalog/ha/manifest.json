@@ -1,6 +1,6 @@
 {
   "name": "ha",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "title": "HA Companion",
   "abi": 2,
   "settings": [
@@ -8,7 +8,8 @@
     { "key": "token", "type": "secret", "title": "Access token" },
     { "key": "entity", "type": "text", "title": "Sensor", "help": "Empty with the integration." },
     { "key": "every", "type": "choice", "title": "Refresh",
-      "options": ["1 min", "5 min", "15 min", "1 h"], "default": "5 min" }
+      "options": ["1 min", "5 min", "15 min", "1 h"], "default": "5 min" },
+    { "key": "header_time", "type": "toggle", "title": "Time in header" }
   ],
   "hosts": ["{{server}}"],
   "intents": ["started"],

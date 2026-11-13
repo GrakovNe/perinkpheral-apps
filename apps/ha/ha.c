@@ -179,6 +179,49 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
 
 /* ---- when to ask ---- */
 
+/* ---- the time in the header, for whoever wants it ----
+ *
+ * A setting, off unless turned on: the hour and the minute on the right of
+ * the host's header, where the date stands. It follows the clock only
+ * while the application is on the screen, which is when its header is. */
+#define HEADER_TIME_KEY    "header_time"
+#define MINUTE_TIMER       0
+#define SECONDS_PER_MINUTE 60
+#define MS_PER_SECOND      1000
+#define CLOCK_RETRY_MS     5000 /* while the time is not known yet */
+
+static void show_time_in_header(void)
+{
+    char value[4];
+    bool is_wanted = kv_get(HEADER_TIME_KEY, sizeof HEADER_TIME_KEY - 1, value, sizeof value) == 1 &&
+                     value[0] == '1';
+    host_local_time_t now;
+    if (!is_wanted) {
+        header_text(HOST_HEADER_RIGHT, "", 0); /* the host's date again */
+        timer_set(MINUTE_TIMER, 0);
+        return;
+    }
+    if (time_local(&now) != HOST_OK) {
+        timer_set(MINUTE_TIMER, CLOCK_RETRY_MS);
+        return;
+    }
+    char       line[8];
+    app_text_t text;
+    app_text_start(&text, line, sizeof line);
+    app_text_add_padded(&text, now.hour, 2);
+    app_text_add(&text, ":");
+    app_text_add_padded(&text, now.minute, 2);
+    header_text(HOST_HEADER_RIGHT, line, app_text_length(line));
+    timer_set(MINUTE_TIMER, (SECONDS_PER_MINUTE - now.second) * MS_PER_SECOND);
+}
+
+void app_on_timer(int32_t id)
+{
+    (void)id;
+    show_time_in_header();
+    request_redraw(HOST_REDRAW_NORMAL);
+}
+
 void app_init(void)
 {
     int32_t length = kv_get(SCREEN_KEY, sizeof SCREEN_KEY - 1, screen, SCREEN_MAX);
@@ -203,6 +246,7 @@ void app_on_intent(int32_t intent)
  * alarm. */
 void app_on_focus(void)
 {
+    show_time_in_header();
     if (!has_asked) {
         ask();
     }
@@ -210,6 +254,8 @@ void app_on_focus(void)
 
 void app_on_settings(void)
 {
+    show_time_in_header();
+    request_redraw(HOST_REDRAW_NORMAL);
     keep_fresh();
 }
 
