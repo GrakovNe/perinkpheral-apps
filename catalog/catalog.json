@@ -4,13 +4,13 @@
     {
       "name": "badapple",
       "title": "Bad Apple",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2920,
-          "sha256": "816ac48e48071290ddcfe37ca7b75a578766c9cae250bf7e076dde63748526fc"
+          "size": 3009,
+          "sha256": "21fab76e235a9c7abd865ee13356354a7e42e74a962995902ec4fe56fb3a67da"
         },
         {
           "name": "frames.bin",
@@ -20,7 +20,7 @@
         {
           "name": "manifest.json",
           "size": 330,
-          "sha256": "698ae5b6d44e8791656ca083192885abc957b125c7a23457bc7663570ba6f398"
+          "sha256": "6ec8077c745d4a61d91627cdcb02553fa5b6296085542bd50871bafb35dc5832"
         }
       ],
       "icon": [
@@ -40,13 +40,13 @@
     {
       "name": "calendar",
       "title": "Calendar",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 11925,
-          "sha256": "1e071c3aafe169a458803252c0561d064f741ad697a5c6fafdf5b81a9d9f8e44"
+          "size": 12014,
+          "sha256": "58665080b9e885abd9ceee4c1a1ef09c7acb2c4077478ab4fe4bedd3764025a2"
         },
         {
           "name": "manifest.ru",
@@ -61,7 +61,7 @@
         {
           "name": "manifest.json",
           "size": 884,
-          "sha256": "b94da026e62f78c1705a468dac03b3f2c7c19ee3501297942f90fecff408138e"
+          "sha256": "032dd3667b6952d5870012520dcbc6ff709f2e22bfc9c1dc3d7a90ba6c74a405"
         }
       ],
       "icon": [
@@ -81,13 +81,13 @@
     {
       "name": "clock",
       "title": "Clock",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 1078,
-          "sha256": "cd9dc3d837fbc36476372d9660193b395beb052f69cdefd83316dfde8eb5b037"
+          "size": 1167,
+          "sha256": "b5c5260c2b132dedc3fa57cf392cdca48f2cb27052c4c08b740c83928698e9b7"
         },
         {
           "name": "manifest.ru",
@@ -102,7 +102,7 @@
         {
           "name": "manifest.json",
           "size": 362,
-          "sha256": "27a6a41a20ccf75f08bda56124365c4536028fc81a9c35d7597d5739ba3e3474"
+          "sha256": "3dedeccb998e827dc7312242ef3b65d227ba2df91443f15dee1e8da8b5ed4959"
         }
       ],
       "icon": [
@@ -122,13 +122,13 @@
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.3.2",
+      "version": "0.3.3",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 9529,
-          "sha256": "c0cc7f578d5fa2333e7bd5df8c8d3755173fa719f082247c2dfa994709039a88"
+          "size": 9618,
+          "sha256": "3ea4cdd550c21972d14cb2cc8b091e1ecaa72de040f2a602d2bc1a61c18e1fa7"
         },
         {
           "name": "manifest.ru",
@@ -143,7 +143,7 @@
         {
           "name": "manifest.json",
           "size": 739,
-          "sha256": "44e6fc016ec7734d3c3f41d26aa7c07bb27f36ac0b4492234d51680928546cf1"
+          "sha256": "28bad468bada8bbb4938f6264e7a131f81f8fcc511a5f5ab8e46a75667ece245"
         }
       ],
       "icon": [
@@ -163,18 +163,18 @@
     {
       "name": "kit",
       "title": "UI Kit",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 5528,
-          "sha256": "71024ea6086af22948bc89469d91f13ece3df8b9f4cfea52b32aa60e887b695b"
+          "size": 5617,
+          "sha256": "e78336340b953a7b972e7b0cb9a473e376cb7803e4c03517127cb949c2db3e28"
         },
         {
           "name": "manifest.json",
           "size": 300,
-          "sha256": "0fcdbe59cbdf25ebd326c15208218a63cd2a97337898afacffc0798c0aca8d74"
+          "sha256": "31ac61bbb81bee03caf3d22f2cb57858e480c7b41605097e19b3af52f86901a4"
         }
       ],
       "icon": [
@@ -194,13 +194,13 @@
     {
       "name": "stopwatch",
       "title": "Stopwatch",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2671,
-          "sha256": "c24b48c720ccec64535a80d60e20453fb95b51d4f7a8f188b1be8d56da0ff0f8"
+          "size": 2630,
+          "sha256": "18c72fe3e7693050064ee0d221e0673ffa78dba5565bf6dca88071c313b7d47a"
         },
         {
           "name": "manifest.ru",
@@ -215,7 +215,7 @@
         {
           "name": "manifest.json",
           "size": 335,
-          "sha256": "58f7e9a8711a44542ea3382d1feef56e8cad7d893ae6b615d3195c76fa3a6ef0"
+          "sha256": "cbfa4c30f97cfe52159583f8ea5916dc6e2eae733062cfd1059e2d92c4d6df95"
         }
       ],
       "icon": [
@@ -235,13 +235,13 @@
     {
       "name": "timer",
       "title": "Timer",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2603,
-          "sha256": "2bfb749e421170bc39dbc438b8fc6129a19395aa3b7275792e04c224e8b8c4d4"
+          "size": 2692,
+          "sha256": "6e05f131b8a725735fac85398087675f094aadefddf9194c2c4704d6a3d46c7b"
         },
         {
           "name": "manifest.ru",
@@ -256,7 +256,7 @@
         {
           "name": "manifest.json",
           "size": 301,
-          "sha256": "bc08e1eccd2d2c7f8ae442e451779d6d69b03993b3e57fa523c26308543a893e"
+          "sha256": "536ff95e98fca358c81c479c8daebe08676fa71627599bd78549e3d5e15b4846"
         }
       ],
       "icon": [
@@ -276,13 +276,13 @@
     {
       "name": "weather",
       "title": "Weather",
-      "version": "0.2.2",
+      "version": "0.2.3",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 6469,
-          "sha256": "265305f9e567be6996cb8b9c173da6aa69cc78d051cbf9aff209d07d0879c790"
+          "size": 6558,
+          "sha256": "74a645773a98c08e607005da3415562734a01aa703e3ea85274d5ccfd1ab43ce"
         },
         {
           "name": "manifest.ru",
@@ -297,7 +297,7 @@
         {
           "name": "manifest.json",
           "size": 1893,
-          "sha256": "636c45cc79ba59a80846b49bf6d04f14a9c0c71dbb166adb748d0e112269289e"
+          "sha256": "e3b9226c8fa007aa76ed2e8710be46eb8b5507950affd5200f6fb9238dc126a6"
         }
       ],
       "icon": [

@@ -1,7 +1,7 @@
 {
   "name": "timer",
   "title": "Timer",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "abi": 2,
   "icon": [
     ".#########.",
