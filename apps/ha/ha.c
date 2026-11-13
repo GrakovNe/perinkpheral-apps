@@ -324,7 +324,6 @@ typedef enum {
     PICTURE_DETAIL,  /* a detail_t, 11 cells */
     PICTURE_THING,   /* a thing_t, 11 cells */
     PICTURE_FINE,    /* a fine_t, 22 cells */
-    PICTURE_HOST,    /* a HOST_ICON_*, 11 cells */
 } picture_kind_t;
 
 typedef struct {
@@ -365,12 +364,12 @@ static const picture_t PICTURES[] = {
     { "plug", PICTURE_THING, THING_PLUG },
     { "chip", PICTURE_THING, THING_CHIP },
     { "network", PICTURE_THING, THING_NETWORK },
-    { "bell", PICTURE_HOST, HOST_ICON_BELL },
-    { "clock", PICTURE_HOST, HOST_ICON_CLOCK },
-    { "check", PICTURE_HOST, HOST_ICON_CHECK },
-    { "warning", PICTURE_HOST, HOST_ICON_WARNING },
-    { "info", PICTURE_HOST, HOST_ICON_INFO },
-    { "play", PICTURE_HOST, HOST_ICON_PLAY },
+    { "bell", PICTURE_THING, THING_BELL },
+    { "clock", PICTURE_THING, THING_CLOCK },
+    { "check", PICTURE_THING, THING_CHECK },
+    { "warning", PICTURE_THING, THING_WARNING },
+    { "info", PICTURE_THING, THING_INFO },
+    { "play", PICTURE_THING, THING_PLAY },
 };
 
 static const picture_t *picture_named(const char *name)
@@ -383,62 +382,35 @@ static const picture_t *picture_named(const char *name)
     return NULL;
 }
 
-static void draw_cells(const char *const *rows, int32_t cells, int32_t left, int32_t top,
-                       int32_t pixels)
-{
-    for (int32_t row = 0; row < cells; row++) {
-        const char *line = rows[row];
-        /* A run of ink in a row is one rectangle. */
-        for (int32_t column = 0; column < cells;) {
-            if (line[column] != '#') {
-                column++;
-                continue;
-            }
-            int32_t run_start = column;
-            while (column < cells && line[column] == '#') {
-                column++;
-            }
-            gfx_rect(left + run_start * pixels, top + row * pixels, (column - run_start) * pixels,
-                     pixels, HOST_RECT_FILLED);
-        }
-    }
-}
-
 /* The three sizes a picture stands in: beside the hero, over a column,
  * beside a detail. */
 #define HERO_PICTURE   (LARGE_ICON_CELLS * ICON_CELL_PIXELS)  /* 88 */
 #define COLUMN_PICTURE (SMALL_ICON_CELLS * ICON_CELL_PIXELS)  /* 44 */
 #define DETAIL_PICTURE (DETAIL_ICON_CELLS * ICON_CELL_PIXELS) /* 22 */
 
-static void draw_picture(const picture_t *picture, int32_t left, int32_t top, int32_t side)
+/* The drawing of a picture for a square of `side` pixels: the weather and
+ * the thermometer have one made for the largest. */
+static const uint8_t *picture_bits(const picture_t *picture, int32_t side)
 {
     switch (picture->kind) {
     case PICTURE_WEATHER:
-        if (side == HERO_PICTURE) {
-            draw_cells(LARGE_ICONS[picture->index], LARGE_ICON_CELLS, left, top, ICON_CELL_PIXELS);
-        } else {
-            draw_cells(SMALL_ICONS[picture->index], SMALL_ICON_CELLS, left, top,
-                       side / SMALL_ICON_CELLS);
-        }
-        break;
+        return side >= HERO_PICTURE ? LARGE_ICONS[picture->index] : SMALL_ICONS[picture->index];
     case PICTURE_DETAIL:
-        draw_cells(DETAIL_ICONS[picture->index], DETAIL_ICON_CELLS, left, top,
-                   side / DETAIL_ICON_CELLS);
-        break;
-    case PICTURE_THING:
-        if (picture->index == THING_THERMOMETER && side == HERO_PICTURE) {
-            draw_cells(LARGE_THERMOMETER, LARGE_ICON_CELLS, left, top, ICON_CELL_PIXELS);
-        } else {
-            draw_cells(THING_ICONS[picture->index], THING_CELLS, left, top, side / THING_CELLS);
-        }
-        break;
+        return DETAIL_ICONS[picture->index];
     case PICTURE_FINE:
-        draw_cells(FINE_ICONS[picture->index], FINE_CELLS, left, top, side / FINE_CELLS);
-        break;
-    case PICTURE_HOST:
-        gfx_icon(picture->index, left, top, side / HOST_ICON_CELLS);
-        break;
+        return FINE_ICONS[picture->index];
+    case PICTURE_THING:
+    default:
+        return picture->index == THING_THERMOMETER && side >= HERO_PICTURE
+                   ? LARGE_THERMOMETER
+                   : THING_ICONS[picture->index];
     }
+}
+
+static void draw_picture(const picture_t *picture, int32_t left, int32_t top, int32_t side)
+{
+    const uint8_t *bits = picture_bits(picture, side);
+    gfx_picture(left, top, bits, side / bits[0]);
 }
 
 /* ---- the screen: the weather's own composition, its places filled ---- */
@@ -570,71 +542,19 @@ static int32_t read_items(item_t items[ITEMS_MAX])
     return count;
 }
 
-/* Which of the fonts, from the largest, the text fits `width` in; the
- * last when none does. */
-static int32_t step_that_fits(const int32_t *fonts, int32_t count, const char *text, int32_t width)
+/* An item as a cell of the host's: its name, its picture and its value,
+ * laid out and sized by the kit. */
+static const uint8_t *cell_of(host_cell_t *cell, int32_t left, int32_t top, int32_t width,
+                              int32_t height, const item_t *item)
 {
-    for (int32_t i = 0; i < count - 1; i++) {
-        if (text_width(fonts[i] | HOST_FONT_TABULAR, text) <= width) {
-            return i;
-        }
-    }
-    return count - 1;
-}
-
-#define CELL_PADDING     12
-#define CELL_PICTURE_GAP 14
-
-/* One item in a cell of any size: its name across the top, and under it
- * the picture and the value side by side, in the middle of what is left.
- * A cell that is the whole screen gets everything a size larger. */
-static const int32_t CELL_FONTS[] = { HOST_FONT_HUGE, HOST_FONT_DISPLAY, HOST_FONT_LARGE,
-                                      HOST_FONT_MEDIUM, HOST_FONT_TEXT };
-#define CELL_FONT_COUNT ((int32_t)(sizeof CELL_FONTS / sizeof CELL_FONTS[0]))
-#define CELL_FONT_FIRST_OF_SMALL 2 /* a cell that is not the whole screen begins here */
-
-static bool is_whole_screen(int32_t width, int32_t height)
-{
-    return width >= gfx_width() && height >= gfx_height();
-}
-
-static int32_t cell_picture(const item_t *item, bool is_large)
-{
-    return item->picture == NULL ? 0 : is_large ? HERO_PICTURE : COLUMN_PICTURE;
-}
-
-/* The size of value this item can have in a cell so wide. */
-static int32_t cell_font_step(int32_t width, int32_t height, const item_t *item)
-{
-    bool    is_large = is_whole_screen(width, height);
-    int32_t picture = cell_picture(item, is_large);
-    int32_t room = width - 2 * CELL_PADDING - (picture > 0 ? picture + CELL_PICTURE_GAP : 0);
-    int32_t first = is_large ? 0 : CELL_FONT_FIRST_OF_SMALL;
-    return first + step_that_fits(CELL_FONTS + first, CELL_FONT_COUNT - first, item->value, room);
-}
-
-static void draw_cell(int32_t left, int32_t top, int32_t width, int32_t height, const item_t *item,
-                      int32_t font_step)
-{
-    bool    is_large = is_whole_screen(width, height);
-    int32_t name_font = is_large ? HOST_FONT_TEXT : HOST_FONT_SMALL;
-    int32_t picture = cell_picture(item, is_large);
-    int32_t name_height = item->name[0] != '\0' ? gfx_font_height(name_font) + CELL_PADDING / 2 : 0;
-    int32_t font = CELL_FONTS[font_step] | HOST_FONT_TABULAR;
-
-    draw_centered(left + width / 2, top + CELL_PADDING, name_font, item->name);
-
-    int32_t value_width = text_width(font, item->value);
-    int32_t row_width = value_width + (picture > 0 ? picture + CELL_PICTURE_GAP : 0);
-    int32_t row_left = left + (width - row_width) / 2;
-    int32_t middle = top + CELL_PADDING + name_height + (height - 2 * CELL_PADDING - name_height) / 2;
-    if (picture > 0) {
-        draw_picture(item->picture, row_left, middle - picture / 2, picture);
-        row_left += picture + CELL_PICTURE_GAP;
-    }
-    int32_t cap_height = gfx_font_cap_height(font);
-    draw_text(row_left, middle - cap_height / 2 - (gfx_font_ascent(font) - cap_height), font,
-              item->value);
+    *cell = (host_cell_t){ .x = left, .y = top, .width = width, .height = height };
+    copy(cell->name, sizeof cell->name, item->name);
+    copy(cell->value, sizeof cell->value, item->value);
+    bool is_whole_screen = width >= gfx_width() && height >= gfx_height();
+    return item->picture == NULL
+               ? NULL
+               : picture_bits(item->picture, is_whole_screen ? HOST_UI_CELL_PICTURE_LARGE
+                                                             : HOST_UI_CELL_PICTURE_SMALL);
 }
 
 /* One item is the whole screen, two are halves side by side, three and
@@ -645,13 +565,19 @@ static void draw_cells_of(const item_t *items, int32_t count)
     int32_t width = gfx_width() / columns, height = gfx_height() / rows;
     int32_t shown = count < columns * rows ? count : columns * rows;
     /* One size for all of them: the size the longest value can have. */
-    int32_t font_step = 0;
+    host_cell_t cell;
+    int32_t     size = 0;
     for (int32_t i = 0; i < shown; i++) {
-        int32_t step = cell_font_step(width, height, &items[i]);
-        font_step = step > font_step ? step : font_step;
+        const uint8_t *picture =
+            cell_of(&cell, i % columns * width, i / columns * height, width, height, &items[i]);
+        int32_t fits = ui_cell_fit(&cell, picture);
+        size = fits > size ? fits : size;
     }
     for (int32_t i = 0; i < shown; i++) {
-        draw_cell(i % columns * width, i / columns * height, width, height, &items[i], font_step);
+        const uint8_t *picture =
+            cell_of(&cell, i % columns * width, i / columns * height, width, height, &items[i]);
+        cell.size = size;
+        ui_cell(&cell, picture);
     }
     if (columns > 1) {
         gfx_rect(width, MARGIN, 1, gfx_height() - 2 * MARGIN, HOST_RECT_FILLED);

@@ -12,6 +12,7 @@
 #include "app_text.h"
 #include "app_ui.h"
 #include "host_api.h"
+#include "pictures.h" /* made of the `pictures` folder by tools/mkapp */
 
 #define COUNT_OF(array) ((int32_t)(sizeof(array) / sizeof(array)[0]))
 #define REDRAW          HOST_REDRAW_NO_BLINK
@@ -21,6 +22,8 @@ typedef enum {
     PAGE_LIST,
     PAGE_OPTIONS,
     PAGE_DETAILS,
+    PAGE_CELL,
+    PAGE_CELLS,
     PAGE_PICKER,
     PAGE_DATE,
     PAGE_TIME,
@@ -32,8 +35,8 @@ typedef enum {
 } page_t;
 
 static const char *const PAGE_NAMES[PAGE_COUNT] = {
-    "Text and parts", "List", "Options", "Details", "Picker",
-    "Date and time",  "Time", "Message", "Question", "Working",
+    "Text and parts", "List",    "Options",  "Details", "Cell",    "Cells",
+    "Picker",         "Date and time", "Time", "Message", "Question", "Working",
 };
 
 static page_t     page = PAGE_CONTENTS;
@@ -167,6 +170,38 @@ static void draw_rows(app_list_t *list, const char *const *labels, const char *c
     }
 }
 
+static void copy(char *to, int32_t size, const char *from);
+
+/* Cells: a name, a picture and a value in a box of any size, laid out and
+ * sized by the host. Those that stand together are of one size - the size
+ * the longest value can have. */
+static void draw_cells(int32_t count)
+{
+    static const char *const NAMES[] = { "Living room", "Humidity", "Power", "Door" };
+    static const char *const VALUES[] = { "21\xC2\xB0", "40%", "1.2kW", "Closed" };
+    static const uint8_t *const PICTURES[] = { PICTURE_HOME, PICTURE_DROP, PICTURE_BOLT, NULL };
+    int32_t columns = count > 1 ? 2 : 1, rows = count > 2 ? 2 : 1;
+    int32_t width = gfx_width() / columns, height = gfx_height() / rows;
+    host_cell_t cells[4];
+    int32_t     size = 0;
+    for (int32_t i = 0; i < count; i++) {
+        cells[i] = (host_cell_t){ .x = i % columns * width, .y = i / columns * height,
+                                  .width = width, .height = height };
+        copy(cells[i].name, sizeof cells[i].name, NAMES[i]);
+        copy(cells[i].value, sizeof cells[i].value, VALUES[i]);
+        int32_t fits = ui_cell_fit(&cells[i], PICTURES[i]);
+        size = fits > size ? fits : size;
+    }
+    for (int32_t i = 0; i < count; i++) {
+        cells[i].size = size;
+        ui_cell(&cells[i], PICTURES[i]);
+    }
+    if (columns > 1) {
+        gfx_rect(width, HOST_UI_MARGIN, 1, gfx_height() - 2 * HOST_UI_MARGIN, HOST_RECT_FILLED);
+        gfx_rect(HOST_UI_MARGIN, height, gfx_width() - 2 * HOST_UI_MARGIN, 1, HOST_RECT_FILLED);
+    }
+}
+
 static void draw_primitives(void)
 {
     static const char TEXT[] = "Text, as it is read";
@@ -217,6 +252,12 @@ void app_on_draw(void)
         facts.height = gfx_height() - HOST_UI_ACTIONS_HEIGHT;
         draw_rows(&facts, FACT_LABELS, FACT_VALUES, -1);
         ui_actions("", 0, "Back", 4);
+        break;
+    case PAGE_CELL:
+        draw_cells(1);
+        break;
+    case PAGE_CELLS:
+        draw_cells(4);
         break;
     case PAGE_PICKER:
         app_picker_draw(&pace, PACES);

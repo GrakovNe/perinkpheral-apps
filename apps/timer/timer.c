@@ -201,21 +201,14 @@ void app_on_button(int32_t event)
 /* ---- the picture: the host's parts ----
  *
  * The minutes are the page. Being set, they stand in the frame with the
- * arrows UP and DOWN have; counting, over a bar of how much has gone; and
+ * arrows UP and DOWN have; counting, over a bar of how much is left; and
  * when the time is up the host's notice says so. The row of buttons along
  * the bottom names what OK and BACK do in each. */
 
-#define FRAME_WIDTH   260
+#define FRAME_WIDTH   336
 #define FRAME_PADDING 16
-#define CAPTION_GAP   30 /* from the frame, past its arrow, to the caption */
-#define BAR_GAP       12
-
-static void draw_caption(int32_t top, const char *words)
-{
-    int32_t length = app_text_length(words);
-    ui_text((gfx_width() - ui_text_width(HOST_UI_CAPTION, words, length)) / 2, top,
-            HOST_UI_CAPTION, words, length, 0);
-}
+#define UNIT_GAP      12
+#define BAR_HEIGHT    14 /* the host's bar */
 
 static void draw_time_is_up(void)
 {
@@ -238,28 +231,35 @@ void app_on_draw(void)
     int32_t body = gfx_height() - HOST_UI_ACTIONS_HEIGHT;
     int32_t frame_height = capitals + 2 * FRAME_PADDING;
     int32_t frame_left = (gfx_width() - FRAME_WIDTH) / 2;
-    /* The frame and what stands under it are one block in the middle. */
-    int32_t frame_top = (body - frame_height - CAPTION_GAP - ui_text_height(HOST_UI_CAPTION)) / 2 + 6;
+    int32_t frame_top = (body - frame_height) / 2 - BAR_HEIGHT;
 
+    /* The number and, after it on its baseline, what it is a number of:
+     * a unit in the text's size, as beside every value. */
     char       number[8];
     app_text_t text;
     app_text_start(&text, number, sizeof number);
     app_text_add_number(&text, is_running ? minutes_left() : state.minutes);
-    int32_t length = app_text_length(number);
-    gfx_text((gfx_width() - gfx_text_width(font, number, length)) / 2,
-             frame_top + FRAME_PADDING - (gfx_font_ascent(font) - capitals), font, number, length);
+    const char *unit = is_running ? "min left" : "min";
+    int32_t length = app_text_length(number), unit_length = app_text_length(unit);
+    int32_t number_width = gfx_text_width(font, number, length);
+    int32_t left = (gfx_width() - number_width - UNIT_GAP -
+                    gfx_text_width(HOST_FONT_TEXT, unit, unit_length)) / 2;
+    int32_t top = frame_top + FRAME_PADDING - (gfx_font_ascent(font) - capitals);
+    gfx_text(left, top, font, number, length);
+    gfx_text(left + number_width + UNIT_GAP,
+             top + gfx_font_ascent(font) - gfx_font_ascent(HOST_FONT_TEXT), HOST_FONT_TEXT, unit,
+             unit_length);
 
-    int32_t under = frame_top + frame_height;
     if (is_running) {
-        ui_bar(frame_left, under + BAR_GAP, FRAME_WIDTH, state.minutes - minutes_left(),
+        /* How much is left, halfway from the digits to the row of buttons. */
+        int32_t digits_bottom = frame_top + FRAME_PADDING + capitals;
+        ui_bar(frame_left, (digits_bottom + body - BAR_HEIGHT) / 2, FRAME_WIDTH, minutes_left(),
                state.minutes);
-        draw_caption(under + CAPTION_GAP, "MIN LEFT");
         ui_actions("Stop", 4, "Close", 5);
     } else {
         ui_frame(frame_left, frame_top, FRAME_WIDTH, frame_height,
                  (state.minutes < MINUTES_MAX ? HOST_UI_ARROW_UP : 0) |
                      (state.minutes > MINUTES_MIN ? HOST_UI_ARROW_DOWN : 0));
-        draw_caption(under + CAPTION_GAP, "MIN");
         ui_actions("Start", 5, "Close", 5);
     }
 }

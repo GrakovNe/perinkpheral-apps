@@ -279,35 +279,21 @@ void app_on_button(int32_t event)
 #define DAY_SLASH_GAP     3
 #define LINE_HEIGHT       30
 
-static void draw_icon(const char *const *rows, int32_t cells, int32_t left, int32_t top)
+static void draw_icon(const uint8_t *picture, int32_t left, int32_t top)
 {
-    for (int32_t row = 0; row < cells; row++) {
-        const char *line = rows[row];
-        /* A run of ink in a row is one rectangle. */
-        for (int32_t column = 0; column < cells;) {
-            if (line[column] != '#') {
-                column++;
-                continue;
-            }
-            int32_t run_start = column;
-            while (column < cells && line[column] == '#') {
-                column++;
-            }
-            gfx_rect(left + run_start * ICON_CELL_PIXELS, top + row * ICON_CELL_PIXELS,
-                     (column - run_start) * ICON_CELL_PIXELS, ICON_CELL_PIXELS, HOST_RECT_FILLED);
-        }
-    }
+    gfx_picture(left, top, picture, ICON_CELL_PIXELS);
 }
 
 /* The columns of an icon that have ink: icons are not all as wide as
- * their cell. */
-static void icon_ink_columns(const char *const *rows, int32_t cells, int32_t *first, int32_t *end)
+ * their cell. A picture is its width, its height and a bit a cell. */
+static void icon_ink_columns(const uint8_t *picture, int32_t *first, int32_t *end)
 {
-    *first = cells;
+    int32_t width = picture[0], height = picture[1], stride = (width + 7) / 8;
+    *first = width;
     *end = 0;
-    for (int32_t row = 0; row < cells; row++) {
-        for (int32_t column = 0; column < cells; column++) {
-            if (rows[row][column] != '#') {
+    for (int32_t row = 0; row < height; row++) {
+        for (int32_t column = 0; column < width; column++) {
+            if ((picture[2 + row * stride + column / 8] & (0x80 >> (column % 8))) == 0) {
                 continue;
             }
             if (column < *first) {
@@ -350,7 +336,7 @@ static void draw_detail(int32_t left, int32_t line, detail_t detail, const char 
     int32_t baseline = top + gfx_font_ascent(HOST_FONT_TEXT);
     int32_t icon_size = DETAIL_ICON_CELLS * ICON_CELL_PIXELS;
     /* The picture stands on the text's baseline. */
-    draw_icon(DETAIL_ICONS[detail], DETAIL_ICON_CELLS, left, baseline - icon_size);
+    draw_icon(DETAIL_ICONS[detail], left, baseline - icon_size);
 
     int32_t value_left = left + icon_size + DETAIL_ICON_GAP;
     int32_t value_right = value_left + draw_text(value_left, top, HOST_FONT_TEXT, value);
@@ -365,9 +351,9 @@ static void draw_now(void)
      * where the digits are counted from. */
     int32_t ink_first;
     int32_t ink_end;
-    icon_ink_columns(LARGE_ICONS[now->icon], LARGE_ICON_CELLS, &ink_first, &ink_end);
+    icon_ink_columns(LARGE_ICONS[now->icon], &ink_first, &ink_end);
     int32_t icon_left = NOW_LEFT - ink_first * ICON_CELL_PIXELS;
-    draw_icon(LARGE_ICONS[now->icon], LARGE_ICON_CELLS, icon_left, MARGIN);
+    draw_icon(LARGE_ICONS[now->icon], icon_left, MARGIN);
 
     char buffer[24];
     app_text_t text;
@@ -415,7 +401,7 @@ static void draw_days(void)
                                            : "";
         draw_centered(center, DAY_NAME_TOP, HOST_FONT_SMALL, name);
         int32_t icon_size = SMALL_ICON_CELLS * ICON_CELL_PIXELS;
-        draw_icon(SMALL_ICONS[condition_of(forecast.days[day].code)->icon], SMALL_ICON_CELLS,
+        draw_icon(SMALL_ICONS[condition_of(forecast.days[day].code)->icon],
                   center - icon_size / 2, DAY_ICON_TOP);
 
         /* "high / low", the slash closer to its numbers than a space would
