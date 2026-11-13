@@ -827,7 +827,7 @@ static void draw_reason(void)
         notice.icon = HOST_ICON_WARNING;
     } else if (last_status == HTTP_OK) {
         app_text_add(&first, "No screen");
-        app_text_add(&detail, "Check the sensor");
+        app_text_add(&detail, "Set it up in HA");
         notice.icon = HOST_ICON_WARNING;
     } else {
         app_text_add(&first, "No answer");
