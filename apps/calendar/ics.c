@@ -439,57 +439,24 @@ static void finish_event(ics_t *ics)
 
 /* ---- lines ---- */
 
-/* The letters of the Russian alphabet as Latin ones, from U+0430: the
- * fonts are ASCII, and a calendar in Russian should still be readable. */
-static const char *const CYRILLIC[] = {
-    "a", "b", "v", "g", "d", "e", "zh", "z", "i", "y", "k", "l", "m", "n", "o", "p",
-    "r", "s", "t", "u", "f", "kh", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya",
-};
-
-static void add_to_title(ics_t *ics, int32_t *length, const char *letters, bool is_capital)
-{
-    for (int32_t i = 0; letters[i] != '\0' && *length < ICS_TITLE_MAX; i++) {
-        char letter = letters[i];
-        ics->title[(*length)++] = i == 0 && is_capital ? (char)(letter - 'a' + 'A') : letter;
-    }
-}
-
-/* SUMMARY's value, its escapes undone, in ASCII. */
+/* SUMMARY's value with its escapes undone, as it came: the host draws what
+ * is not ASCII as best it can. Cut between characters, never inside one. */
 static void take_title(ics_t *ics, const char *value)
 {
     int32_t length = 0;
-    const uint8_t *at = (const uint8_t *)value;
-    while (*at != '\0' && length < ICS_TITLE_MAX) {
-        if (*at == '\\' && at[1] != '\0') {
-            ics->title[length++] = at[1] == 'n' || at[1] == 'N' ? ' ' : (char)at[1];
-            at += 2;
-        } else if (*at < 0x80) {
-            ics->title[length++] = *at < ' ' ? ' ' : (char)*at;
-            at++;
-        } else {
-            /* One character of several bytes. */
-            uint32_t code = *at >= 0xF0 ? *at & 0x07 : *at >= 0xE0 ? *at & 0x0F : *at & 0x1F;
-            at++;
-            while ((*at & 0xC0) == 0x80) {
-                code = (code << 6) | (*at++ & 0x3F);
-            }
-            if (code >= 0x430 && code <= 0x44F) {
-                add_to_title(ics, &length, CYRILLIC[code - 0x430], false);
-            } else if (code >= 0x410 && code <= 0x42F) {
-                add_to_title(ics, &length, CYRILLIC[code - 0x410], true);
-            } else if (code == 0x451 || code == 0x401) {
-                add_to_title(ics, &length, "e", code == 0x401);
-            } else if (code == 0x2013 || code == 0x2014) {
-                ics->title[length++] = '-';
-            } else if (code == 0xA0) {
-                ics->title[length++] = ' ';
-            } else if (code == 0x2018 || code == 0x2019) {
-                ics->title[length++] = '\'';
-            } else if (code == 0xAB || code == 0xBB || code == 0x201C || code == 0x201D) {
-                ics->title[length++] = '"';
-            } else {
-                ics->title[length++] = '?';
-            }
+    while (*value != '\0' && length < ICS_TITLE_MAX) {
+        char c = *value++;
+        if (c == '\\' && *value != '\0') {
+            c = *value == 'n' || *value == 'N' ? ' ' : *value;
+            value++;
+        }
+        ics->title[length++] = (uint8_t)c < ' ' ? ' ' : c;
+    }
+    /* A character of several bytes that did not fit whole goes whole. */
+    if (*value != '\0') {
+        while (length > 0 && ((uint8_t)*value & 0xC0) == 0x80) {
+            value--;
+            length--;
         }
     }
     ics->title[length] = '\0';

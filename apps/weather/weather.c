@@ -53,15 +53,9 @@ typedef struct {
 static forecast_t forecast;
 static bool       has_forecast;
 
-static const char PLACE_KEY[] = "lat";
 static const char CITY_KEY[] = "city";
 static const char HEADER_CITY_KEY[] = "header_city";
-static const char HEADER_DATE_KEY[] = "header_date";
 
-static const char *const WEEKDAYS[DAYS_PER_WEEK] = { "Sun", "Mon", "Tue", "Wed",
-                                                     "Thu", "Fri", "Sat" };
-static const char *const MONTHS[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 /* ---- what a WMO code means ---- */
 
@@ -98,8 +92,16 @@ static const condition_t *condition_of(int32_t code)
 
 /* ---- the store ---- */
 
+/* What the last answer came to, for when there is nothing to show. */
+#define STATUS_KEY "status"
+static int32_t last_status;
+
 static void load_forecast(void)
 {
+    if (kv_get(STATUS_KEY, sizeof STATUS_KEY - 1, &last_status, sizeof last_status) !=
+        sizeof last_status) {
+        last_status = 0;
+    }
     has_forecast = kv_get(FORECAST_KEY, sizeof FORECAST_KEY - 1, &forecast, sizeof forecast) ==
                        sizeof forecast &&
                    forecast.version == FORECAST_VERSION;
@@ -140,15 +142,6 @@ static int32_t shown_speed(int32_t km_per_hour)
     return shows_fahrenheit() ? (km_per_hour * 621 + 500) / 1000 : km_per_hour;
 }
 
-/* The manifest asks every fifteen minutes; the user may want it rarer. */
-static void apply_pace(void)
-{
-    int32_t minutes = SETTING_IS("every", "30 min")    ? 30
-                      : SETTING_IS("every", "1 hour")  ? 60
-                      : SETTING_IS("every", "3 hours") ? 180
-                                                       : 15;
-    poll_set_interval(WEATHER_POLL, minutes * 60);
-}
 
 /* A toggle of the settings is on until somebody turns it off. */
 static bool is_on(const char *key, int32_t key_length)
@@ -157,9 +150,8 @@ static bool is_on(const char *key, int32_t key_length)
     return !(kv_get(key, key_length, value, sizeof value) == 1 && value[0] == '0');
 }
 
-/* The host's header: the city the weather is for, and the date as the
- * host itself writes it, "Wed 11 Nov"; each only while its setting is on.
- * A side that is off is empty, not the host's. */
+/* The host's header: on the left the city the weather is for, while its
+ * setting is on; the right is the host's own - the date, or the time. */
 static void show_header(void)
 {
     static const char EMPTY[] = " ";
@@ -181,26 +173,11 @@ static void show_header(void)
         header_text(HOST_HEADER_LEFT, EMPTY, sizeof EMPTY - 1);
     }
 
-    char date[16];
-    app_text_t text;
-    app_text_start(&text, date, sizeof date);
-    host_local_time_t today;
-    if (is_on(HEADER_DATE_KEY, sizeof HEADER_DATE_KEY - 1) && time_local(&today) == HOST_OK) {
-        app_text_add(&text, WEEKDAYS[today.weekday]);
-        app_text_add(&text, today.day < 10 ? " 0" : " ");
-        app_text_add_number(&text, today.day);
-        app_text_add(&text, " ");
-        app_text_add(&text, MONTHS[today.month - 1]);
-    } else {
-        app_text_add(&text, EMPTY);
-    }
-    header_text(HOST_HEADER_RIGHT, date, app_text_length(date));
 }
 
 void app_init(void)
 {
     load_forecast();
-    apply_pace();
     show_header();
 }
 
@@ -212,6 +189,11 @@ void app_on_focus(void)
 void app_on_values(int32_t request, int32_t http_status)
 {
     (void)request;
+    if (http_status != last_status) {
+        last_status = http_status;
+        kv_set(STATUS_KEY, sizeof STATUS_KEY - 1, &last_status, sizeof last_status);
+        request_redraw(HOST_REDRAW_NORMAL);
+    }
     forecast_t fresh = { .version = FORECAST_VERSION };
     bool is_whole = http_status == HTTP_OK &&
                     app_value_number(VALUE_TEMPERATURE, 0, &fresh.temperature) &&
@@ -239,7 +221,6 @@ void app_on_settings(void)
 {
     has_forecast = false;
     kv_set(FORECAST_KEY, sizeof FORECAST_KEY - 1, &forecast, 0);
-    apply_pace();
     show_header();
     request_redraw(HOST_REDRAW_NORMAL);
 }
@@ -317,16 +298,13 @@ static void draw_centered(int32_t center, int32_t top, int32_t font, const char 
     gfx_text(center - gfx_text_width(font, text, length) / 2, top, font, text, length);
 }
 
-/* How wide a line of the details is: the picture, the value, and a unit
- * that is a word in the small font. */
+/* How wide a line of the details is: the picture, and the value with its
+ * unit as the host sets them. */
 static int32_t detail_width(const char *value, const char *unit)
 {
-    int32_t width = DETAIL_ICON_CELLS * ICON_CELL_PIXELS + DETAIL_ICON_GAP +
-                    gfx_text_width(HOST_FONT_TEXT, value, app_text_length(value));
-    if (unit[0] != '\0') {
-        width += DETAIL_UNIT_GAP + gfx_text_width(HOST_FONT_SMALL, unit, app_text_length(unit));
-    }
-    return width;
+    return DETAIL_ICON_CELLS * ICON_CELL_PIXELS + DETAIL_ICON_GAP +
+           ui_value_width(HOST_FONT_TEXT, value, app_text_length(value), unit,
+                          app_text_length(unit));
 }
 
 static void draw_detail(int32_t left, int32_t line, detail_t detail, const char *value,
@@ -337,11 +315,8 @@ static void draw_detail(int32_t left, int32_t line, detail_t detail, const char 
     int32_t icon_size = DETAIL_ICON_CELLS * ICON_CELL_PIXELS;
     /* The picture stands on the text's baseline. */
     draw_icon(DETAIL_ICONS[detail], left, baseline - icon_size);
-
-    int32_t value_left = left + icon_size + DETAIL_ICON_GAP;
-    int32_t value_right = value_left + draw_text(value_left, top, HOST_FONT_TEXT, value);
-    draw_text(value_right + DETAIL_UNIT_GAP, baseline - gfx_font_ascent(HOST_FONT_SMALL),
-              HOST_FONT_SMALL, unit);
+    ui_value(left + icon_size + DETAIL_ICON_GAP, top, HOST_FONT_TEXT, value,
+             app_text_length(value), unit, app_text_length(unit));
 }
 
 static void draw_now(void)
@@ -390,15 +365,19 @@ static void draw_now(void)
 
 static void draw_days(void)
 {
-    host_local_time_t today;
-    bool knows_the_day = time_local(&today) == HOST_OK;
+    int64_t now = time_now();
     int32_t column_width = gfx_width() / DAYS;
     gfx_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     for (int32_t day = 0; day < DAYS; day++) {
         int32_t center = day * column_width + column_width / 2;
-        const char *name = day == 0         ? "Today"
-                           : knows_the_day ? WEEKDAYS[(today.weekday + day) % DAYS_PER_WEEK]
-                                           : "";
+        /* "Sat", from the host's "Sat 14 Nov". */
+        char name[16] = "Today";
+        if (day > 0) {
+            int32_t length = now != 0 ? time_text(now + (int64_t)day * 86400, HOST_TIME_DATE, name,
+                                                  sizeof name - 1)
+                                      : 0;
+            name[length > 3 ? 3 : length] = '\0';
+        }
         draw_centered(center, DAY_NAME_TOP, HOST_FONT_SMALL, name);
         int32_t icon_size = SMALL_ICON_CELLS * ICON_CELL_PIXELS;
         draw_icon(SMALL_ICONS[condition_of(forecast.days[day].code)->icon],
@@ -431,10 +410,10 @@ void app_on_draw(void)
         draw_days();
         return;
     }
-    char place[2];
-    bool has_place = kv_get(PLACE_KEY, sizeof PLACE_KEY - 1, place, sizeof place) !=
-                     HOST_ERR_NOT_FOUND;
-    draw_text(MARGIN, MARGIN, HOST_FONT_TEXT, "No data.");
-    draw_text(MARGIN, MARGIN + 2 * LINE_HEIGHT, HOST_FONT_TEXT,
-              has_place ? "Waiting for network." : "Set location in settings.");
+    /* Why not, as every application says it; an answer that came without
+     * a forecast in it is this one's own to name. */
+    if (ui_reason(last_status) == 0) {
+        static const host_notice_t NO_DATA = { .first = "No data", .icon = HOST_ICON_WARNING };
+        ui_notice(&NO_DATA);
+    }
 }

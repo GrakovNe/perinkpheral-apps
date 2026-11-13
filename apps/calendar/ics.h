@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define ICS_TITLE_MAX  47
+#define ICS_TITLE_MAX  63
 #define ICS_EVENTS_MAX 24
 
 typedef struct {
@@ -28,7 +28,7 @@ typedef struct {
     int64_t  original; /* where the rule put it, before anybody moved it */
     uint32_t uid;      /* a number made of the event's UID */
     uint8_t  is_all_day;
-    char     title[ICS_TITLE_MAX + 1]; /* ASCII; other letters as Latin ones where there are such */
+    char     title[ICS_TITLE_MAX + 1]; /* as it came, UTF-8, cut between characters */
 } ics_event_t;
 
 #define ICS_LINE_MAX     200

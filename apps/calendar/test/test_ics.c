@@ -85,7 +85,7 @@ static void test_single_events(void)
         CHECK(strcmp(events[1].title, "A very long title that is folded over two lines") == 0);
         CHECK(events[2].is_all_day && events[2].start == utc(2026, 11, 14, 21, 0)); /* midnight in Moscow */
         CHECK(events[2].end - events[2].start == 86400);
-        CHECK(strcmp(events[2].title, "Den rozhdeniya") == 0);
+        CHECK(strcmp(events[2].title, "\xD0\x94\xD0\xB5\xD0\xBD\xD1\x8C \xD1\x80\xD0\xBE\xD0\xB6\xD0\xB4\xD0\xB5\xD0\xBD\xD0\xB8\xD1\x8F") == 0);
         CHECK(events[3].start == utc(2026, 11, 16, 8, 0) && events[3].end == utc(2026, 11, 16, 8, 45));
         CHECK(events[4].start == utc(2026, 11, 17, 5, 0)); /* 08:00 on the device */
     }

@@ -179,49 +179,6 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
 
 /* ---- when to ask ---- */
 
-/* ---- the time in the header, for whoever wants it ----
- *
- * A setting, off unless turned on: the hour and the minute on the right of
- * the host's header, where the date stands. It follows the clock only
- * while the application is on the screen, which is when its header is. */
-#define HEADER_TIME_KEY    "header_time"
-#define MINUTE_TIMER       0
-#define SECONDS_PER_MINUTE 60
-#define MS_PER_SECOND      1000
-#define CLOCK_RETRY_MS     5000 /* while the time is not known yet */
-
-static void show_time_in_header(void)
-{
-    char value[4];
-    bool is_wanted = kv_get(HEADER_TIME_KEY, sizeof HEADER_TIME_KEY - 1, value, sizeof value) == 1 &&
-                     value[0] == '1';
-    host_local_time_t now;
-    if (!is_wanted) {
-        header_text(HOST_HEADER_RIGHT, "", 0); /* the host's date again */
-        timer_set(MINUTE_TIMER, 0);
-        return;
-    }
-    if (time_local(&now) != HOST_OK) {
-        timer_set(MINUTE_TIMER, CLOCK_RETRY_MS);
-        return;
-    }
-    char       line[8];
-    app_text_t text;
-    app_text_start(&text, line, sizeof line);
-    app_text_add_padded(&text, now.hour, 2);
-    app_text_add(&text, ":");
-    app_text_add_padded(&text, now.minute, 2);
-    header_text(HOST_HEADER_RIGHT, line, app_text_length(line));
-    timer_set(MINUTE_TIMER, (SECONDS_PER_MINUTE - now.second) * MS_PER_SECOND);
-}
-
-void app_on_timer(int32_t id)
-{
-    (void)id;
-    show_time_in_header();
-    request_redraw(HOST_REDRAW_NORMAL);
-}
-
 void app_init(void)
 {
     int32_t length = kv_get(SCREEN_KEY, sizeof SCREEN_KEY - 1, screen, SCREEN_MAX);
@@ -246,7 +203,6 @@ void app_on_intent(int32_t intent)
  * alarm. */
 void app_on_focus(void)
 {
-    show_time_in_header();
     if (!has_asked) {
         ask();
     }
@@ -254,8 +210,6 @@ void app_on_focus(void)
 
 void app_on_settings(void)
 {
-    show_time_in_header();
-    request_redraw(HOST_REDRAW_NORMAL);
     keep_fresh();
 }
 
@@ -474,7 +428,6 @@ static void draw_picture(const picture_t *picture, int32_t left, int32_t top, in
 #define DETAIL_TOP      30
 #define DETAIL_LINE     36
 #define DETAIL_GAP      10
-#define DETAIL_UNIT_GAP 5
 #define DETAILS_MAX     2
 /* The rule stands as far under the hero as the hero stands under the
  * header's rule. */
@@ -512,15 +465,9 @@ typedef struct {
 
 static int32_t detail_width(const detail_line_t *detail)
 {
-    int32_t width = text_width(HOST_FONT_TEXT, detail->value);
-    if (detail->picture != NULL) {
-        width += DETAIL_PICTURE + DETAIL_GAP;
-    }
-    if (detail->unit[0] != '\0') {
-        width += DETAIL_UNIT_GAP +
-                 gfx_text_width(HOST_FONT_SMALL, detail->unit, app_text_length(detail->unit));
-    }
-    return width;
+    return (detail->picture != NULL ? DETAIL_PICTURE + DETAIL_GAP : 0) +
+           ui_value_width(HOST_FONT_TEXT, detail->value, app_text_length(detail->value),
+                          detail->unit, app_text_length(detail->unit));
 }
 
 static void draw_detail(int32_t left, int32_t number, int32_t count, const detail_line_t *detail,
@@ -533,10 +480,10 @@ static void draw_detail(int32_t left, int32_t number, int32_t count, const detai
         /* The picture stands on the text's baseline. */
         draw_picture(detail->picture, left, baseline - DETAIL_PICTURE, DETAIL_PICTURE);
     }
-    int32_t value_left = left + (has_pictures ? DETAIL_PICTURE + DETAIL_GAP : 0);
-    int32_t value_right = value_left + draw_text(value_left, top, HOST_FONT_TEXT, detail->value);
-    gfx_text(value_right + DETAIL_UNIT_GAP, baseline - gfx_font_ascent(HOST_FONT_SMALL),
-             HOST_FONT_SMALL, detail->unit, app_text_length(detail->unit));
+    /* The value and, after it, its unit: the host's to set. */
+    ui_value(left + (has_pictures ? DETAIL_PICTURE + DETAIL_GAP : 0), top, HOST_FONT_TEXT,
+             detail->value, app_text_length(detail->value), detail->unit,
+             app_text_length(detail->unit));
 }
 
 static void copy(char *to, int32_t size, const char *from)
@@ -713,36 +660,15 @@ static void draw_hero_layout(void)
 }
 
 /* Nothing to show yet, and why. */
+/* Why there is no screen: as every application says it, and for an
+ * answer that came with no screen in it, this one's own word. */
 static void draw_reason(void)
 {
-    host_notice_t notice = { .icon = HOST_ICON_GEAR };
-    app_text_t first, detail;
-    app_text_start(&first, notice.first, sizeof notice.first);
-    app_text_start(&detail, notice.detail, sizeof notice.detail);
-    if (last_status == 0) {
-        app_text_add(&first, "Loading");
-        notice.icon = HOST_ICON_HOURGLASS;
-    } else if (last_status == HOST_FAILED_NOT_READY) {
-        app_text_add(&first, "Not set up");
-        app_text_add(&detail, "Open the page");
-    } else if (last_status == HOST_FAILED_NO_NETWORK) {
-        app_text_add(&first, "No network");
-        notice.icon = HOST_ICON_NO_SIGNAL;
-    } else if (last_status == HTTP_UNAUTHORIZED) {
-        app_text_add(&first, "Access denied");
-        app_text_add(&detail, "Check the token");
-        notice.icon = HOST_ICON_WARNING;
-    } else if (last_status == HTTP_OK) {
-        app_text_add(&first, "No screen");
-        app_text_add(&detail, "Set it up in HA");
-        notice.icon = HOST_ICON_WARNING;
-    } else {
-        app_text_add(&first, "No answer");
-        app_text_add(&detail, "Code ");
-        app_text_add_number(&detail, last_status);
-        notice.icon = HOST_ICON_WARNING;
+    if (ui_reason(last_status) == 0) {
+        static const host_notice_t NO_SCREEN = { .first = "No screen", .detail = "Set it up in HA",
+                                                 .icon = HOST_ICON_WARNING };
+        ui_notice(&NO_SCREEN);
     }
-    ui_notice(&notice);
 }
 
 void app_on_draw(void)

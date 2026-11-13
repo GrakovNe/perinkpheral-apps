@@ -8,8 +8,8 @@
  * the application reads it as it comes into the next events (ics.c). No
  * account is bound to anything and nothing passes a server of ours.
  *
- * It reminds, too: some minutes before an event it takes the screen from
- * whatever has it and says what begins. The reminder is an alarm of the
+ * It reminds, too: some minutes before an event the host says what begins,
+ * over whatever has the screen (notify). The reminder is an alarm of the
  * host's at a moment worked out from the events in the store, so it comes
  * although the application is not loaded - and after a restart, which
  * forgets alarms, it is set again.
@@ -39,7 +39,7 @@
 /* ---- what is kept ---- */
 
 #define EVENTS_FILE    "events"
-#define EVENTS_VERSION 1
+#define EVENTS_VERSION 2
 typedef struct {
     int32_t     version;
     int32_t     count;
@@ -47,21 +47,15 @@ typedef struct {
 } stored_events_t;
 
 #define STATE_KEY     "state"
-#define STATE_VERSION 1
+#define STATE_VERSION 2
 typedef struct {
     int32_t version;
     int32_t status;      /* of the last fetch: 0 none yet, an HTTP one, a HOST_FAILED_*, a STATUS_* */
     int64_t reminded_to; /* reminders due up to this moment were given */
-    /* The reminder on the screen, until somebody answers it. */
-    int32_t is_reminding;
-    int32_t took_the_screen;
-    int64_t reminded_start;
-    char    reminded_title[ICS_TITLE_MAX + 1];
 } state_t;
 
 static stored_events_t stored;
 static state_t         state;
-static bool            is_on_screen;
 
 static void save_state(void)
 {
@@ -109,8 +103,6 @@ static int32_t lead_seconds(void)
     return choice[0] == 'O' ? -1 : seconds_of(choice, 0);
 }
 
-static void wake_at_the_next_turn(void);
-
 /* ---- the reminder ---- */
 
 /* The alarm for the reminder that comes next, or none. */
@@ -137,6 +129,25 @@ static void set_the_alarm(void)
     }
 }
 
+/* The reminder is the host's to show: when it begins, and what it is. */
+static void remind_of(const ics_event_t *event)
+{
+    host_notice_t notice = { .icon = HOST_ICON_BELL };
+    notice.first[time_text(event->start, HOST_TIME_CLOCK, notice.first, sizeof notice.first - 1)] = '\0';
+    const char *title = event->title[0] != '\0' ? event->title : "Event";
+    int32_t length = 0;
+    while (title[length] != '\0' && length < (int32_t)sizeof notice.detail - 1) {
+        notice.detail[length] = title[length];
+        length++;
+    }
+    /* Cut between characters, not inside one of several bytes. */
+    while (length > 0 && ((uint8_t)title[length] & 0xC0) == 0x80) {
+        length--;
+    }
+    notice.detail[length] = '\0';
+    notify(&notice);
+}
+
 void app_on_alarm(int32_t id)
 {
     (void)id;
@@ -145,22 +156,10 @@ void app_on_alarm(int32_t id)
     for (int32_t i = 0; i < stored.count && lead >= 0 && now != 0; i++) {
         const ics_event_t *event = &stored.events[i];
         int64_t due = event->start - lead;
-        if (event->is_all_day || due <= state.reminded_to || due > now ||
-            event->start + LATE_SECONDS < now) {
-            continue;
+        if (!event->is_all_day && due > state.reminded_to && due <= now &&
+            event->start + LATE_SECONDS >= now) {
+            remind_of(event);
         }
-        state.is_reminding = 1;
-        state.took_the_screen = !is_on_screen;
-        state.reminded_start = event->start;
-        for (int32_t at = 0; at <= ICS_TITLE_MAX; at++) {
-            state.reminded_title[at] = event->title[at];
-        }
-        request_focus();
-        request_redraw(HOST_REDRAW_SOON);
-        if (is_on_screen) {
-            wake_at_the_next_turn();
-        }
-        break;
     }
     if (now != 0) {
         state.reminded_to = now;
@@ -251,26 +250,12 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
     }
 }
 
-static void keep_the_pace(void)
-{
-    char choice[16];
-    setting("every", 5, choice, sizeof choice);
-    poll_set_interval(FEED_POLL, seconds_of(choice, 15 * SECONDS_PER_MINUTE));
-}
-
 /* ---- when things happen ---- */
 
 /* The list changes by itself when an event begins or ends. */
 static void wake_at_the_next_turn(void)
 {
     int64_t now = time_now(), next = 0;
-    if (state.is_reminding && now != 0) {
-        /* "In 5 min" is another line a minute later. */
-        int64_t left = state.reminded_start - now;
-        timer_set(TURN_TIMER, (int32_t)(left > 0 ? (left - 1) % SECONDS_PER_MINUTE + 1
-                                                 : SECONDS_PER_MINUTE) * MS_PER_SECOND);
-        return;
-    }
     for (int32_t i = 0; i < stored.count && now != 0; i++) {
         const ics_event_t *event = &stored.events[i];
         int64_t turn = event->start > now ? event->start : event->end > now ? event->end : 0;
@@ -299,13 +284,7 @@ void app_init(void)
 
 void app_on_focus(void)
 {
-    is_on_screen = true;
     wake_at_the_next_turn();
-}
-
-void app_on_blur(void)
-{
-    is_on_screen = false;
 }
 
 void app_on_timer(int32_t id)
@@ -319,15 +298,12 @@ void app_on_intent(int32_t intent)
 {
     /* A restart forgot the alarm, and a clock set anew moves "in ten
      * minutes" to another moment. */
-    if (intent == HOST_INTENT_STARTED) {
-        keep_the_pace();
-    }
+    (void)intent;
     set_the_alarm();
 }
 
 void app_on_settings(void)
 {
-    keep_the_pace();
     set_the_alarm();
     request_redraw(HOST_REDRAW_NORMAL);
 }
@@ -336,26 +312,8 @@ void app_on_settings(void)
 
 static app_list_t list = { .selected = -1 };
 
-static void answer_the_reminder(void)
-{
-    bool leaves = state.took_the_screen != 0;
-    state.is_reminding = 0;
-    save_state();
-    if (leaves) {
-        request_exit(); /* back to what the user was looking at */
-    } else {
-        request_redraw(HOST_REDRAW_NORMAL);
-    }
-}
-
 void app_on_button(int32_t event)
 {
-    if (state.is_reminding) {
-        if (event == BTN_OK_PRESSED) {
-            answer_the_reminder();
-        }
-        return;
-    }
     if (event == BTN_OK_PRESSED) {
         poll_now(FEED_POLL);
     } else if (app_list_button(&list, event) == APP_UI_CHANGED) {
@@ -363,127 +321,45 @@ void app_on_button(int32_t event)
     }
 }
 
-void app_on_back(void)
-{
-    if (state.is_reminding) {
-        answer_the_reminder();
-    } else {
-        request_exit();
-    }
-}
-
 /* ---- the picture ---- */
 
-static const char *const WEEKDAYS[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-static const char *const MONTHS[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-
-static void add_clock(app_text_t *text, const host_local_time_t *at)
+/* When an event is, as short as the host says it: "15:00" today, "Sat
+ * 15:00" this week, "21 Nov" beyond it; a whole day is its day alone, and
+ * one that has begun is "Now". */
+static int32_t say_when(const ics_event_t *event, int64_t now, char *line, int32_t size)
 {
-    app_text_add_padded(text, at->hour, 2);
-    app_text_add(text, ":");
-    app_text_add_padded(text, at->minute, 2);
-}
-
-/* How many days from today the moment is, on the user's calendar. */
-static int32_t days_from_today(int64_t now, int64_t moment)
-{
-    host_local_time_t today;
-    time_local_at(now, &today);
-    /* Midnight today, as a moment; the user's days are counted from it. */
-    today.hour = today.minute = today.second = 0;
-    int64_t midnight = time_from_local(&today);
-    int64_t since = moment - midnight;
-    return (int32_t)(since >= 0 ? since / SECONDS_PER_DAY : -1);
-}
-
-/* When an event is, as short as it can be said: "15:00" today, "Sat 15:00"
- * this week, "21 Nov" beyond it; a whole day is its day alone. */
-static void say_when(const ics_event_t *event, int64_t now, char *line, int32_t size)
-{
-    app_text_t        text;
-    host_local_time_t at;
-    app_text_start(&text, line, size);
-    time_local_at(event->start, &at);
-    int32_t days = days_from_today(now, event->start);
     if (event->start <= now) {
-        app_text_add(&text, event->is_all_day ? "Today" : "Now");
-    } else if (days == 0) {
-        if (event->is_all_day) {
-            app_text_add(&text, "Today");
-        } else {
-            add_clock(&text, &at);
+        const char *word = event->is_all_day ? "Today" : "Now";
+        int32_t     length = app_text_length(word);
+        for (int32_t i = 0; i < length; i++) {
+            line[i] = word[i];
         }
-    } else if (days < 7) {
-        app_text_add(&text, days == 1 ? "Tmrw" : WEEKDAYS[at.weekday]);
-        if (!event->is_all_day) {
-            app_text_add(&text, " ");
-            add_clock(&text, &at);
-        }
-    } else {
-        app_text_add_number(&text, at.day);
-        app_text_add(&text, " ");
-        app_text_add(&text, MONTHS[at.month - 1]);
+        return length;
     }
+    return time_text(event->start, event->is_all_day ? HOST_TIME_NEAR_DAY : HOST_TIME_NEAR, line,
+                     size);
 }
 
-/* The reminder: when it begins, how soon that is, and what it is - the
- * title in the line of ordinary text, which holds the most of it. */
-static void draw_reminder(void)
-{
-    host_notice_t     notice = { .icon = HOST_ICON_BELL, .ok = "Dismiss" };
-    host_local_time_t at;
-    app_text_t        text;
-    time_local_at(state.reminded_start, &at);
-    app_text_start(&text, notice.first, sizeof notice.first);
-    add_clock(&text, &at);
-    app_text_start(&text, notice.second, sizeof notice.second);
-    int64_t minutes =
-        (state.reminded_start - time_now() + SECONDS_PER_MINUTE - 1) / SECONDS_PER_MINUTE;
-    if (minutes > 0) {
-        app_text_add(&text, "In ");
-        app_text_add_number(&text, (int32_t)minutes);
-        app_text_add(&text, " min");
-    } else {
-        app_text_add(&text, "Now");
-    }
-    app_text_start(&text, notice.detail, sizeof notice.detail);
-    app_text_add(&text, state.reminded_title[0] != '\0' ? state.reminded_title : "Event");
-    ui_notice(&notice);
-}
-
-/* Why there is nothing to show: what the last fetch came to. */
+/* Why there is nothing to show: the host's word for what the network
+ * came to, and this application's own for the rest. */
 static void draw_reason(void)
 {
-    static const struct {
-        int32_t     status;
-        int32_t     icon;
-        const char *first, *detail;
-    } REASONS[] = {
-        { 0, HOST_ICON_HOURGLASS, "Loading", "" },
-        { HOST_FAILED_NOT_READY, HOST_ICON_GEAR, "Not set up", "Open the page" },
-        { HOST_FAILED_NO_NETWORK, HOST_ICON_NO_SIGNAL, "No network", "" },
-        { HTTP_OK, HOST_ICON_CHECK, "No events", "" },
-        { STATUS_NOT_A_CALENDAR, HOST_ICON_WARNING, "Not a calendar", "Check the address" },
-        { STATUS_NO_TIME, HOST_ICON_CLOCK, "No time yet", "" },
-        { HOST_FAILED_TOO_LARGE, HOST_ICON_WARNING, "Too large", "" },
-    };
     host_notice_t notice = { .icon = HOST_ICON_WARNING };
     app_text_t    first, detail;
     app_text_start(&first, notice.first, sizeof notice.first);
     app_text_start(&detail, notice.detail, sizeof notice.detail);
-    for (size_t i = 0; i < sizeof REASONS / sizeof REASONS[0]; i++) {
-        if (REASONS[i].status == state.status) {
-            notice.icon = REASONS[i].icon;
-            app_text_add(&first, REASONS[i].first);
-            app_text_add(&detail, REASONS[i].detail);
-            ui_notice(&notice);
-            return;
-        }
+    if (state.status == STATUS_NOT_A_CALENDAR) {
+        app_text_add(&first, "Not a calendar");
+        app_text_add(&detail, "Check the address");
+    } else if (state.status == STATUS_NO_TIME) {
+        app_text_add(&first, "No time yet");
+        notice.icon = HOST_ICON_CLOCK;
+    } else if (ui_reason(state.status) == 0) {
+        app_text_add(&first, "No events");
+        notice.icon = HOST_ICON_CHECK;
+    } else {
+        return;
     }
-    app_text_add(&first, "No answer");
-    app_text_add(&detail, "Code ");
-    app_text_add_number(&detail, state.status);
     ui_notice(&notice);
 }
 
@@ -494,10 +370,6 @@ static void draw_reason(void)
 void app_on_draw(void)
 {
     int64_t now = time_now();
-    if (state.is_reminding && state.reminded_start + LATE_SECONDS > now) {
-        draw_reminder();
-        return;
-    }
     /* What is over is not shown; the events are in order of their start. */
     static int32_t shown[ICS_EVENTS_MAX];
     int32_t        count = 0;
@@ -515,8 +387,7 @@ void app_on_draw(void)
     for (int32_t row = first; row < first + visible && row < count; row++) {
         const ics_event_t *event = &stored.events[shown[row]];
         char when[16], title[ICS_TITLE_MAX + 1];
-        say_when(event, now, when, sizeof when);
-        int32_t when_length = app_text_length(when);
+        int32_t when_length = say_when(event, now, when, sizeof when);
         /* The title has what the moment leaves of the row. */
         int32_t room = gfx_width() - 2 * HOST_UI_MARGIN - ROW_GAP - (count > visible ? ROW_BAR_ROOM : 0) -
                        gfx_text_width(HOST_FONT_TEXT, when, when_length);

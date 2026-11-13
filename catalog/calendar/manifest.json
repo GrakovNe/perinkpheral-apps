@@ -1,6 +1,6 @@
 {
   "name": "calendar",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Calendar",
   "abi": 2,
   "settings": [
@@ -12,7 +12,7 @@
       "options": ["Off", "At start", "5 min", "10 min", "15 min", "30 min"], "default": "10 min" }
   ],
   "polls": [
-    { "url": "{{feed}}", "every": 900 }
+    { "url": "{{feed}}", "every": "{{every}}" }
   ],
   "hosts": ["{{feed}}"],
   "intents": ["started", "time_changed"],

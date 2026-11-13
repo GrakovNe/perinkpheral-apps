@@ -27,11 +27,6 @@
 #define TIME_TO_DATE_GAP 50
 #define DATE_LINE_GAP    16
 
-static const char *const WEEKDAYS[DAYS_PER_WEEK] = { "Sunday",   "Monday", "Tuesday", "Wednesday",
-                                                     "Thursday", "Friday", "Saturday" };
-static const char *const MONTHS[] = { "January", "February", "March",     "April",
-                                      "May",     "June",     "July",      "August",
-                                      "September", "October", "November", "December" };
 
 static void wake_for_the_next_picture(void)
 {
@@ -82,20 +77,12 @@ void app_on_draw(void)
 {
     char time_line[8], weekday_line[24], date_line[24];
     app_text_t text;
-    host_local_time_t now;
-    if (time_local(&now) == HOST_OK) {
-        app_text_start(&text, time_line, sizeof time_line);
-        app_text_add_padded(&text, now.hour, 2);
-        app_text_add(&text, ":");
-        app_text_add_padded(&text, now.minute, 2);
-
-        app_text_start(&text, weekday_line, sizeof weekday_line);
-        app_text_add(&text, WEEKDAYS[now.weekday]);
-
-        app_text_start(&text, date_line, sizeof date_line);
-        app_text_add_number(&text, now.day);
-        app_text_add(&text, " ");
-        app_text_add(&text, MONTHS[now.month - 1]);
+    int64_t now = time_now();
+    if (now != 0) {
+        /* The host says a moment in words: no names of days here. */
+        time_line[time_text(now, HOST_TIME_CLOCK, time_line, sizeof time_line - 1)] = '\0';
+        weekday_line[time_text(now, HOST_TIME_WEEKDAY, weekday_line, sizeof weekday_line - 1)] = '\0';
+        date_line[time_text(now, HOST_TIME_LONG_DATE, date_line, sizeof date_line - 1)] = '\0';
     } else {
         app_text_start(&text, time_line, sizeof time_line);
         app_text_add(&text, "--:--");
