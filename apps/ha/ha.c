@@ -515,8 +515,8 @@ static void draw_column(int32_t number, int32_t count, const line_t *line)
 #define ITEMS_MAX 12
 
 typedef struct {
-    char name[24];
-    char value[24];
+    char name[48]; /* as wide as the host's cell takes: half as many letters of Cyrillic */
+    char value[48];
     const picture_t *picture;
 } item_t;
 

@@ -4,7 +4,7 @@
     {
       "name": "badapple",
       "title": "Bad Apple",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 2,
       "files": [
         {
@@ -20,7 +20,7 @@
         {
           "name": "manifest.json",
           "size": 330,
-          "sha256": "6b6f4600e0990bef7c46b40b885d583ce2e838141bf158841851400dde72d1f8"
+          "sha256": "698ae5b6d44e8791656ca083192885abc957b125c7a23457bc7663570ba6f398"
         }
       ],
       "icon": [
@@ -40,18 +40,18 @@
     {
       "name": "calendar",
       "title": "Calendar",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 11684,
-          "sha256": "9827e652a445831a89d851e664224757201eb688f278054f9ef613ac64209cdd"
+          "size": 11687,
+          "sha256": "45a8a885a91b34623d026959033f4daa7460c5efa91c45fb460b6b0135404002"
         },
         {
           "name": "manifest.json",
           "size": 884,
-          "sha256": "27d93b3db04a0238d3531ffc374c2a38dcd6933fb888c65b3aaf756b5be1030a"
+          "sha256": "1a46375d62b4d2c46680dbf76c884cf7dd53be4141c341d162d657cdc558f157"
         }
       ],
       "icon": [
@@ -71,7 +71,7 @@
     {
       "name": "clock",
       "title": "Clock",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "abi": 2,
       "files": [
         {
@@ -82,7 +82,7 @@
         {
           "name": "manifest.json",
           "size": 362,
-          "sha256": "0fcc2b52f5d05ba3c04e6cc0966d3d88e3c761d6f8874446ef630eef9c8e7bdd"
+          "sha256": "9420f18dac97cd1677b21ae42d8a1f392916540ad3a669bd3e9bdd6729dc29d7"
         }
       ],
       "icon": [
@@ -102,18 +102,18 @@
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 9343,
-          "sha256": "ce51eb3822c1c9801701c531078290fd9f6e8c063183b9e9200c73caf16096c1"
+          "size": 9494,
+          "sha256": "b1da304666a8ddef1b835cbd452783c6d17b1242529a1bf560d7e9d11132c5d0"
         },
         {
           "name": "manifest.json",
           "size": 739,
-          "sha256": "20ad4bbc055f405a1bcf9ab68b1519f1144372b48b953c8cbb7cff7c175b82a1"
+          "sha256": "cadca5e1a02ab5095fd260d632c7005239fceb42196d33c69f5fdff22206bc57"
         }
       ],
       "icon": [
@@ -133,18 +133,18 @@
     {
       "name": "kit",
       "title": "UI Kit",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 5534,
-          "sha256": "58d0e49be7982ed05eba4e47c64f842a4d04f43a98714259d4c0a55bc262a2b1"
+          "size": 5528,
+          "sha256": "71024ea6086af22948bc89469d91f13ece3df8b9f4cfea52b32aa60e887b695b"
         },
         {
           "name": "manifest.json",
           "size": 300,
-          "sha256": "238456911e13edb2f0d1ae671b9d339d756f8c5c039d8dbae488d0286f785dbb"
+          "sha256": "0fcdbe59cbdf25ebd326c15208218a63cd2a97337898afacffc0798c0aca8d74"
         }
       ],
       "icon": [
@@ -164,18 +164,18 @@
     {
       "name": "stopwatch",
       "title": "Stopwatch",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2537,
-          "sha256": "6e9d22962533a705ce66b120db60b0b783fd55a3af7171428e6ca35fb7dcd93b"
+          "size": 2534,
+          "sha256": "b2c98c84544a8a2f2c4d4e9a960d4de283623bcfe0257e00ff20ce4d9ba4544e"
         },
         {
           "name": "manifest.json",
           "size": 335,
-          "sha256": "54a3c51f611fdc3dc3b4c6c886f263965fb33458ab5ae89d528445db6707b1d5"
+          "sha256": "e31b864651f6f94a6b4e1e5cd72bedd3ccf07d96432b2aa95b60d7e3e99cd9b8"
         }
       ],
       "icon": [
@@ -195,18 +195,18 @@
     {
       "name": "timer",
       "title": "Timer",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2415,
-          "sha256": "1895a8d354c2fa3d11345382c1517d53573d3e7b23d7ed09a232aaa4b8742970"
+          "size": 2556,
+          "sha256": "98e5e35f234480cdbd58722d980e85cfaa3ec6f959f7d71a96eb7caaf1bbf1c2"
         },
         {
           "name": "manifest.json",
           "size": 301,
-          "sha256": "5fc1f7357b9ee08b660d5544c78435a619a30b31e9bf02ec14eb67c509d0274d"
+          "sha256": "d4114c9bc50a753cede1f5c5ee9044358e366c91140dbdfab03c654092172d2c"
         }
       ],
       "icon": [
@@ -226,18 +226,18 @@
     {
       "name": "weather",
       "title": "Weather",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 6343,
-          "sha256": "0b5d4837db31efe10b81358877917711aaa36bc824a474c8204a2e7de38e42e8"
+          "size": 6487,
+          "sha256": "e4787df13837b3cdbf697af5b97fddfbe198ab36142cc352f6fff34a367e0ece"
         },
         {
           "name": "manifest.json",
           "size": 1893,
-          "sha256": "66c8cd433a89f2047cf8a65d0838fa55f82720aa7856716f5e8fd67f6908846d"
+          "sha256": "c6bffbcc52cab351e75dc2d62c0b5d38f9b83eb7936bc2b2ed635d5a5d247614"
         }
       ],
       "icon": [
