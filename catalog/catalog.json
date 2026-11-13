@@ -71,18 +71,18 @@
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 18015,
-          "sha256": "639a71a6eacabe52787ddb49062bec76e3f902fabab02e9f028026c396ae1538"
+          "size": 18117,
+          "sha256": "24f1b569c3507988de07464ab66ae3e8c3d019ead6a89c2e18c9d8d4e0e0504c"
         },
         {
           "name": "manifest.json",
-          "size": 734,
-          "sha256": "c478d66af7f1f803aae2a1ac2686bef8e060667beb8e3d22f9c008174cb9c910"
+          "size": 739,
+          "sha256": "d089da84ff5fe75b8e1811b795eb1f2e0e7a9fd172d611c0da76606ea69b9ec5"
         }
       ],
       "icon": [

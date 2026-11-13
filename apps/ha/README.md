@@ -1,5 +1,10 @@
 # HA Companion
 
+**The easy way** is the integration for Home Assistant,
+https://github.com/GrakovNe/perinkpheral-hacs: screens are put together in its forms and it
+sets this application up by itself - the address, a secret of its own, the Sensor left
+empty. What follows is the other way, a sensor written by hand.
+
 A screen for Home Assistant: what it shows is described in Home Assistant,
 how it looks is drawn on the device.
 

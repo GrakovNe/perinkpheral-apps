@@ -99,17 +99,27 @@ static bool has_asked;
 static void ask(void)
 {
     has_asked = true;
-    static const char URL[] = "{{server}}/api/template";
-    static const char HEADERS[] = "Authorization: Bearer {{token}}\nContent-Type: application/json";
     char entity[64];
     int32_t length = kv_get("entity", 6, entity, sizeof entity - 1);
     entity[length > 0 ? length : 0] = '\0';
 
+    if (entity[0] == '\0') {
+        /* No sensor named: the screen is the integration's, which knows the
+         * device by the secret it gave it and answers with the screen. */
+        static const char URL[] = "{{server}}/api/perinkpheral/screen";
+        static const char HEADERS[] = "Authorization: Bearer {{token}}";
+        http_request(REQUEST_SCREEN, HOST_HTTP_GET, URL, sizeof URL - 1, HEADERS,
+                     sizeof HEADERS - 1, "", 0);
+        return;
+    }
+    /* A sensor of the user's own making: its attribute, rendered as a template. */
+    static const char URL[] = "{{server}}/api/template";
+    static const char HEADERS[] = "Authorization: Bearer {{token}}\nContent-Type: application/json";
     char body[160];
     app_text_t text;
     app_text_start(&text, body, sizeof body);
     app_text_add(&text, "{\"template\":\"{{ state_attr('");
-    app_text_add(&text, entity[0] != '\0' ? entity : "sensor.perinkpheral");
+    app_text_add(&text, entity);
     app_text_add(&text, "','screen') }}\"}");
     http_request(REQUEST_SCREEN, HOST_HTTP_POST, URL, sizeof URL - 1, HEADERS, sizeof HEADERS - 1,
                  body, length_of(body));

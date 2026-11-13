@@ -1,12 +1,12 @@
 {
   "name": "ha",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "HA Companion",
   "abi": 2,
   "settings": [
     { "key": "server", "type": "url", "title": "Server" },
     { "key": "token", "type": "secret", "title": "Access token" },
-    { "key": "entity", "type": "text", "title": "Sensor", "default": "sensor.perinkpheral" },
+    { "key": "entity", "type": "text", "title": "Sensor", "help": "Empty with the integration." },
     { "key": "every", "type": "choice", "title": "Refresh",
       "options": ["1 min", "5 min", "15 min", "1 h"], "default": "5 min" }
   ],
