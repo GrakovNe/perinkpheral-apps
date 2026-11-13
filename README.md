@@ -2,7 +2,7 @@
 
 The official applications for [perINKpheral](https://github.com/GrakovNe/perinkpheral),
 the desk e-paper companion: the ones a user may or may not want. A device
-holds five applications at a time; this is where the rest of them wait.
+holds six applications at a time; this is where the rest of them wait.
 
 | Application | What it is |
 |---|---|
