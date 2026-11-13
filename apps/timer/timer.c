@@ -231,7 +231,7 @@ void app_on_draw(void)
     int32_t body = gfx_height() - HOST_UI_ACTIONS_HEIGHT;
     int32_t frame_height = capitals + 2 * FRAME_PADDING;
     int32_t frame_left = (gfx_width() - FRAME_WIDTH) / 2;
-    int32_t frame_top = (body - frame_height) / 2 - BAR_HEIGHT;
+    int32_t frame_top = (body - frame_height) / 2;
 
     /* The number and, after it on its baseline, what it is a number of:
      * a unit in the text's size, as beside every value. */

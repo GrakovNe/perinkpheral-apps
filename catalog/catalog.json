@@ -164,18 +164,18 @@
     {
       "name": "timer",
       "title": "Timer",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2580,
-          "sha256": "5eff70c803b677d3eab660fcb3d62ab13279ef4face219809406da1e3b435ffb"
+          "size": 2577,
+          "sha256": "6b230019e83c61b0afb00a9e25f8c6f0ea97f051834e594699e9c7b2e8cd4956"
         },
         {
           "name": "manifest.json",
           "size": 301,
-          "sha256": "592bd974574518385bd58bf895a1078004bb7d93633f45dcbac4066dd9db0310"
+          "sha256": "6e0f26cf030f821fe16a6b929252997e2b5fba1fd797f40a7693970a5578eb85"
         }
       ],
       "icon": [
