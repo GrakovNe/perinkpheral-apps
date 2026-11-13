@@ -214,8 +214,7 @@ void app_on_draw(void)
         draw_rows(&units, UNITS, NULL, unit_set);
         break;
     case PAGE_DETAILS:
-        facts.top = ui_title("Details", 7);
-        facts.height = gfx_height() - facts.top - HOST_UI_ACTIONS_HEIGHT;
+        facts.height = gfx_height() - HOST_UI_ACTIONS_HEIGHT;
         draw_rows(&facts, FACT_LABELS, FACT_VALUES, -1);
         ui_actions("", 0, "Back", 4);
         break;
