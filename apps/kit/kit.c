@@ -62,11 +62,6 @@ static app_list_t facts = { .count = COUNT_OF(FACT_LABELS), .selected = -1 };
 static app_date_t when;
 static int32_t    bar_value = 3;
 
-static int32_t length_of(const char *text)
-{
-    return app_text_length(text);
-}
-
 static void open(page_t next)
 {
     page = next;
@@ -166,12 +161,10 @@ static void draw_rows(app_list_t *list, const char *const *labels, const char *c
     int32_t first = app_list_first(list);
     for (int32_t i = first; i < first + ui_list_visible(list) && i < list->count; i++) {
         const char *value = values != NULL ? values[i] : "";
-        ui_list_row(list, i, labels[i], length_of(labels[i]), value, length_of(value),
+        ui_list_row(list, i, labels[i], app_text_length(labels[i]), value, app_text_length(value),
                     i == checked ? HOST_ICON_CHECK : HOST_ICON_NONE);
     }
 }
-
-static void copy(char *to, int32_t size, const char *from);
 
 /* Cells: a name, a picture and a value in a box of any size, laid out and
  * sized by the host. Those that stand together are of one size - the size
@@ -188,8 +181,8 @@ static void draw_cells(int32_t count)
     for (int32_t i = 0; i < count; i++) {
         cells[i] = (host_cell_t){ .x = i % columns * width, .y = i / columns * height,
                                   .width = width, .height = height };
-        copy(cells[i].name, sizeof cells[i].name, NAMES[i]);
-        copy(cells[i].value, sizeof cells[i].value, VALUES[i]);
+        app_text_copy(cells[i].name, sizeof cells[i].name, NAMES[i]);
+        app_text_copy(cells[i].value, sizeof cells[i].value, VALUES[i]);
         int32_t fits = ui_cell_fit(&cells[i], PICTURES[i]);
         size = fits > size ? fits : size;
     }
@@ -217,7 +210,7 @@ static void draw_charts(void)
     for (int32_t i = 0; i < 4; i++) {
         int32_t left = HOST_UI_MARGIN + i % 2 * (column + HOST_UI_MARGIN);
         int32_t at = top + i / 2 * (row + HOST_UI_MARGIN);
-        ui_text(left, at, HOST_UI_CAPTION, NAMES[i], length_of(NAMES[i]), 0);
+        ui_text(left, at, HOST_UI_CAPTION, NAMES[i], app_text_length(NAMES[i]), 0);
         host_chart_t chart = {
             .x = left, .y = at + 16, .width = column, .height = row - 16,
             .kind = i, /* HOST_CHART_LINE, AREA, BARS, STEPS */
@@ -248,17 +241,10 @@ static void draw_primitives(void)
     app_text_t text;
     app_text_start(&text, number, sizeof number);
     app_text_add_number(&text, bar_value);
-    ui_text(120, row - 12, HOST_UI_VALUE, number, length_of(number), 0);
+    ui_text(120, row - 12, HOST_UI_VALUE, number, app_text_length(number), 0);
     ui_button(262, row + 14, "UP", 2, "More", 4, false);
     ui_bar(16, row + 58, gfx_width() - 32, bar_value, 10);
     ui_actions("", 0, "Close", 5);
-}
-
-static void copy(char *to, int32_t size, const char *from)
-{
-    app_text_t text;
-    app_text_start(&text, to, size);
-    app_text_add(&text, from);
 }
 
 void app_on_draw(void)
@@ -302,22 +288,22 @@ void app_on_draw(void)
         app_date_draw(&when);
         break;
     case PAGE_MESSAGE:
-        copy(notice.first, sizeof notice.first, "Not set up");
-        copy(notice.detail, sizeof notice.detail, "Open the page");
+        app_text_copy(notice.first, sizeof notice.first, "Not set up");
+        app_text_copy(notice.detail, sizeof notice.detail, "Open the page");
         notice.icon = HOST_ICON_GEAR;
         ui_notice(&notice);
         break;
     case PAGE_QUESTION:
-        copy(notice.first, sizeof notice.first, "Remove");
-        copy(notice.second, sizeof notice.second, "everything?");
-        copy(notice.ok, sizeof notice.ok, "Remove");
-        copy(notice.back, sizeof notice.back, "Cancel");
+        app_text_copy(notice.first, sizeof notice.first, "Remove");
+        app_text_copy(notice.second, sizeof notice.second, "everything?");
+        app_text_copy(notice.ok, sizeof notice.ok, "Remove");
+        app_text_copy(notice.back, sizeof notice.back, "Cancel");
         notice.icon = HOST_ICON_TRASH;
         ui_notice(&notice);
         break;
     case PAGE_WORKING:
-        copy(notice.first, sizeof notice.first, "Loading");
-        copy(notice.second, sizeof notice.second, "in progress");
+        app_text_copy(notice.first, sizeof notice.first, "Loading");
+        app_text_copy(notice.second, sizeof notice.second, "in progress");
         notice.is_working = 1;
         ui_notice(&notice);
         break;

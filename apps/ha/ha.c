@@ -30,6 +30,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "app_draw.h"
 #include "app_text.h"
 #include "host_api.h"
 #include "icons.h"
@@ -300,22 +301,6 @@ static int32_t degree_at(const char *text)
     return -1;
 }
 
-static int32_t text_width(int32_t font, const char *text)
-{
-    return gfx_text_width(font, text, app_text_length(text));
-}
-
-/* `top` is the top of the line, as gfx_text takes it. Returns the width. */
-static int32_t draw_text(int32_t left, int32_t top, int32_t font, const char *text)
-{
-    return gfx_text(left, top, font, text, app_text_length(text));
-}
-
-static void draw_centered(int32_t center, int32_t top, int32_t font, const char *text)
-{
-    draw_text(center - text_width(font, text) / 2, top, font, text);
-}
-
 /* ---- pictures, by the names a screen may use ---- */
 
 /* Where a picture is drawn from: each kind is a sheet of its own grid. */
@@ -454,7 +439,7 @@ static void draw_hero(const line_t *line)
     /* The value stands in the middle of the picture's height. */
     int32_t cap_height = gfx_font_cap_height(font);
     int32_t cap_top = MARGIN + (HERO_PICTURE - cap_height) / 2;
-    draw_text(text_left, cap_top - (gfx_font_ascent(font) - cap_height), font, value);
+    app_draw_text(text_left, cap_top - (gfx_font_ascent(font) - cap_height), font, value);
 }
 
 typedef struct {
@@ -486,23 +471,16 @@ static void draw_detail(int32_t left, int32_t number, int32_t count, const detai
              app_text_length(detail->unit));
 }
 
-static void copy(char *to, int32_t size, const char *from)
-{
-    app_text_t text;
-    app_text_start(&text, to, size);
-    app_text_add(&text, from);
-}
-
 static void draw_column(int32_t number, int32_t count, const line_t *line)
 {
     int32_t width = gfx_width() / count;
     int32_t center = number * width + width / 2;
     const picture_t *picture = picture_named(line->parts[1]);
-    draw_centered(center, COLUMN_NAME_TOP, HOST_FONT_SMALL, line->parts[0]);
+    app_draw_centered(center, COLUMN_NAME_TOP, HOST_FONT_SMALL, line->parts[0]);
     if (picture != NULL) {
         draw_picture(picture, center - COLUMN_PICTURE / 2, COLUMN_PICTURE_TOP, COLUMN_PICTURE);
     }
-    draw_centered(center, COLUMN_VALUE_TOP, HOST_FONT_TEXT, line->parts[2]);
+    app_draw_centered(center, COLUMN_VALUE_TOP, HOST_FONT_TEXT, line->parts[2]);
 }
 
 /* ---- the other layouts: items in cells, one large, or in a list ----
@@ -526,9 +504,9 @@ static int32_t read_items(item_t items[ITEMS_MAX])
     int32_t at = 0, count = 0;
     while (count < ITEMS_MAX && next_line(&at, &line)) {
         if (is(line.place, "item")) {
-            copy(items[count].name, sizeof items[count].name, line.parts[0]);
+            app_text_copy(items[count].name, sizeof items[count].name, line.parts[0]);
             items[count].picture = picture_named(line.parts[1]);
-            copy(items[count].value, sizeof items[count].value, line.parts[2]);
+            app_text_copy(items[count].value, sizeof items[count].value, line.parts[2]);
             count++;
         }
     }
@@ -541,8 +519,8 @@ static const uint8_t *cell_of(host_cell_t *cell, int32_t left, int32_t top, int3
                               int32_t height, const item_t *item)
 {
     *cell = (host_cell_t){ .x = left, .y = top, .width = width, .height = height };
-    copy(cell->name, sizeof cell->name, item->name);
-    copy(cell->value, sizeof cell->value, item->value);
+    app_text_copy(cell->name, sizeof cell->name, item->name);
+    app_text_copy(cell->value, sizeof cell->value, item->value);
     bool is_whole_screen = width >= gfx_width() && height >= gfx_height();
     return item->picture == NULL
                ? NULL
@@ -624,8 +602,8 @@ static void draw_hero_layout(void)
     while (next_line(&at, &line)) {
         if (is(line.place, "detail") && detail_count < DETAILS_MAX) {
             detail_line_t *detail = &details[detail_count++];
-            copy(detail->value, sizeof detail->value, line.parts[0]);
-            copy(detail->unit, sizeof detail->unit, line.parts[1]);
+            app_text_copy(detail->value, sizeof detail->value, line.parts[0]);
+            app_text_copy(detail->unit, sizeof detail->unit, line.parts[1]);
             detail->picture = picture_named(line.parts[2]);
             has_detail_pictures = has_detail_pictures || detail->picture != NULL;
         } else if (is(line.place, "column") && column_count < COLUMNS_MAX) {

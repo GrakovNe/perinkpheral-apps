@@ -15,6 +15,8 @@
  */
 #include <stdbool.h>
 
+#include "app_draw.h"
+#include "app_state.h"
 #include "app_text.h"
 #include "app_values.h"
 #include "host_api.h"
@@ -103,33 +105,14 @@ static void load_forecast(void)
         sizeof last_status) {
         last_status = 0;
     }
-    has_forecast = kv_get(FORECAST_KEY, sizeof FORECAST_KEY - 1, &forecast, sizeof forecast) ==
-                       sizeof forecast &&
-                   forecast.version == FORECAST_VERSION;
+    has_forecast = app_state_load(FORECAST_KEY, &forecast, sizeof forecast, FORECAST_VERSION);
 }
 
 /* ---- the settings ---- */
 
-static bool setting_is(const char *key, int32_t key_length, const char *wanted)
-{
-    char    value[16];
-    int32_t length = kv_get(key, key_length, value, sizeof value - 1);
-    if (length < 0) {
-        return false;
-    }
-    value[length] = '\0';
-    for (int32_t i = 0; i <= length; i++) {
-        if (value[i] != wanted[i]) {
-            return false;
-        }
-    }
-    return true;
-}
-#define SETTING_IS(key, wanted) setting_is(key, sizeof key - 1, wanted)
-
 static bool shows_fahrenheit(void)
 {
-    return SETTING_IS("units", "fahrenheit");
+    return app_setting_is("units", "fahrenheit");
 }
 
 /* The service is asked in Celsius and km/h whatever the user reads. */
@@ -143,13 +126,6 @@ static int32_t shown_speed(int32_t km_per_hour)
     return shows_fahrenheit() ? (km_per_hour * 621 + 500) / 1000 : km_per_hour;
 }
 
-
-/* A toggle of the settings is on until somebody turns it off. */
-static bool is_on(const char *key, int32_t key_length)
-{
-    char value[4];
-    return !(kv_get(key, key_length, value, sizeof value) == 1 && value[0] == '0');
-}
 
 /* The host's header: on the left the city the weather is for, while its
  * setting is on; the right is the host's own - the date, or the time. */
@@ -168,7 +144,7 @@ static void show_header(void)
     if (city_length > HOST_HEADER_TEXT_MAX) {
         city_length = HOST_HEADER_TEXT_MAX;
     }
-    if (is_on(HEADER_CITY_KEY, sizeof HEADER_CITY_KEY - 1) && city_length > 0) {
+    if (app_setting_is_on(HEADER_CITY_KEY) && city_length > 0) {
         header_text(HOST_HEADER_LEFT, city, city_length);
     } else {
         header_text(HOST_HEADER_LEFT, EMPTY, sizeof EMPTY - 1);
@@ -211,7 +187,7 @@ void app_on_values(int32_t request, int32_t http_status)
     }
     forecast = fresh;
     has_forecast = true;
-    kv_set(FORECAST_KEY, sizeof FORECAST_KEY - 1, &forecast, sizeof forecast);
+    app_state_save(FORECAST_KEY, &forecast, sizeof forecast);
     show_header(); /* the day may have turned since the last answer */
     request_redraw(HOST_REDRAW_NORMAL);
 }
@@ -221,7 +197,7 @@ void app_on_values(int32_t request, int32_t http_status)
 void app_on_settings(void)
 {
     has_forecast = false;
-    kv_set(FORECAST_KEY, sizeof FORECAST_KEY - 1, &forecast, 0);
+    app_state_forget(FORECAST_KEY);
     show_header();
     request_redraw(HOST_REDRAW_NORMAL);
 }
@@ -288,17 +264,6 @@ static void icon_ink_columns(const uint8_t *picture, int32_t *first, int32_t *en
     }
 }
 
-static int32_t draw_text(int32_t left, int32_t top, int32_t font, const char *text)
-{
-    return gfx_text(left, top, font, text, app_text_length(text));
-}
-
-static void draw_centered(int32_t center, int32_t top, int32_t font, const char *text)
-{
-    int32_t length = app_text_length(text);
-    gfx_text(center - gfx_text_width(font, text, length) / 2, top, font, text, length);
-}
-
 /* How wide a line of the details is: the picture, and the value with its
  * unit as the host sets them. */
 static int32_t detail_width(const char *value, const char *unit)
@@ -344,7 +309,7 @@ static void draw_now(void)
     int32_t cap_top = MARGIN + (LARGE_ICON_CELLS * ICON_CELL_PIXELS - cap_height) / 2;
     int32_t text_left = icon_left + ink_end * ICON_CELL_PIXELS + NOW_TEXT_GAP;
     app_text_add(&text, DEGREE_SIGN);
-    draw_text(text_left, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
+    app_draw_text(text_left, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
 
     char rain[8];
     app_text_start(&text, rain, sizeof rain);
@@ -389,7 +354,7 @@ static void draw_days(void)
                 }
             }
         }
-        draw_centered(center, DAY_NAME_TOP, HOST_FONT_SMALL, name);
+        app_draw_centered(center, DAY_NAME_TOP, HOST_FONT_SMALL, name);
         int32_t icon_size = SMALL_ICON_CELLS * ICON_CELL_PIXELS;
         draw_icon(SMALL_ICONS[condition_of(forecast.days[day].code)->icon],
                   center - icon_size / 2, DAY_ICON_TOP);
@@ -403,14 +368,14 @@ static void draw_days(void)
         app_text_add_number(&text, shown_degrees(forecast.days[day].high));
         app_text_start(&text, low, sizeof low);
         app_text_add_number(&text, shown_degrees(forecast.days[day].low));
-        int32_t high_width = gfx_text_width(HOST_FONT_TEXT, high, app_text_length(high));
+        int32_t high_width = app_text_width(HOST_FONT_TEXT, high);
         int32_t slash_width = gfx_text_width(HOST_FONT_TEXT, "/", 1);
-        int32_t low_width = gfx_text_width(HOST_FONT_TEXT, low, app_text_length(low));
+        int32_t low_width = app_text_width(HOST_FONT_TEXT, low);
         int32_t left = center - (high_width + slash_width + low_width + 2 * DAY_SLASH_GAP) / 2;
-        draw_text(left, DAY_RANGE_TOP, HOST_FONT_TEXT, high);
+        app_draw_text(left, DAY_RANGE_TOP, HOST_FONT_TEXT, high);
         left += high_width + DAY_SLASH_GAP;
-        draw_text(left, DAY_RANGE_TOP, HOST_FONT_TEXT, "/");
-        draw_text(left + slash_width + DAY_SLASH_GAP, DAY_RANGE_TOP, HOST_FONT_TEXT, low);
+        app_draw_text(left, DAY_RANGE_TOP, HOST_FONT_TEXT, "/");
+        app_draw_text(left + slash_width + DAY_SLASH_GAP, DAY_RANGE_TOP, HOST_FONT_TEXT, low);
     }
 }
 

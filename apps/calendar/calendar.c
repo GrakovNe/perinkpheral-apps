@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "app_state.h"
 #include "app_text.h"
 #include "app_ui.h"
 #include "host_api.h"
@@ -74,13 +75,6 @@ static bool is_same(const void *one, const void *other, int32_t size)
     return true;
 }
 
-static int32_t setting(const char *key, int32_t key_length, char *value, int32_t size)
-{
-    int32_t length = kv_get(key, key_length, value, size - 1);
-    value[length > 0 ? length : 0] = '\0';
-    return length > 0 ? length : 0;
-}
-
 /* The number a choice begins with, in seconds: "10 min", "1 h". */
 static int32_t seconds_of(const char *choice, int32_t otherwise)
 {
@@ -98,7 +92,7 @@ static int32_t seconds_of(const char *choice, int32_t otherwise)
 static int32_t lead_seconds(void)
 {
     char choice[16];
-    if (setting("remind", 6, choice, sizeof choice) == 0) {
+    if (app_setting("remind", choice, sizeof choice) == 0) {
         return 10 * SECONDS_PER_MINUTE; /* nothing chosen: the manifest's default */
     }
     return choice[0] == 'O' ? -1 : seconds_of(choice, 0);

@@ -15,6 +15,7 @@
  */
 #include <stdbool.h>
 
+#include "app_state.h"
 #include "app_text.h"
 #include "host_api.h"
 #include "strings.h" /* made of the `strings` folder by tools/mkapp */
@@ -48,7 +49,7 @@ static stopwatch_t state;
 
 static void save(void)
 {
-    kv_set(STATE_KEY, sizeof STATE_KEY - 1, &state, sizeof state);
+    app_state_save(STATE_KEY, &state, sizeof state);
 }
 
 /* How long the run in hand has lasted, or -1 when that cannot be known
@@ -73,7 +74,7 @@ static void record_start_time(void)
     int64_t by_uptime_ms = time_uptime_ms() - state.started_uptime_ms;
     if (by_uptime_ms >= 0) {
         state.started_at = now - by_uptime_ms / MS_PER_SECOND;
-        kv_set(STATE_KEY, sizeof STATE_KEY - 1, &state, sizeof state);
+        app_state_save(STATE_KEY, &state, sizeof state);
     }
 }
 
@@ -176,9 +177,7 @@ static void reset(void)
 
 void app_init(void)
 {
-    bool is_stored = kv_get(STATE_KEY, sizeof STATE_KEY - 1, &state, sizeof state) ==
-                         sizeof state &&
-                     state.version == STATE_VERSION;
+    bool is_stored = app_state_load(STATE_KEY, &state, sizeof state, STATE_VERSION);
     if (!is_stored) {
         state = (stopwatch_t){ .version = STATE_VERSION };
     }

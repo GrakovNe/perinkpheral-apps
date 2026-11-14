@@ -13,6 +13,7 @@
  */
 #include <stdbool.h>
 
+#include "app_state.h"
 #include "app_text.h"
 #include "host_api.h"
 #include "strings.h" /* made of the `strings` folder by tools/mkapp */
@@ -45,14 +46,12 @@ static int32_t uptime_seconds(void)
 
 static void save(void)
 {
-    kv_set(STATE_KEY, sizeof STATE_KEY - 1, &state, sizeof state);
+    app_state_save(STATE_KEY, &state, sizeof state);
 }
 
 void app_init(void)
 {
-    bool is_stored = kv_get(STATE_KEY, sizeof STATE_KEY - 1, &state, sizeof state) ==
-                         sizeof state &&
-                     state.version == STATE_VERSION;
+    bool is_stored = app_state_load(STATE_KEY, &state, sizeof state, STATE_VERSION);
     /* A countdown from before a restart is over: uptime began again. */
     bool is_stale = is_stored && state.ends_at != 0 && state.boot != time_boot_id();
     if (!is_stored || is_stale) {
