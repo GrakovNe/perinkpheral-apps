@@ -163,18 +163,18 @@
     {
       "name": "kit",
       "title": "UI Kit",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 5617,
-          "sha256": "e78336340b953a7b972e7b0cb9a473e376cb7803e4c03517127cb949c2db3e28"
+          "size": 6111,
+          "sha256": "b97532b3a1ef368af699df5d2c5a475f470dd70e52ebe5aefd39ec5bff42c2d1"
         },
         {
           "name": "manifest.json",
           "size": 300,
-          "sha256": "31ac61bbb81bee03caf3d22f2cb57858e480c7b41605097e19b3af52f86901a4"
+          "sha256": "4c43e646cce1b34439f50a66e4f12b70dbe4be928e21cf7b717eb28589084871"
         }
       ],
       "icon": [

@@ -24,6 +24,7 @@ typedef enum {
     PAGE_DETAILS,
     PAGE_CELL,
     PAGE_CELLS,
+    PAGE_CHARTS,
     PAGE_PICKER,
     PAGE_DATE,
     PAGE_TIME,
@@ -35,7 +36,7 @@ typedef enum {
 } page_t;
 
 static const char *const PAGE_NAMES[PAGE_COUNT] = {
-    "Text and parts", "List",    "Options",  "Details", "Cell",    "Cells",
+    "Text and parts", "List",    "Options",  "Details", "Cell",    "Cells", "Charts",
     "Picker",         "Date and time", "Time", "Message", "Question", "Working",
 };
 
@@ -202,6 +203,37 @@ static void draw_cells(int32_t count)
     }
 }
 
+/* The chart in its four kinds. Numbers in, a picture out: the host scales
+ * the series to the box. */
+static void draw_charts(void)
+{
+    static const int32_t SERIES[] = { 712, 715, 715, 721, 730, 728, 735, 741, 752, 760,
+                                      758, 771, 780, 779, 790, 802, 815, 811, 824, 840 };
+    static const int32_t DAILY[] = { 3, 0, 6, 9, 2, 7, 6, 11, 8, 4, 13, 9, 1, 11 };
+    static const char *const NAMES[] = { "LINE", "AREA", "BARS", "STEPS" };
+    int32_t top = ui_title("Charts", 6);
+    int32_t column = (gfx_width() - 3 * HOST_UI_MARGIN) / 2;
+    int32_t row = (gfx_height() - top - 2 * HOST_UI_MARGIN) / 2;
+    for (int32_t i = 0; i < 4; i++) {
+        int32_t left = HOST_UI_MARGIN + i % 2 * (column + HOST_UI_MARGIN);
+        int32_t at = top + i / 2 * (row + HOST_UI_MARGIN);
+        ui_text(left, at, HOST_UI_CAPTION, NAMES[i], length_of(NAMES[i]), 0);
+        host_chart_t chart = {
+            .x = left, .y = at + 16, .width = column, .height = row - 16,
+            .kind = i, /* HOST_CHART_LINE, AREA, BARS, STEPS */
+            .flags = HOST_CHART_AXIS,
+            .count = i == 2 ? (int32_t)(sizeof DAILY / sizeof DAILY[0])
+                            : (int32_t)(sizeof SERIES / sizeof SERIES[0]),
+        };
+        if (i == 0) {
+            chart.flags |= HOST_CHART_RANGE | HOST_CHART_MARK_LAST;
+        } else if (i == 2) {
+            chart.flags |= HOST_CHART_FROM_ZERO;
+        }
+        ui_chart(&chart, i == 2 ? DAILY : SERIES);
+    }
+}
+
 static void draw_primitives(void)
 {
     static const char TEXT[] = "Text, as it is read";
@@ -258,6 +290,9 @@ void app_on_draw(void)
         break;
     case PAGE_CELLS:
         draw_cells(4);
+        break;
+    case PAGE_CHARTS:
+        draw_charts();
         break;
     case PAGE_PICKER:
         app_picker_draw(&pace, PACES);
