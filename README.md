@@ -15,6 +15,7 @@ holds six applications at a time; this is where the rest of them wait.
 | `stopwatch` | minutes and seconds for the first hour, hours and minutes after; it goes on counting wherever you have gone |
 | `kit` | every part of the host's look an application may ask for, each on a page of its own |
 | `stocks` | prices and the day's chart of tickers from New York, Tokyo and elsewhere (Yahoo Finance), the Moscow Exchange (`MOEX:SBER`) and the SPB Exchange (`SPB:SPBE`), in one list; the last trusts its own certificate authority, the Russian Trusted Root CA, which the page names before it installs |
+| `sun` | sunrise, sunset and the length of the day where you are, and the moon's phase; worked out on the device, nothing is asked of the network |
 
 ## Installing
 

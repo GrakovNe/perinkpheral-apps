@@ -1,0 +1,31 @@
+{
+  "sunrise": "Восход",
+  "sunset": "Закат",
+  "day_length": "Долгота дня",
+  "hours_minutes": "{0}ч {1}м",
+  "phase_new": "Новолуние",
+  "phase_waxing_crescent": "Растущий серп",
+  "phase_first_quarter": "Первая четверть",
+  "phase_waxing_gibbous": "Растущая луна",
+  "phase_full": "Полнолуние",
+  "phase_waning_gibbous": "Убывающая луна",
+  "phase_last_quarter": "Последняя четверть",
+  "phase_waning_crescent": "Убывающий серп",
+  "manifest": {
+    "title": "Солнце и Луна",
+    "settings": {
+      "city": {
+        "title": "Город"
+      },
+      "lat": {
+        "title": "Широта"
+      },
+      "lon": {
+        "title": "Долгота"
+      },
+      "header_city": {
+        "title": "Показывать выбранный город"
+      }
+    }
+  }
+}

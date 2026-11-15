@@ -1,0 +1,14 @@
+{
+  "sunrise": "Sunrise",
+  "sunset": "Sunset",
+  "day_length": "Day length",
+  "hours_minutes": "{0}h {1}m",
+  "phase_new": "New moon",
+  "phase_waxing_crescent": "Waxing crescent",
+  "phase_first_quarter": "First quarter",
+  "phase_waxing_gibbous": "Waxing gibbous",
+  "phase_full": "Full moon",
+  "phase_waning_gibbous": "Waning gibbous",
+  "phase_last_quarter": "Last quarter",
+  "phase_waning_crescent": "Waning crescent"
+}

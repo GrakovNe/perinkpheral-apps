@@ -1,0 +1,47 @@
+{
+  "name": "sun",
+  "title": "Sun and Moon",
+  "version": "0.1.0",
+  "abi": 2,
+  "icon": [
+    "...........",
+    ".....#.....",
+    ".#.......#.",
+    "...........",
+    "....###....",
+    "...#...#...",
+    "##.#...#.##",
+    "...#...#...",
+    "###########",
+    "...........",
+    "..........."
+  ],
+  "settings": [
+    {
+      "key": "city",
+      "type": "place",
+      "title": "City",
+      "latitude": "lat",
+      "longitude": "lon"
+    },
+    {
+      "key": "lat",
+      "type": "number",
+      "title": "Latitude"
+    },
+    {
+      "key": "lon",
+      "type": "number",
+      "title": "Longitude"
+    },
+    {
+      "key": "header_city",
+      "type": "toggle",
+      "title": "Show Selected City",
+      "default": "1"
+    }
+  ],
+  "intents": [
+    "time_changed"
+  ]
+}

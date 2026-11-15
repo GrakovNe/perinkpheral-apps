@@ -282,6 +282,47 @@
       ]
     },
     {
+      "name": "sun",
+      "title": "Sun and Moon",
+      "version": "0.1.0",
+      "abi": 2,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 5379,
+          "sha256": "56212514f1d4bba52f29f0f40dc1e022d5636ce980fd73b7772157bbffd93ef1"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 220,
+          "sha256": "ee775ad6f655299415eedc7b879b4514d20594dcba08080cb39f62935e8c705d"
+        },
+        {
+          "name": "strings.ru",
+          "size": 300,
+          "sha256": "788de6d6bd5cac98ccea1846b2c3e21d2228627b5d07191f3b723576d533ea0e"
+        },
+        {
+          "name": "manifest.json",
+          "size": 785,
+          "sha256": "292bdf5bb9065417031f1c5ad968d686e92d859bfa966382b7a26ff57052b944"
+        }
+      ],
+      "icon": [
+        "...........",
+        ".....#.....",
+        ".#.......#.",
+        "...........",
+        "....###....",
+        "...#...#...",
+        "##.#...#.##",
+        "...#...#...",
+        "###########",
+        "...........",
+        "..........."
+      ]
+    },
+    {
       "name": "timer",
       "title": "Timer",
       "version": "0.3.3",
