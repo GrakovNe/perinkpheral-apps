@@ -194,18 +194,18 @@
     {
       "name": "stocks",
       "title": "Stocks",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 9552,
-          "sha256": "5e8ce12cd61a0fbb7decf28ef79e8e303aeb9da8bd5dc45806a4188298abddad"
+          "size": 9259,
+          "sha256": "27e3b540976f4a27294a6a3ea9cb5bc2353a26a103d5e1df43449b15564c1bd9"
         },
         {
           "name": "manifest.ru",
-          "size": 635,
-          "sha256": "e346539880749650f5ebdb078006e51ebbcdea153846181a5f2792eea6ff4545"
+          "size": 432,
+          "sha256": "2ab91358087ce14ef25c81ba9a22736ac002e8eb8cc51b20a4d1ff09d449b209"
         },
         {
           "name": "russian-root-ca.pem",
@@ -219,8 +219,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 3334,
-          "sha256": "b481ddc7457f9a63b952d543665fbfdb853d50fafaf733f2b18a782418914251"
+          "size": 3100,
+          "sha256": "1e71887be8c1df43c53de031d9404f313b714b4dd62248a4ed1f2cd919030e78"
         }
       ],
       "trusts": [

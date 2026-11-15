@@ -14,7 +14,7 @@ holds six applications at a time; this is where the rest of them wait.
 | `badapple` | a 1-bit video: a test of the panel and of the interpreter |
 | `stopwatch` | minutes and seconds for the first hour, hours and minutes after; it goes on counting wherever you have gone |
 | `kit` | every part of the host's look an application may ask for, each on a page of its own |
-| `stocks` | prices and the day's chart of tickers from New York, Tokyo and elsewhere (Yahoo Finance), the Moscow Exchange and the SPB Exchange; the last trusts its own certificate authority, the Russian Trusted Root CA, which the page names before it installs |
+| `stocks` | prices and the day's chart of tickers from New York, Tokyo and elsewhere (Yahoo Finance), the Moscow Exchange (`MOEX:SBER`) and the SPB Exchange (`SPB:SPBE`), in one list; the last trusts its own certificate authority, the Russian Trusted Root CA, which the page names before it installs |
 
 ## Installing
 

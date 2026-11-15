@@ -7,18 +7,21 @@
  * from the Moscow Exchange's own (ISS), which Yahoo no longer has. Neither
  * asks for a key or an account.
  *
- * Data: a poll with "each" over a list setting a source - "tickers" for
- * Yahoo, "moex" for the Moscow Exchange; the host picks the values from
- * every answer and calls app_on_values() once per ticker. Each answer is
- * written to the source's file as one fixed-size record at the ticker's
- * position in its list, so the application can be unloaded at any time and
- * draw again from the files. The screens are Yahoo's tickers, then Moscow's.
+ * Data: one list of tickers ("tickers"), the exchange said by a prefix as
+ * TradingView writes it - "AAPL" and "7203.T" are Yahoo's, "MOEX:SBER" the
+ * Moscow Exchange's, "SPB:SPBE" the SPB Exchange's. Each poll of the
+ * manifest goes over the list ("each") and takes the items of its own
+ * prefix ("prefix"), the one of Yahoo the rest; the host picks the values
+ * from every answer and calls app_on_values() once per ticker. Each answer
+ * is written to the file "quotes" as one fixed-size record at the ticker's
+ * position in the list, so the application can be unloaded at any time and
+ * draw again from the file. The screens are the list, in its order.
  *
  * The Moscow chart is the trading day's candles, an address that names the
  * day: the quote brings the exchange's date, kept under "day", and the
  * candles' poll puts it into its address as {{day}}.
  *
- * The SPB Exchange ("spb") gives a ticker's 15-minute bars of a period, and
+ * The SPB Exchange gives a ticker's 15-minute bars of a period, and
  * nothing else: the last bar's close is the price, the bars of the last day
  * the chart, and the start of that day is kept under "spb_from" for the
  * poll's address. Its site is certified by the Russian Trusted Root CA, which
@@ -74,14 +77,10 @@ enum { SPB_CLOSE, SPB_TIME };
 #define SPB_BAR_S    (15 * 60)
 #define SPB_PERIOD_S (24 * 3600)
 
-/* Where a source's tickers are listed and its records kept. */
-typedef struct {
-    const char *key;
-    const char *file;
-} source_t;
-
-enum { SOURCE_YAHOO, SOURCE_MOEX, SOURCE_SPB, SOURCE_COUNT };
-static const source_t SOURCES[SOURCE_COUNT] = { { "tickers", "quotes" }, { "moex", "moex" }, { "spb", "spb" } };
+#define TICKERS "tickers"
+static const char QUOTES_FILE[] = "quotes";
+#define QUOTES_FILE_LENGTH ((int32_t)sizeof QUOTES_FILE - 1)
+#define SPB_PREFIX "SPB:" /* the poll's own "prefix": what is left of the item is the ticker */
 
 #define MOSCOW_OFFSET_S (3 * 3600) /* Moscow keeps UTC+3 the year round */
 
@@ -89,7 +88,7 @@ static const source_t SOURCES[SOURCE_COUNT] = { { "tickers", "quotes" }, { "moex
 #define DECIMALS_MAX    4
 #define ROTATE_TIMER    0
 #define ROTATE_DEFAULT  60
-#define QUOTE_VERSION   2
+#define QUOTE_VERSION   3
 #define STATE_VERSION   1
 
 /* One ticker as last received. `item` is the list entry it was asked for,
@@ -122,36 +121,10 @@ static state_t saved;
 static quote_t quote;   /* the record of state.index */
 static int32_t loaded = -1;
 
-static int32_t count_of(int32_t source)
-{
-    int32_t count = app_setting_count(SOURCES[source].key);
-    return count > TICKERS_MAX ? TICKERS_MAX : count;
-}
-
 static int32_t ticker_count(void)
 {
-    int32_t count = 0;
-    for (int32_t source = 0; source < SOURCE_COUNT; source++) {
-        count += count_of(source);
-    }
-    return count;
-}
-
-/* A screen's source and its place in that source's list: the sources' lists one after another. */
-static void locate(int32_t index, int32_t *source, int32_t *item)
-{
-    for (*source = 0; *source < SOURCE_COUNT - 1 && index >= count_of(*source); (*source)++) {
-        index -= count_of(*source);
-    }
-    *item = index;
-}
-
-static int32_t screen_of(int32_t source, int32_t item)
-{
-    for (int32_t before = 0; before < source; before++) {
-        item += count_of(before);
-    }
-    return item;
+    int32_t count = app_setting_count(TICKERS);
+    return count > TICKERS_MAX ? TICKERS_MAX : count;
 }
 
 static bool same_text(const char *a, const char *b)
@@ -173,11 +146,10 @@ static bool same_text_n(const char *a, const char *b, int32_t count)
     return true;
 }
 
-static void read_quote(int32_t source, int32_t index, quote_t *out)
+static void read_quote(int32_t index, quote_t *out)
 {
-    const char *file   = SOURCES[source].file;
-    int32_t     length = file_read(file, app_text_length(file), index * (int32_t)sizeof *out, out,
-                                   sizeof *out);
+    int32_t length = file_read(QUOTES_FILE, QUOTES_FILE_LENGTH, index * (int32_t)sizeof *out, out,
+                               sizeof *out);
     if (length != (int32_t)sizeof *out || out->version != QUOTE_VERSION) {
         *out = (quote_t){ .version = QUOTE_VERSION };
     }
@@ -185,11 +157,9 @@ static void read_quote(int32_t source, int32_t index, quote_t *out)
 
 /* Records are written in place, so the file is first extended with empty
  * ones up to the record being written. */
-static void write_quote(int32_t source, int32_t index, const quote_t *record)
+static void write_quote(int32_t index, const quote_t *record)
 {
-    const char *file   = SOURCES[source].file;
-    int32_t     name   = app_text_length(file);
-    int32_t     size   = file_size(file, name);
+    int32_t size   = file_size(QUOTES_FILE, QUOTES_FILE_LENGTH);
     int32_t offset = index * (int32_t)sizeof *record;
     if (size < 0) {
         size = 0;
@@ -197,20 +167,18 @@ static void write_quote(int32_t source, int32_t index, const quote_t *record)
     size -= size % (int32_t)sizeof *record;
     while (size < offset) {
         static const quote_t empty;
-        file_write(file, name, size, &empty, sizeof empty);
+        file_write(QUOTES_FILE, QUOTES_FILE_LENGTH, size, &empty, sizeof empty);
         size += (int32_t)sizeof empty;
     }
-    file_write(file, name, offset, record, sizeof *record);
+    file_write(QUOTES_FILE, QUOTES_FILE_LENGTH, offset, record, sizeof *record);
 }
 
 /* The record of the ticker on the screen, empty if it belongs to another. */
 static void load_current(void)
 {
-    char    item[64];
-    int32_t source, at;
-    locate(state.index, &source, &at);
-    read_quote(source, at, &quote);
-    if (app_setting_item(SOURCES[source].key, at, item, sizeof item) == 0 || !same_text(item, quote.item)) {
+    char item[64];
+    read_quote(state.index, &quote);
+    if (app_setting_item(TICKERS, state.index, item, sizeof item) == 0 || !same_text(item, quote.item)) {
         quote = (quote_t){ .version = QUOTE_VERSION };
     }
     loaded = state.index;
@@ -353,9 +321,9 @@ void app_on_timer(int32_t id)
 }
 
 /* A record was written: the screen shows it again when it is the one on it. */
-static void written(int32_t source, int32_t item, int32_t had_data)
+static void written(int32_t item, int32_t had_data)
 {
-    if (screen_of(source, item) == loaded) {
+    if (item == loaded) {
         load_current();
         /* The first data of a ticker is what the user is waiting for. */
         request_redraw(had_data ? HOST_REDRAW_NORMAL : HOST_REDRAW_SOON);
@@ -365,11 +333,11 @@ static void written(int32_t source, int32_t item, int32_t had_data)
 static void yahoo_values(int32_t item, int32_t http_status)
 {
     quote_t record;
-    read_quote(SOURCE_YAHOO, item, &record);
+    read_quote(item, &record);
     int32_t had_data = record.has_data;
 
     char asked[64];
-    if (app_setting_item(SOURCES[SOURCE_YAHOO].key, item, asked, sizeof asked) == 0) {
+    if (app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
         return;
     }
     if (!same_text(asked, record.item)) {
@@ -405,8 +373,8 @@ static void yahoo_values(int32_t item, int32_t http_status)
         }
     }
     record.status = http_status;
-    write_quote(SOURCE_YAHOO, item, &record);
-    written(SOURCE_YAHOO, item, had_data);
+    write_quote(item, &record);
+    written(item, had_data);
 }
 
 /* "2026-11-15" and "16:52:00", Moscow's, as Unix time. */
@@ -436,10 +404,10 @@ static void moex_quote(int32_t item, int32_t http_status)
 {
     quote_t record;
     char    asked[64];
-    if (app_setting_item(SOURCES[SOURCE_MOEX].key, item, asked, sizeof asked) == 0) {
+    if (app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
         return;
     }
-    read_quote(SOURCE_MOEX, item, &record);
+    read_quote(item, &record);
     int32_t had_data = record.has_data;
     if (!same_text(asked, record.item)) {
         record = (quote_t){ .version = QUOTE_VERSION };
@@ -494,8 +462,8 @@ static void moex_quote(int32_t item, int32_t http_status)
         }
     }
     record.status = http_status;
-    write_quote(SOURCE_MOEX, item, &record);
-    written(SOURCE_MOEX, item, had_data);
+    write_quote(item, &record);
+    written(item, had_data);
 }
 
 static void moex_day(int32_t item, int32_t http_status)
@@ -503,17 +471,17 @@ static void moex_day(int32_t item, int32_t http_status)
     quote_t record;
     char    asked[64];
     if (http_status < 200 || http_status >= 300
-        || app_setting_item(SOURCES[SOURCE_MOEX].key, item, asked, sizeof asked) == 0) {
+        || app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
         return;
     }
-    read_quote(SOURCE_MOEX, item, &record);
+    read_quote(item, &record);
     /* The closes are numbers of the quote's decimals: without a quote they wait for the next. */
     if (!record.has_data || !same_text(asked, record.item)) {
         return;
     }
     record.count = app_value_series(MOEX_CLOSE, record.decimals, record.series, HOST_CHART_VALUES_MAX);
-    write_quote(SOURCE_MOEX, item, &record);
-    written(SOURCE_MOEX, item, 1);
+    write_quote(item, &record);
+    written(item, 1);
 }
 
 /* The start of the period the SPB poll asks for: a day ago, on the hour, so that it is
@@ -570,10 +538,10 @@ static void spb_values(int32_t item, int32_t http_status)
         poll_now(POLL_SPB);
         return;
     }
-    if (app_setting_item(SOURCES[SOURCE_SPB].key, item, asked, sizeof asked) == 0) {
+    if (app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
         return;
     }
-    read_quote(SOURCE_SPB, item, &record);
+    read_quote(item, &record);
     int32_t had_data = record.has_data;
     if (!same_text(asked, record.item)) {
         record = (quote_t){ .version = QUOTE_VERSION };
@@ -593,15 +561,15 @@ static void spb_values(int32_t item, int32_t http_status)
             record.price    = price;
             record.previous = price;
             record.name[0]  = 0; /* the exchange names nothing here: the ticker says it */
-            app_text_copy(record.symbol, sizeof record.symbol, asked);
+            app_text_copy(record.symbol, sizeof record.symbol, asked + sizeof SPB_PREFIX - 1);
             app_text_copy(record.currency, sizeof record.currency, "RUB");
             record.time = app_value_element_fixed(SPB_TIME, count - 1, 0, &began) ? began + SPB_BAR_S : 0;
             record.count = app_value_series(SPB_CLOSE, decimals, record.series, HOST_CHART_VALUES_MAX);
         }
     }
     record.status = http_status;
-    write_quote(SOURCE_SPB, item, &record);
-    written(SOURCE_SPB, item, had_data);
+    write_quote(item, &record);
+    written(item, had_data);
 }
 
 void app_on_values(int32_t request, int32_t http_status)
@@ -715,7 +683,7 @@ void app_on_draw(void)
             .width    = width - 2 * MARGIN,
             .height   = height - chart_top - caption_height - 8,
             .kind     = HOST_CHART_AREA,
-            .flags    = HOST_CHART_RANGE | HOST_CHART_MARK_LAST,
+            .flags    = HOST_CHART_RANGE_RIGHT | HOST_CHART_MARK_LAST,
             .decimals = quote.decimals,
             .count    = quote.count,
         };

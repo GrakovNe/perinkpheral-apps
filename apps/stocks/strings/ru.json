@@ -7,15 +7,7 @@
     "settings": {
       "tickers": {
         "title": "Тикеры",
-        "help": "Yahoo Finance: IBM, KO (Нью-Йорк), 7203.T (Токио), AAPL, SAP.DE, ^GSPC, BTC-USD"
-      },
-      "moex": {
-        "title": "Московская биржа",
-        "help": "Акции MOEX: SBER, GAZP, LKOH, YDEX"
-      },
-      "spb": {
-        "title": "СПБ Биржа",
-        "help": "Акции СПБ Биржи: SBER, SPBE, YDEX, OZON"
+        "help": "AAPL, IBM, 7203.T (Токио), MOEX:SBER (Москва), SPB:SPBE (СПБ Биржа)"
       },
       "refresh": {
         "title": "Обновление",
