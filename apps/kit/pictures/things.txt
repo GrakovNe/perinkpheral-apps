@@ -1,5 +1,5 @@
 // What the cells of the showcase show. A drawing is rows of '#' and '.';
-// tools/mkapp turns the folder into pictures.h.
+// tools/perinkpheral turns the folder into pictures.h.
 
 home:
 .....#.....

@@ -20,7 +20,7 @@
 #include "app_text.h"
 #include "app_values.h"
 #include "host_api.h"
-#include "strings.h" /* made of the `strings` folder by tools/mkapp */
+#include "strings.h" /* made of the `strings` folder by tools/perinkpheral */
 #include "icons.h"
 
 /* The order of "pick" in the manifest. */

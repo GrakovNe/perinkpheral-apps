@@ -16,7 +16,7 @@
 #include "app_state.h"
 #include "app_text.h"
 #include "host_api.h"
-#include "strings.h" /* made of the `strings` folder by tools/mkapp */
+#include "strings.h" /* made of the `strings` folder by tools/perinkpheral */
 
 #define MINUTE_TIMER       0
 #define SECONDS_PER_MINUTE 60

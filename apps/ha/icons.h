@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include "pictures.h" /* made of the `pictures` folder by tools/mkapp */
+#include "pictures.h" /* made of the `pictures` folder by tools/perinkpheral */
 
 #define LARGE_ICON_CELLS 44
 #define SMALL_ICON_CELLS 22

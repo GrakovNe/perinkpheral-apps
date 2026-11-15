@@ -12,7 +12,7 @@
 #include "app_text.h"
 #include "app_ui.h"
 #include "host_api.h"
-#include "pictures.h" /* made of the `pictures` folder by tools/mkapp */
+#include "pictures.h" /* made of the `pictures` folder by tools/perinkpheral */
 
 #define COUNT_OF(array) ((int32_t)(sizeof(array) / sizeof(array)[0]))
 #define REDRAW          HOST_REDRAW_NO_BLINK

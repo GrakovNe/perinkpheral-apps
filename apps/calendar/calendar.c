@@ -22,7 +22,7 @@
 #include "app_ui.h"
 #include "host_api.h"
 #include "ics.h"
-#include "strings.h" /* made of the `strings` folder by tools/mkapp */
+#include "strings.h" /* made of the `strings` folder by tools/perinkpheral */
 
 #define FEED_POLL          0
 #define REMIND_ALARM       0
