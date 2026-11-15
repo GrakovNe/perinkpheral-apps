@@ -1,0 +1,132 @@
+{
+  "name": "stocks",
+  "title": "Stocks",
+  "version": "0.1.0",
+  "abi": 2,
+  "fullscreen": false,
+  "polls": [
+    {
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/{{tickers}}?range=1d&interval=5m",
+      "every": "{{refresh}}",
+      "headers": {
+        "User-Agent": "perinkpheral"
+      },
+      "each": "tickers",
+      "pick": [
+        "chart.result[0].meta.longName",
+        "chart.result[0].meta.shortName",
+        "chart.result[0].meta.symbol",
+        "chart.result[0].meta.regularMarketPrice",
+        "chart.result[0].meta.chartPreviousClose",
+        "chart.result[0].meta.priceHint",
+        "chart.result[0].meta.regularMarketTime",
+        "chart.result[0].meta.currency",
+        "chart.result[0].indicators.quote[0].close[*]"
+      ]
+    },
+    {
+      "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{{moex}}.json?iss.meta=off&iss.only=securities,marketdata&securities.columns=SECID,LATNAME,PREVPRICE,DECIMALS,CURRENCYID&marketdata.columns=LAST,UPDATETIME,SYSTIME",
+      "every": "{{refresh}}",
+      "each": "moex",
+      "pick": [
+        "securities.data[0][0]",
+        "securities.data[0][1]",
+        "securities.data[0][2]",
+        "securities.data[0][3]",
+        "securities.data[0][4]",
+        "marketdata.data[0][0]",
+        "marketdata.data[0][1]",
+        "marketdata.data[0][2]"
+      ]
+    },
+    {
+      "url": "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{{moex}}/candles.json?interval=10&from={{day}}&till={{day}}&iss.meta=off&candles.columns=close",
+      "every": "{{refresh}}",
+      "each": "moex",
+      "pick": [
+        "candles.data[*][0]"
+      ]
+    },
+    {
+      "url": "https://spbexchange.ru/api/reader/marketdata/charts/chistory?symbol={{spb}}&resolution=15&from={{spb_from}}&to=4102444800",
+      "every": "{{refresh}}",
+      "each": "spb",
+      "pick": [
+        "[*].close",
+        "[*].bar_unixtime"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "key": "tickers",
+      "type": "list",
+      "title": "Tickers",
+      "help": "Yahoo Finance: IBM, KO (New York), 7203.T (Tokyo), AAPL, SAP.DE, ^GSPC, BTC-USD",
+      "default": [
+        "AAPL",
+        "IBM",
+        "7203.T"
+      ]
+    },
+    {
+      "key": "moex",
+      "type": "list",
+      "title": "Moscow Exchange",
+      "help": "MOEX shares: SBER, GAZP, LKOH, YDEX",
+      "default": [
+        "SBER",
+        "GAZP"
+      ]
+    },
+    {
+      "key": "spb",
+      "type": "list",
+      "title": "SPB Exchange",
+      "help": "SPB shares: SBER, SPBE, YDEX, OZON",
+      "default": [
+        "SPBE"
+      ]
+    },
+    {
+      "key": "refresh",
+      "type": "choice",
+      "title": "Refresh",
+      "options": [
+        "5 min",
+        "15 min",
+        "30 min",
+        "1 h"
+      ],
+      "default": "15 min"
+    },
+    {
+      "key": "rotate",
+      "type": "choice",
+      "title": "Rotation interval",
+      "options": [
+        "1 min",
+        "2 min",
+        "5 min",
+        "10 min"
+      ],
+      "default": "1 min"
+    }
+  ],
+  "icon": [
+    "...........",
+    ".........#.",
+    "........##.",
+    ".......#.#.",
+    "..#...#..#.",
+    ".#.#.#...#.",
+    "#...#....#.",
+    "#........#.",
+    "#........#.",
+    "##########.",
+    "..........."
+  ],
+  "certificates": [
+    "russian-root-ca.pem"
+  ]
+}

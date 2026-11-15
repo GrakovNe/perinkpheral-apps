@@ -1,0 +1,40 @@
+{
+  "auto": "Авто",
+  "not_found": "Не найдено",
+  "no_data": "Нет данных",
+  "manifest": {
+    "title": "Акции",
+    "settings": {
+      "tickers": {
+        "title": "Тикеры",
+        "help": "Yahoo Finance: IBM, KO (Нью-Йорк), 7203.T (Токио), AAPL, SAP.DE, ^GSPC, BTC-USD"
+      },
+      "moex": {
+        "title": "Московская биржа",
+        "help": "Акции MOEX: SBER, GAZP, LKOH, YDEX"
+      },
+      "spb": {
+        "title": "СПБ Биржа",
+        "help": "Акции СПБ Биржи: SBER, SPBE, YDEX, OZON"
+      },
+      "refresh": {
+        "title": "Обновление",
+        "options": {
+          "5 min": "5 мин",
+          "15 min": "15 мин",
+          "30 min": "30 мин",
+          "1 h": "1 ч"
+        }
+      },
+      "rotate": {
+        "title": "Смена тикеров",
+        "options": {
+          "1 min": "1 мин",
+          "2 min": "2 мин",
+          "5 min": "5 мин",
+          "10 min": "10 мин"
+        }
+      }
+    }
+  }
+}

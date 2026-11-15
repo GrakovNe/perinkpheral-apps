@@ -192,6 +192,55 @@
       ]
     },
     {
+      "name": "stocks",
+      "title": "Stocks",
+      "version": "0.1.0",
+      "abi": 2,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 9552,
+          "sha256": "5e8ce12cd61a0fbb7decf28ef79e8e303aeb9da8bd5dc45806a4188298abddad"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 635,
+          "sha256": "e346539880749650f5ebdb078006e51ebbcdea153846181a5f2792eea6ff4545"
+        },
+        {
+          "name": "russian-root-ca.pem",
+          "size": 2057,
+          "sha256": "aa800ef345422d6158c6fafe1c06c429dbda21c3df4bb1ccb45a920ec1111399"
+        },
+        {
+          "name": "strings.ru",
+          "size": 59,
+          "sha256": "e683c1dec2cfb024d65479e9a8a14a1aec645321d00b492f57d2949542211aac"
+        },
+        {
+          "name": "manifest.json",
+          "size": 3334,
+          "sha256": "b481ddc7457f9a63b952d543665fbfdb853d50fafaf733f2b18a782418914251"
+        }
+      ],
+      "trusts": [
+        "Russian Trusted Root CA"
+      ],
+      "icon": [
+        "...........",
+        ".........#.",
+        "........##.",
+        ".......#.#.",
+        "..#...#..#.",
+        ".#.#.#...#.",
+        "#...#....#.",
+        "#........#.",
+        "#........#.",
+        "##########.",
+        "..........."
+      ]
+    },
+    {
       "name": "stopwatch",
       "title": "Stopwatch",
       "version": "0.1.4",
@@ -281,8 +330,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 6614,
-          "sha256": "c665495a86bfb5ae038d642ddd24c8319e2964dedbe796b64cc1b0e1ce05a638"
+          "size": 7149,
+          "sha256": "311b48fae619da5a4dc4d5a47229f921794c3583f978f97bb7ca6b63a9e423d6"
         },
         {
           "name": "manifest.ru",
