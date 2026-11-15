@@ -36,7 +36,7 @@ files, its pages, a server of your own. Add the address of the folder on
 the device's page, next to this one.
 
 To make one, put your applications into a folder and run
-`tools/catalog/mkcatalog.py <folder> --out <catalog>` from the
+`tools/perinkpheral catalog <folder> --out <catalog>` from the
 perinkpheral repository. `build.sh` here does exactly that for `apps/`.
 
 ## Writing an application
@@ -44,7 +44,7 @@ perinkpheral repository. `build.sh` here does exactly that for `apps/`.
 The contract, the SDK and the tools are in the
 [perinkpheral](https://github.com/GrakovNe/perinkpheral) repository:
 `sdk/host_api.h` is the whole API, `sdk/apps/hello` the smallest sample,
-and `tools/devtool/devtool.py run <folder>` puts an application onto a
+and `tools/perinkpheral run <folder>` puts an application onto a
 device over the network in ten seconds. The applications here are the
 larger samples: `weather` for data from the network and settings,
 `timer` for working while not loaded.
