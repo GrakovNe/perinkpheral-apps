@@ -6,6 +6,9 @@
 
 #include <stddef.h>
 
+#include "app_days.h"
+#include "app_text.h"
+
 #define SECONDS_PER_DAY 86400
 #define DAYS_PER_WEEK   7
 /* The interpreter needs about four bytes for every byte of code that runs:
@@ -17,31 +20,6 @@ enum { FREQ_NONE, FREQ_DAILY, FREQ_WEEKLY, FREQ_MONTHLY, FREQ_YEARLY };
 
 /* ---- dates ---- */
 
-/* Days since 1970-01-01 of a date of the calendar everybody uses. */
-KEPT_ONE static int32_t days_of(int32_t year, int32_t month, int32_t day)
-{
-    year -= month <= 2;
-    int32_t era = (year >= 0 ? year : year - 399) / 400;
-    int32_t year_of_era = year - era * 400;
-    int32_t day_of_year = (153 * (month + (month > 2 ? -3 : 9)) + 2) / 5 + day - 1;
-    int32_t day_of_era = year_of_era * 365 + year_of_era / 4 - year_of_era / 100 + day_of_year;
-    return era * 146097 + day_of_era - 719468;
-}
-
-static void date_of(int32_t days, int32_t *year, int32_t *month, int32_t *day)
-{
-    days += 719468;
-    int32_t era = (days >= 0 ? days : days - 146096) / 146097;
-    int32_t day_of_era = days - era * 146097;
-    int32_t year_of_era =
-        (day_of_era - day_of_era / 1460 + day_of_era / 36524 - day_of_era / 146096) / 365;
-    int32_t day_of_year = day_of_era - (365 * year_of_era + year_of_era / 4 - year_of_era / 100);
-    int32_t shifted_month = (5 * day_of_year + 2) / 153;
-    *day = day_of_year - (153 * shifted_month + 2) / 5 + 1;
-    *month = shifted_month + (shifted_month < 10 ? 3 : -9);
-    *year = year_of_era + era * 400 + (*month <= 2);
-}
-
 /* Monday is 0. */
 KEPT_ONE static int32_t weekday_of(int32_t days)
 {
@@ -51,15 +29,15 @@ KEPT_ONE static int32_t weekday_of(int32_t days)
 
 KEPT_ONE static int32_t days_in_month(int32_t year, int32_t month)
 {
-    return days_of(month == 12 ? year + 1 : year, month == 12 ? 1 : month + 1, 1) -
-           days_of(year, month, 1);
+    return app_days_from_date(month == 12 ? year + 1 : year, month == 12 ? 1 : month + 1, 1) -
+           app_days_from_date(year, month, 1);
 }
 
 /* The `nth` such day of the week in a month - 1 the first, -1 the last -
  * as days since 1970, or -1 when the month has no such day. */
 KEPT_ONE static int32_t nth_weekday_of(int32_t year, int32_t month, int32_t nth, int32_t weekday)
 {
-    int32_t first = days_of(year, month, 1), length = days_in_month(year, month);
+    int32_t first = app_days_from_date(year, month, 1), length = days_in_month(year, month);
     if (nth > 0) {
         int32_t day = first + (weekday - weekday_of(first) + DAYS_PER_WEEK) % DAYS_PER_WEEK +
                       (nth - 1) * DAYS_PER_WEEK;
@@ -76,25 +54,6 @@ KEPT_ONE static int32_t nth_weekday_of(int32_t year, int32_t month, int32_t nth,
 KEPT_ONE static bool is_digit(char c)
 {
     return c >= '0' && c <= '9';
-}
-
-KEPT_ONE static bool begins(const char *text, const char *word)
-{
-    while (*word != '\0') {
-        if (*text++ != *word++) {
-            return false;
-        }
-    }
-    return true;
-}
-
-KEPT_ONE static bool is(const char *text, const char *word)
-{
-    while (*word != '\0' && *text == *word) {
-        text++;
-        word++;
-    }
-    return *text == *word;
 }
 
 KEPT_ONE static uint32_t number_of(const char *text, int32_t length)
@@ -157,7 +116,7 @@ static const char *part_named(const char *text, const char *name, int32_t *lengt
             in_quotes ^= *end == '"';
             end++;
         }
-        if (begins(text, name)) {
+        if (app_text_starts(text, name)) {
             const char *value = text;
             while (*name != '\0') {
                 value++;
@@ -186,7 +145,7 @@ KEPT_ONE static ics_moment_t moment_of(const char *value, const char *parameters
     if (year < 0 || month < 1 || month > 12 || day < 1 || day > 31) {
         return moment;
     }
-    moment.days = days_of(year, month, day);
+    moment.days = app_days_from_date(year, month, day);
     moment.is_date = value[8] != 'T';
     if (!moment.is_date) {
         int32_t hour = digits(value + 9, 2), minute = digits(value + 11, 2);
@@ -213,16 +172,16 @@ static bool is_in_daylight(const ics_zone_t *zone, int32_t days)
         return false;
     }
     int32_t year, month, day;
-    date_of(days, &year, &month, &day);
+    app_date_from_days(days, &year, &month, &day);
     /* With no rule the day a zone last changed stands in for every year. */
     int32_t begins_at = zone->daylight_nth != 0
                             ? nth_weekday_of(year, zone->daylight_month, zone->daylight_nth,
                                              zone->daylight_weekday)
-                            : days_of(year, zone->daylight_month, zone->daylight_weekday);
+                            : app_days_from_date(year, zone->daylight_month, zone->daylight_weekday);
     int32_t ends_at = zone->standard_nth != 0
                           ? nth_weekday_of(year, zone->standard_month, zone->standard_nth,
                                            zone->standard_weekday)
-                          : days_of(year, zone->standard_month, zone->standard_weekday);
+                          : app_days_from_date(year, zone->standard_month, zone->standard_weekday);
     return begins_at < ends_at ? days >= begins_at && days < ends_at
                                : days >= begins_at || days < ends_at;
 }
@@ -338,7 +297,7 @@ static void repeat(ics_t *ics, int64_t duration)
      * over at once: a meeting every day for ten years is still one event. */
     int32_t window_day = (int32_t)((ics->from - duration) / SECONDS_PER_DAY) - 2;
     int32_t year, month, day;
-    date_of(first, &year, &month, &day);
+    app_date_from_days(first, &year, &month, &day);
 
     switch (ics->frequency) {
     case FREQ_DAILY: {
@@ -387,7 +346,7 @@ static void repeat(ics_t *ics, int64_t duration)
             } else {
                 int32_t its_day = wanted_day > 0 ? wanted_day : length + 1 + wanted_day;
                 if (its_day >= 1 && its_day <= length) { /* no 31st in a month of thirty */
-                    occur(&run, days_of(its_year, its_month, its_day));
+                    occur(&run, app_days_from_date(its_year, its_month, its_day));
                 }
             }
         }
@@ -469,10 +428,10 @@ static void take_rule(ics_t *ics, const char *rule)
     const char *part = part_named(rule, "FREQ=", &length);
     ics->has_rule = true;
     ics->frequency = part == NULL            ? FREQ_NONE
-                     : begins(part, "DAILY")   ? FREQ_DAILY
-                     : begins(part, "WEEKLY")  ? FREQ_WEEKLY
-                     : begins(part, "MONTHLY") ? FREQ_MONTHLY
-                     : begins(part, "YEARLY")  ? FREQ_YEARLY
+                     : app_text_starts(part, "DAILY")   ? FREQ_DAILY
+                     : app_text_starts(part, "WEEKLY")  ? FREQ_WEEKLY
+                     : app_text_starts(part, "MONTHLY") ? FREQ_MONTHLY
+                     : app_text_starts(part, "YEARLY")  ? FREQ_YEARLY
                                                : FREQ_NONE;
     if ((part = part_named(rule, "INTERVAL=", &length)) != NULL) {
         ics->interval = signed_number(&part);
@@ -520,28 +479,28 @@ static int32_t offset_of(const char *value)
 
 static void zone_line(ics_t *ics, const char *name, const char *value)
 {
-    if (ics->zone_count >= ICS_ZONES_MAX && !is(name, "END")) {
+    if (ics->zone_count >= ICS_ZONES_MAX && !app_text_equal(name, "END")) {
         return;
     }
     ics_zone_t *zone = &ics->zones[ics->zone_count < ICS_ZONES_MAX ? ics->zone_count : 0];
     bool        is_daylight = ics->in_daylight;
-    if (is(name, "TZID")) {
+    if (app_text_equal(name, "TZID")) {
         int32_t length = 0;
         while (value[length] != '\0') {
             length++;
         }
         zone->name = number_of(value, length);
-    } else if (is(name, "BEGIN")) {
-        ics->in_daylight = is(value, "DAYLIGHT");
-        ics->in_standard = is(value, "STANDARD");
-    } else if (is(name, "TZOFFSETTO") && (ics->in_daylight || ics->in_standard)) {
+    } else if (app_text_equal(name, "BEGIN")) {
+        ics->in_daylight = app_text_equal(value, "DAYLIGHT");
+        ics->in_standard = app_text_equal(value, "STANDARD");
+    } else if (app_text_equal(name, "TZOFFSETTO") && (ics->in_daylight || ics->in_standard)) {
         if (is_daylight) {
             zone->daylight_s = offset_of(value);
             zone->has_daylight = true;
         } else {
             zone->standard_s = offset_of(value);
         }
-    } else if (is(name, "DTSTART") && (ics->in_daylight || ics->in_standard)) {
+    } else if (app_text_equal(name, "DTSTART") && (ics->in_daylight || ics->in_standard)) {
         /* The day it changed, in case no rule says when it changes. */
         int32_t month = digits(value + 4, 2), day = digits(value + 6, 2);
         if (month >= 1 && day >= 1) {
@@ -553,7 +512,7 @@ static void zone_line(ics_t *ics, const char *name, const char *value)
                 zone->standard_weekday = (int8_t)day;
             }
         }
-    } else if (is(name, "RRULE") && (ics->in_daylight || ics->in_standard)) {
+    } else if (app_text_equal(name, "RRULE") && (ics->in_daylight || ics->in_standard)) {
         int32_t     length;
         const char *month = part_named(value, "BYMONTH=", &length);
         const char *day = part_named(value, "BYDAY=", &length);
@@ -573,8 +532,8 @@ static void zone_line(ics_t *ics, const char *name, const char *value)
                 }
             }
         }
-    } else if (is(name, "END")) {
-        if (is(value, "VTIMEZONE")) {
+    } else if (app_text_equal(name, "END")) {
+        if (app_text_equal(value, "VTIMEZONE")) {
             ics->in_zone = false;
             if (ics->zone_count < ICS_ZONES_MAX) {
                 if (!zone->has_daylight) {
@@ -629,11 +588,11 @@ static int32_t duration_of(const char *value)
 
 static void event_line(ics_t *ics, const char *name, const char *parameters, const char *value)
 {
-    if (is(name, "BEGIN")) {
+    if (app_text_equal(name, "BEGIN")) {
         ics->nested++;
         return;
     }
-    if (is(name, "END")) {
+    if (app_text_equal(name, "END")) {
         if (ics->nested > 0) {
             ics->nested--;
         } else {
@@ -645,27 +604,27 @@ static void event_line(ics_t *ics, const char *name, const char *parameters, con
     if (ics->nested > 0) {
         return; /* an alarm's own lines */
     }
-    if (is(name, "DTSTART")) {
+    if (app_text_equal(name, "DTSTART")) {
         ics->start = moment_of(value, parameters);
-    } else if (is(name, "DTEND")) {
+    } else if (app_text_equal(name, "DTEND")) {
         ics->end = moment_of(value, parameters);
-    } else if (is(name, "DURATION")) {
+    } else if (app_text_equal(name, "DURATION")) {
         ics->duration_s = duration_of(value);
-    } else if (is(name, "SUMMARY")) {
+    } else if (app_text_equal(name, "SUMMARY")) {
         take_title(ics, value);
-    } else if (is(name, "UID")) {
+    } else if (app_text_equal(name, "UID")) {
         int32_t length = 0;
         while (value[length] != '\0') {
             length++;
         }
         ics->uid = number_of(value, length);
-    } else if (is(name, "RRULE")) {
+    } else if (app_text_equal(name, "RRULE")) {
         take_rule(ics, value);
-    } else if (is(name, "RECURRENCE-ID")) {
+    } else if (app_text_equal(name, "RECURRENCE-ID")) {
         ics->recurrence_id = moment_of(value, parameters);
-    } else if (is(name, "STATUS")) {
-        ics->is_cancelled = is(value, "CANCELLED");
-    } else if (is(name, "EXDATE")) {
+    } else if (app_text_equal(name, "STATUS")) {
+        ics->is_cancelled = app_text_equal(value, "CANCELLED");
+    } else if (app_text_equal(name, "EXDATE")) {
         /* One or several, separated by commas. */
         for (const char *at = value; *at != '\0' && ics->exdate_count < ICS_EXDATES_MAX;) {
             ics_moment_t moment = moment_of(at, parameters);
@@ -714,9 +673,9 @@ static void take_line(ics_t *ics)
         event_line(ics, line, parameter_text, value);
     } else if (ics->in_zone) {
         zone_line(ics, line, value);
-    } else if (is(line, "BEGIN") && is(value, "VEVENT")) {
+    } else if (app_text_equal(line, "BEGIN") && app_text_equal(value, "VEVENT")) {
         begin_event(ics);
-    } else if (is(line, "BEGIN") && is(value, "VTIMEZONE")) {
+    } else if (app_text_equal(line, "BEGIN") && app_text_equal(value, "VTIMEZONE")) {
         ics->in_zone = true;
         if (ics->zone_count < ICS_ZONES_MAX) {
             ics->zones[ics->zone_count] = (ics_zone_t){ 0 };

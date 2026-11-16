@@ -1,6 +1,6 @@
 {
   "name": "calendar",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "title": "Calendar",
   "abi": 2,
   "writes_files": true,

@@ -27,7 +27,6 @@
 #define TIME_TO_DATE_GAP 50
 #define DATE_LINE_GAP    16
 
-
 static void schedule_next_frame(void)
 {
     int64_t utc_seconds = time_now();
@@ -75,22 +74,16 @@ void app_on_intent(int32_t intent)
 
 void app_on_draw(void)
 {
-    char time_line[8], weekday_line[24], date_line[24];
-    app_text_t text;
     int64_t now = time_now();
-    if (now != 0) {
-        /* The host says a moment in words: no names of days here. */
-        time_line[time_text(now, HOST_TIME_CLOCK, time_line, sizeof time_line - 1)] = '\0';
-        weekday_line[time_text(now, HOST_TIME_WEEKDAY, weekday_line, sizeof weekday_line - 1)] = '\0';
-        date_line[time_text(now, HOST_TIME_LONG_DATE, date_line, sizeof date_line - 1)] = '\0';
-    } else {
-        app_text_start(&text, time_line, sizeof time_line);
-        app_text_add(&text, "--:--");
-        app_text_start(&text, weekday_line, sizeof weekday_line);
-        app_text_add(&text, "No time");
-        app_text_start(&text, date_line, sizeof date_line);
-        app_text_add(&text, "Waiting for network");
+    if (now == 0) {
+        ui_reason(HOST_FAILED_NO_NETWORK); /* the time comes with the network */
+        return;
     }
+    /* The host says a moment in words: no names of days here. */
+    char time_line[8], weekday_line[24], date_line[24];
+    app_time_text(now, HOST_TIME_CLOCK, time_line, sizeof time_line);
+    app_time_text(now, HOST_TIME_WEEKDAY, weekday_line, sizeof weekday_line);
+    app_time_text(now, HOST_TIME_LONG_DATE, date_line, sizeof date_line);
 
     int32_t time_bottom = draw_centered(TIME_CAP_TOP, TIME_FONT, time_line);
     int32_t weekday_bottom = draw_centered(time_bottom + TIME_TO_DATE_GAP, DATE_FONT, weekday_line);

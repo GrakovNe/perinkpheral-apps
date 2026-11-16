@@ -31,12 +31,13 @@
  * Buttons: UP and DOWN switch tickers; OK starts and stops the rotation
  * (a timer, on the screen only, at the "rotate" interval).
  */
+#include "app_days.h"
 #include "app_fixed.h"
 #include "app_state.h"
 #include "app_text.h"
 #include "app_values.h"
 #include "host_api.h"
-#include "strings.h"
+#include "strings.h" /* made of the `strings` folder by tools/perinkpheral */
 
 #define MARGIN HOST_UI_MARGIN
 
@@ -89,7 +90,15 @@ static const char QUOTES_FILE[] = "quotes";
 #define ROTATE_TIMER    0
 #define ROTATE_DEFAULT  60
 #define QUOTE_VERSION   3
+#define STATE_KEY       "state"
 #define STATE_VERSION   1
+/* What an exchange that has no such ticker comes to: it answers with an
+ * empty table, and the screen says "Not found" as for an HTTP 404. */
+#define STATUS_NOT_FOUND 404
+/* What the poll over SPB asks from and the Moscow day the candles are of. */
+#define SPB_FROM_KEY "spb_from"
+#define MOEX_DAY_KEY "day"
+#define MOEX_DATE_LENGTH 10 /* "2026-11-15" */
 
 /* One ticker as last received. `item` is the list entry it was asked for,
  * so a record left over from a reordered list is not shown for another
@@ -127,23 +136,9 @@ static int32_t ticker_count(void)
     return count > TICKERS_MAX ? TICKERS_MAX : count;
 }
 
-static bool same_text(const char *a, const char *b)
+static bool is_success(int32_t http_status)
 {
-    while (*a && *a == *b) {
-        a++;
-        b++;
-    }
-    return *a == *b;
-}
-
-static bool same_text_n(const char *a, const char *b, int32_t count)
-{
-    for (int32_t i = 0; i < count; i++) {
-        if (a[i] != b[i]) {
-            return false;
-        }
-    }
-    return true;
+    return http_status >= 200 && http_status < 300;
 }
 
 static void read_quote(int32_t index, quote_t *out)
@@ -178,43 +173,15 @@ static void load_current(void)
 {
     char item[64];
     read_quote(state.index, &quote);
-    if (app_setting_item(TICKERS, state.index, item, sizeof item) == 0 || !same_text(item, quote.item)) {
+    if (app_setting_item(TICKERS, state.index, item, sizeof item) == 0 || !app_text_equal(item, quote.item)) {
         quote = (quote_t){ .version = QUOTE_VERSION };
     }
     loaded = state.index;
 }
 
-/* "1 min", "30 s", "1 h" -> seconds. */
-static int32_t parse_interval(const char *text)
-{
-    int32_t number = 0;
-    while (*text >= '0' && *text <= '9') {
-        number = number * 10 + (*text++ - '0');
-    }
-    while (*text == ' ') {
-        text++;
-    }
-    switch (*text) {
-    case 'h': return number * 3600;
-    case 'm': return number * 60;
-    case 's': return number;
-    default:  return 0;
-    }
-}
-
-static int32_t rotate_seconds(void)
-{
-    char    text[24];
-    int32_t seconds = 0;
-    if (app_setting("rotate", text, sizeof text) > 0) {
-        seconds = parse_interval(text);
-    }
-    return seconds > 0 ? seconds : ROTATE_DEFAULT;
-}
-
 static void update_rotation(void)
 {
-    timer_set(ROTATE_TIMER, state.rotating && ticker_count() > 1 ? rotate_seconds() * 1000 : 0);
+    timer_set(ROTATE_TIMER, state.rotating && ticker_count() > 1 ? app_setting_seconds("rotate", ROTATE_DEFAULT) * 1000 : 0);
 }
 
 static void update_header(void)
@@ -253,7 +220,7 @@ static void select_ticker(int32_t step)
 
 void app_init(void)
 {
-    if (!app_state_load("state", &state, sizeof state, STATE_VERSION)) {
+    if (!app_state_load(STATE_KEY, &state, sizeof state, STATE_VERSION)) {
         state = (state_t){ .version = STATE_VERSION };
     }
     saved = state;
@@ -265,7 +232,7 @@ void app_init(void)
 void app_on_terminate(void)
 {
     if (state.index != saved.index || state.rotating != saved.rotating) {
-        app_state_save("state", &state, sizeof state);
+        app_state_save(STATE_KEY, &state, sizeof state);
     }
 }
 
@@ -299,7 +266,7 @@ void app_on_button(int32_t event)
     case BTN_OK_PRESSED:
         /* The user's choice is kept at once, so a power loss does not undo it. */
         state.rotating = !state.rotating;
-        app_state_save("state", &state, sizeof state);
+        app_state_save(STATE_KEY, &state, sizeof state);
         saved = state;
         update_header();
         break;
@@ -320,6 +287,24 @@ void app_on_timer(int32_t id)
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
+/* The record of an item of the list, as it is kept, or a new one when the
+ * one kept is another ticker's - the list was changed. False when there is
+ * no such item. `had_data`: whether the screen had something for it. */
+static bool record_for(int32_t item, quote_t *record, int32_t *had_data)
+{
+    char asked[64];
+    if (app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
+        return false;
+    }
+    read_quote(item, record);
+    *had_data = record->has_data;
+    if (!app_text_equal(asked, record->item)) {
+        *record = (quote_t){ .version = QUOTE_VERSION };
+        app_text_copy(record->item, sizeof record->item, asked);
+    }
+    return true;
+}
+
 /* A record was written: the screen shows it again when it is the one on it. */
 static void written(int32_t item, int32_t had_data)
 {
@@ -333,21 +318,13 @@ static void written(int32_t item, int32_t had_data)
 static void yahoo_values(int32_t item, int32_t http_status)
 {
     quote_t record;
-    read_quote(item, &record);
-    int32_t had_data = record.has_data;
-
-    char asked[64];
-    if (app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
+    int32_t had_data;
+    if (!record_for(item, &record, &had_data)) {
         return;
     }
-    if (!same_text(asked, record.item)) {
-        record = (quote_t){ .version = QUOTE_VERSION };
-        app_text_copy(record.item, sizeof record.item, asked);
-    }
-
     int32_t hint = 2;
     int64_t price, previous;
-    if (http_status >= 200 && http_status < 300) {
+    if (is_success(http_status)) {
         if (!app_value_number(PICK_PRICE_HINT, 0, &hint) || hint < 0 || hint > DECIMALS_MAX) {
             hint = 2;
         }
@@ -364,7 +341,7 @@ static void yahoo_values(int32_t item, int32_t http_status)
                 record.name[0] = 0;
             }
             if (!app_value_text(PICK_SYMBOL, record.symbol, sizeof record.symbol)) {
-                app_text_copy(record.symbol, sizeof record.symbol, asked);
+                app_text_copy(record.symbol, sizeof record.symbol, record.item);
             }
             if (!app_value_text(PICK_CURRENCY, record.currency, sizeof record.currency)) {
                 record.currency[0] = 0;
@@ -389,13 +366,7 @@ static int32_t digits_at(const char *text, int32_t count)
 
 static int64_t moscow_time(const char *date, const char *clock)
 {
-    int64_t year = digits_at(date, 4), month = digits_at(date + 5, 2), day = digits_at(date + 8, 2);
-    /* Days since 1970 of a date of the Gregorian calendar (H. Hinnant). */
-    year -= month <= 2;
-    int64_t era   = (year >= 0 ? year : year - 399) / 400;
-    int64_t of    = year - era * 400;
-    int64_t yday  = (153 * (month + (month > 2 ? -3 : 9)) + 2) / 5 + day - 1;
-    int64_t days  = era * 146097 + of * 365 + of / 4 - of / 100 + yday - 719468;
+    int64_t days = app_days_from_date(digits_at(date, 4), digits_at(date + 5, 2), digits_at(date + 8, 2));
     int64_t clock_s = digits_at(clock, 2) * 3600 + digits_at(clock + 3, 2) * 60 + digits_at(clock + 6, 2);
     return days * 86400 + clock_s - MOSCOW_OFFSET_S;
 }
@@ -403,17 +374,11 @@ static int64_t moscow_time(const char *date, const char *clock)
 static void moex_quote(int32_t item, int32_t http_status)
 {
     quote_t record;
-    char    asked[64];
-    if (app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
+    int32_t had_data;
+    if (!record_for(item, &record, &had_data)) {
         return;
     }
-    read_quote(item, &record);
-    int32_t had_data = record.has_data;
-    if (!same_text(asked, record.item)) {
-        record = (quote_t){ .version = QUOTE_VERSION };
-        app_text_copy(record.item, sizeof record.item, asked);
-    }
-    if (http_status >= 200 && http_status < 300) {
+    if (is_success(http_status)) {
         int32_t decimals = 2;
         int64_t price, previous;
         char    now[24], updated[12];
@@ -430,7 +395,7 @@ static void moex_quote(int32_t item, int32_t http_status)
         if (!app_value_text(MOEX_SECID, record.symbol, sizeof record.symbol)) {
             /* The exchange answers a ticker it does not have with empty tables. */
             record.has_data = 0;
-            http_status     = 404;
+            http_status     = STATUS_NOT_FOUND;
         } else if (has_price) {
             record.has_data = 1;
             record.decimals = decimals;
@@ -440,7 +405,7 @@ static void moex_quote(int32_t item, int32_t http_status)
                 record.name[0] = 0;
             }
             if (!app_value_text(MOEX_CURRENCY, record.currency, sizeof record.currency)
-                || same_text(record.currency, "SUR")) {
+                || app_text_equal(record.currency, "SUR")) {
                 app_text_copy(record.currency, sizeof record.currency, "RUB"); /* the exchange's old code */
             }
             record.time = 0;
@@ -450,10 +415,11 @@ static void moex_quote(int32_t item, int32_t http_status)
                                    && app_text_length(updated) == 8;
                 record.time      = moscow_time(now, has_updated ? updated : now + 11);
                 /* The chart is of the exchange's day: a new day, or a ticker without one, asks for it. */
-                char day[12];
-                bool is_new_day = kv_get("day", 3, day, sizeof day) != 10 || !same_text_n(day, now, 10);
+                char day[MOEX_DATE_LENGTH + 2];
+                bool is_new_day = app_setting(MOEX_DAY_KEY, day, sizeof day) != MOEX_DATE_LENGTH ||
+                                  !app_text_starts(now, day);
                 if (is_new_day) {
-                    kv_set("day", 3, now, 10);
+                    app_state_save(MOEX_DAY_KEY, now, MOEX_DATE_LENGTH);
                 }
                 if (is_new_day || record.count == 0) {
                     poll_now(POLL_MOEX_DAY);
@@ -470,13 +436,12 @@ static void moex_day(int32_t item, int32_t http_status)
 {
     quote_t record;
     char    asked[64];
-    if (http_status < 200 || http_status >= 300
-        || app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
+    if (!is_success(http_status) || app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
         return;
     }
     read_quote(item, &record);
     /* The closes are numbers of the quote's decimals: without a quote they wait for the next. */
-    if (!record.has_data || !same_text(asked, record.item)) {
+    if (!record.has_data || !app_text_equal(asked, record.item)) {
         return;
     }
     record.count = app_value_series(MOEX_CLOSE, record.decimals, record.series, HOST_CHART_VALUES_MAX);
@@ -496,12 +461,11 @@ static bool spb_move_period(void)
     app_text_t text;
     app_text_start(&text, wanted, sizeof wanted);
     app_text_add_fixed(&text, (now - SPB_PERIOD_S) / 3600 * 3600, 0, 0);
-    int32_t length = kv_get("spb_from", 8, kept, sizeof kept - 1);
-    kept[length > 0 ? length : 0] = 0;
-    if (same_text(wanted, kept)) {
+    app_setting(SPB_FROM_KEY, kept, sizeof kept);
+    if (app_text_equal(wanted, kept)) {
         return false;
     }
-    kv_set("spb_from", 8, wanted, app_text_length(wanted));
+    app_state_save(SPB_FROM_KEY, wanted, app_text_length(wanted));
     return true;
 }
 
@@ -532,36 +496,30 @@ static int32_t spb_decimals(int32_t count)
 static void spb_values(int32_t item, int32_t http_status)
 {
     quote_t record;
-    char    asked[64];
+    int32_t had_data;
     /* The period moves with the clock; the first poll waits for it ("not ready"). */
     if (spb_move_period() && http_status == HOST_FAILED_NOT_READY) {
         poll_now(POLL_SPB);
         return;
     }
-    if (app_setting_item(TICKERS, item, asked, sizeof asked) == 0) {
+    if (!record_for(item, &record, &had_data)) {
         return;
     }
-    read_quote(item, &record);
-    int32_t had_data = record.has_data;
-    if (!same_text(asked, record.item)) {
-        record = (quote_t){ .version = QUOTE_VERSION };
-        app_text_copy(record.item, sizeof record.item, asked);
-    }
-    if (http_status >= 200 && http_status < 300) {
+    if (is_success(http_status)) {
         int32_t count = app_value_count(SPB_CLOSE);
         int32_t decimals = spb_decimals(count);
         int64_t price, began;
         if (count == 0) {
             /* An empty list: no such ticker, or no trades in the whole day. */
             record.has_data = 0;
-            http_status     = 404;
+            http_status     = STATUS_NOT_FOUND;
         } else if (app_value_element_fixed(SPB_CLOSE, count - 1, decimals, &price)) {
             record.has_data = 1;
             record.decimals = decimals;
             record.price    = price;
             record.previous = price;
             record.name[0]  = 0; /* the exchange names nothing here: the ticker says it */
-            app_text_copy(record.symbol, sizeof record.symbol, asked + sizeof SPB_PREFIX - 1);
+            app_text_copy(record.symbol, sizeof record.symbol, record.item + sizeof SPB_PREFIX - 1);
             app_text_copy(record.currency, sizeof record.currency, "RUB");
             record.time = app_value_element_fixed(SPB_TIME, count - 1, 0, &began) ? began + SPB_BAR_S : 0;
             record.count = app_value_series(SPB_CLOSE, decimals, record.series, HOST_CHART_VALUES_MAX);
@@ -652,7 +610,7 @@ void app_on_draw(void)
         load_current();
     }
     if (!quote.has_data) {
-        if (quote.status == 404) {
+        if (quote.status == STATUS_NOT_FOUND) {
             draw_notice(app_string(STR_NOT_FOUND), quote.item);
         } else if (!ui_reason(quote.status)) {
             draw_notice(app_string(STR_NO_DATA), quote.item);

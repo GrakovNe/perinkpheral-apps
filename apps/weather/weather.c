@@ -37,7 +37,7 @@ enum {
 #define WEATHER_POLL  0
 #define DAYS          3
 #define HTTP_OK       200
-#define DAYS_PER_WEEK 7
+#define SECONDS_PER_DAY 86400
 
 /* What was learned last, as it lies in the store. */
 #define FORECAST_KEY     "forecast"
@@ -56,9 +56,8 @@ typedef struct {
 static forecast_t forecast;
 static bool       has_forecast;
 
-static const char CITY_KEY[] = "city";
-static const char HEADER_CITY_KEY[] = "header_city";
-
+#define CITY_KEY        "city"
+#define HEADER_CITY_KEY "header_city"
 
 /* ---- what a WMO code means ---- */
 
@@ -126,30 +125,17 @@ static int32_t shown_speed(int32_t km_per_hour)
     return shows_fahrenheit() ? (km_per_hour * 621 + 500) / 1000 : km_per_hour;
 }
 
-
 /* The host's header: on the left the city the weather is for, while its
  * setting is on; the right is the host's own - the date, or the time. */
 static void show_header(void)
 {
-    static const char EMPTY[] = " ";
-
-    /* The setting is "Saint Petersburg, Saint Petersburg, Russia": the city
-     * is what stands before the first comma. */
-    char city[128];
-    int32_t stored = kv_get(CITY_KEY, sizeof CITY_KEY - 1, city, sizeof city);
-    int32_t city_length = 0;
-    while (city_length < stored && city[city_length] != ',') {
-        city_length++;
-    }
-    if (city_length > HOST_HEADER_TEXT_MAX) {
-        city_length = HOST_HEADER_TEXT_MAX;
-    }
-    if (app_setting_is_on(HEADER_CITY_KEY) && city_length > 0) {
-        header_text(HOST_HEADER_LEFT, city, city_length);
+    char city[HOST_HEADER_TEXT_MAX + 1];
+    int32_t length = app_setting_place(CITY_KEY, city, sizeof city);
+    if (app_setting_is_on(HEADER_CITY_KEY) && length > 0) {
+        header_text(HOST_HEADER_LEFT, city, length);
     } else {
-        header_text(HOST_HEADER_LEFT, EMPTY, sizeof EMPTY - 1);
+        header_text(HOST_HEADER_LEFT, " ", 1); /* a space: the side stays empty */
     }
-
 }
 
 void app_init(void)
@@ -219,14 +205,11 @@ void app_on_button(int32_t event)
 /* From the ink of the large icon to the digits. */
 #define NOW_TEXT_GAP      22
 #define HERO_CHARACTERS_MAX 2
-/* The host draws the sign; the fonts are ASCII and have none. */
-#define DEGREE_SIGN       "\xC2\xB0"
 /* The details: two lines in the middle of the large icon's height, their pictures in one column and the values
  * starting at one edge beside it. A unit is in the small font. */
 #define DETAIL_TOP        30
 #define DETAIL_LINE       36
 #define DETAIL_ICON_GAP   10
-#define DETAIL_UNIT_GAP   5
 /* The rule stands as far under the large icon as the icon stands under
  * the header's rule: the same margin on both sides. */
 #define RULE_TOP          (MARGIN + ICON_SIDE(LARGE_ICON_CELL) + MARGIN)
@@ -235,7 +218,6 @@ void app_on_button(int32_t event)
 #define DAY_ICON_TOP      158
 #define DAY_RANGE_TOP     214
 #define DAY_SLASH_GAP     3
-#define LINE_HEIGHT       30
 
 /* How wide a line of the details is: the picture, and the value with its
  * unit as the host sets them. */
@@ -280,7 +262,7 @@ static void draw_now(void)
     int32_t cap_height = gfx_font_cap_height(font);
     int32_t cap_top = MARGIN + (ICON_SIDE(LARGE_ICON_CELL) - cap_height) / 2;
     int32_t text_left = icon_left + ink.last_x + 1 + NOW_TEXT_GAP;
-    app_text_add(&text, DEGREE_SIGN);
+    app_text_add(&text, APP_TEXT_DEGREE);
     app_draw_text(text_left, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
 
     char rain[8];
@@ -308,23 +290,15 @@ static void draw_days(void)
     gfx_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     for (int32_t day = 0; day < DAYS; day++) {
         int32_t center = day * column_width + column_width / 2;
-        /* "Sat", from the host's "Sat 14 Nov": its first word, in the
-         * device's language. */
+        /* "Sat", in the device's language; today is "Today". */
         char name[32];
         if (day == 0) {
-            app_text_t text;
-            app_text_start(&text, name, sizeof name);
-            app_text_add(&text, app_string(STR_TODAY));
+            app_text_copy(name, sizeof name, app_string(STR_TODAY));
+        } else if (now != 0) {
+            app_time_text(now + (int64_t)day * SECONDS_PER_DAY, HOST_TIME_WEEKDAY_SHORT, name,
+                          sizeof name);
         } else {
-            int32_t length = now != 0 ? time_text(now + (int64_t)day * 86400, HOST_TIME_DATE, name,
-                                                  sizeof name - 1)
-                                      : 0;
-            name[length] = '\0';
-            for (int32_t i = 0; i < length; i++) {
-                if (name[i] == ' ') {
-                    name[i] = '\0';
-                }
-            }
+            name[0] = '\0';
         }
         app_draw_centered(center, DAY_NAME_TOP, HOST_FONT_SMALL, name);
         int32_t icon_size = ICON_SIDE(SMALL_ICON_CELL);
@@ -362,9 +336,7 @@ void app_on_draw(void)
      * a forecast in it is this one's own to name. */
     if (ui_reason(last_status) == 0) {
         host_notice_t no_data = { .icon = HOST_ICON_WARNING };
-        app_text_t    text;
-        app_text_start(&text, no_data.first, sizeof no_data.first);
-        app_text_add(&text, app_string(STR_NO_DATA));
+        app_text_copy(no_data.first, sizeof no_data.first, app_string(STR_NO_DATA));
         ui_notice(&no_data);
     }
 }

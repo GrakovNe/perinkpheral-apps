@@ -13,6 +13,7 @@
  */
 #include <stdbool.h>
 
+#include "app_draw.h"
 #include "app_state.h"
 #include "app_text.h"
 #include "host_api.h"
@@ -237,13 +238,11 @@ void app_on_draw(void)
         int32_t digits_bottom = frame_top + FRAME_PADDING + capitals;
         ui_bar(frame_left, (digits_bottom + body - BAR_HEIGHT) / 2, FRAME_WIDTH, minutes_left(),
                state.minutes);
-        ui_actions(app_string(STR_STOP), app_text_length(app_string(STR_STOP)),
-                   app_string(STR_CLOSE), app_text_length(app_string(STR_CLOSE)));
+        app_draw_actions(app_string(STR_STOP), app_string(STR_CLOSE));
     } else {
         ui_frame(frame_left, frame_top, FRAME_WIDTH, frame_height,
                  (state.minutes < MINUTES_MAX ? HOST_UI_ARROW_UP : 0) |
                      (state.minutes > MINUTES_MIN ? HOST_UI_ARROW_DOWN : 0));
-        ui_actions(app_string(STR_START), app_text_length(app_string(STR_START)),
-                   app_string(STR_CLOSE), app_text_length(app_string(STR_CLOSE)));
+        app_draw_actions(app_string(STR_START), app_string(STR_CLOSE));
     }
 }

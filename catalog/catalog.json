@@ -40,13 +40,13 @@
     {
       "name": "calendar",
       "title": "Calendar",
-      "version": "0.4.5",
+      "version": "0.4.6",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 12850,
-          "sha256": "892c7210bf2bf83624173a2e3b3012be13c70df017e986bec84759ab7a4796cd"
+          "size": 12903,
+          "sha256": "20d3fcc85e29a876ae8399d5c93e5a705703702d9b1f39901dc1ec6475a04ac2"
         },
         {
           "name": "manifest.ru",
@@ -61,7 +61,7 @@
         {
           "name": "manifest.json",
           "size": 908,
-          "sha256": "5c5d911a176b0bf1898db4a7325d635aecd8ddd982a6b3740dd5542f870819e4"
+          "sha256": "4ba48b3b104cb3943e0c408fa81a1eb485edf76cf1adeb2295da0f2b54f59930"
         }
       ],
       "writes_files": true,
@@ -82,13 +82,13 @@
     {
       "name": "clock",
       "title": "Clock",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 1167,
-          "sha256": "b5c5260c2b132dedc3fa57cf392cdca48f2cb27052c4c08b740c83928698e9b7"
+          "size": 851,
+          "sha256": "845562f3cef0376b7a4a247608abac94e0a7535139be2bd6bda6e4e2dca82381"
         },
         {
           "name": "manifest.ru",
@@ -103,7 +103,7 @@
         {
           "name": "manifest.json",
           "size": 362,
-          "sha256": "3dedeccb998e827dc7312242ef3b65d227ba2df91443f15dee1e8da8b5ed4959"
+          "sha256": "dfcd235a071aad5997761148505791c988028fb74f202acb76fc16784c07a3fd"
         }
       ],
       "icon": [
@@ -123,28 +123,28 @@
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.3.7",
+      "version": "0.3.8",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 5932,
-          "sha256": "70336c28835ba3575c1bf99502b6758f5cec7f130e17ec4724ff113f55c52ba4"
+          "size": 5882,
+          "sha256": "e372013385ba2f2019a4ac600a257043f34b69940683ea7c8b84f7e09bbf786a"
         },
         {
           "name": "manifest.ru",
-          "size": 308,
-          "sha256": "520feed11e78ead6f91c271b2af003b28b42b532d879d96864767251310d7b19"
+          "size": 316,
+          "sha256": "0fda8d5b40d4876108537639a9d964345f7f7ff867ed684ba54b169a435bcca4"
         },
         {
           "name": "strings.ru",
-          "size": 4,
-          "sha256": "fb5e512425fc9449316ec95969ebe71e2d576dbab833d61e2a5b9330fd70ee02"
+          "size": 53,
+          "sha256": "affc496fd57f3bacd4b7da80afecff8a46b7fe67a178f7c936633b2264e1b2cb"
         },
         {
           "name": "manifest.json",
           "size": 739,
-          "sha256": "217f10b69965b5d6582b4dd3ed28319ed8c91659ccdf132f01e4390edbb61d6f"
+          "sha256": "82bba10929e9fe8e88c994887fb03e2606530238104808f41652f00acd565dde"
         }
       ],
       "icon": [
@@ -164,13 +164,13 @@
     {
       "name": "kit",
       "title": "UI Kit",
-      "version": "0.1.7",
+      "version": "0.1.8",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 7021,
-          "sha256": "2d134c5e906874d466a92919ef407d48137832648efa8e66e6d01d4ed4459c55"
+          "size": 7031,
+          "sha256": "98d0bceb3ba1699f1d4123d25c56840272d003cd7c1e312a8076df13e22e6d8b"
         },
         {
           "name": "manifest.ru",
@@ -185,7 +185,7 @@
         {
           "name": "manifest.json",
           "size": 300,
-          "sha256": "3eaa55666f124775fd9381218f76513425445993234087ccc53dea974f5a3858"
+          "sha256": "fe45dda0614f9280e22546a8ae0760d50abb19e5fe1a61179059efcaddb48e62"
         }
       ],
       "icon": [
@@ -205,13 +205,13 @@
     {
       "name": "stocks",
       "title": "Stocks",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 9259,
-          "sha256": "27e3b540976f4a27294a6a3ea9cb5bc2353a26a103d5e1df43449b15564c1bd9"
+          "size": 9194,
+          "sha256": "ef352759fa5a8bee324cc16580c2f019f6a7cd455fb4a480456f73e3a4c6c089"
         },
         {
           "name": "manifest.ru",
@@ -231,7 +231,7 @@
         {
           "name": "manifest.json",
           "size": 3124,
-          "sha256": "3aa325d53233a5744997d096c117f1a22e1905fc033ad419b1d89eb92bbb58cc"
+          "sha256": "c6650914d0651ad76acefb9ce32e635a3579d0e2e6718c22d667397c15e05024"
         }
       ],
       "writes_files": true,
@@ -255,13 +255,13 @@
     {
       "name": "stopwatch",
       "title": "Stopwatch",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
           "size": 2643,
-          "sha256": "fbe640c073c003f06a899136ff98fee0bd38c7c6dba08caf83a83d0032026af2"
+          "sha256": "937b8ae3a80c2c15f3fc1dad84a8bea647c7e8b4e882dc5de5e284d2078f6281"
         },
         {
           "name": "manifest.ru",
@@ -276,7 +276,7 @@
         {
           "name": "manifest.json",
           "size": 335,
-          "sha256": "56a62442bffad1d2516cef03e28c5930fbb7ce3258c4d15541eb8cd38ad4f5c8"
+          "sha256": "5163d8e38c4922b44765546837098bb659ea12e9ac9011f798ac4023187b4ee1"
         }
       ],
       "icon": [
@@ -296,13 +296,13 @@
     {
       "name": "sun",
       "title": "Sun and Moon",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 5243,
-          "sha256": "1d592e9f24f6f1b7192455c7973356f7e43f66e87f4f29d815f8f74f8e55bb80"
+          "size": 5302,
+          "sha256": "a840c9bccb134794da3ae6a8b92ec263747dbfee0dfd9f597c665b5d5d7b8963"
         },
         {
           "name": "manifest.ru",
@@ -317,7 +317,7 @@
         {
           "name": "manifest.json",
           "size": 785,
-          "sha256": "b6474d33331ab25e599384c087f8e2bfcc7028d9da05ed7e47a87d1220cce12b"
+          "sha256": "2b1c11fe86148fe021bc689c01327daa8009acb65aa7020d220c158ce1ab8a37"
         }
       ],
       "icon": [
@@ -337,13 +337,13 @@
     {
       "name": "timer",
       "title": "Timer",
-      "version": "0.3.3",
+      "version": "0.3.4",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
           "size": 2721,
-          "sha256": "9dd887eea4a4b92096ebb2dd28fc9bfd510abb7ec3ffe8c91da03449545798bb"
+          "sha256": "323c6ea28ea99f4bac12832c22c8bdb715ca2f1e85fecdae50d1d3860c2a2ac3"
         },
         {
           "name": "manifest.ru",
@@ -358,7 +358,7 @@
         {
           "name": "manifest.json",
           "size": 301,
-          "sha256": "79906f217094497f8a70fe4c651ddf81069d17699722c6351f150001c52966c8"
+          "sha256": "700d6b36dc8ac0e8672aa918bbb0327f4390d61140c21dc805e67811b7d21b7c"
         }
       ],
       "icon": [
@@ -378,13 +378,13 @@
     {
       "name": "weather",
       "title": "Weather",
-      "version": "0.2.6",
+      "version": "0.2.7",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 4862,
-          "sha256": "ff21598cad4d5ad4b2b86b59a891ad1802ec06bd3ee1ce3c1397aa7cd903c529"
+          "size": 4860,
+          "sha256": "80b264c95d8b7081b4b55c9c5e6803c19b237b427d52e94eefe5ff377c7e939c"
         },
         {
           "name": "manifest.ru",
@@ -399,7 +399,7 @@
         {
           "name": "manifest.json",
           "size": 1893,
-          "sha256": "686ff28cd614441f8f7b6cca473f66cf92459497d66f037d07a61b6532ba60f0"
+          "sha256": "292cf49db1a3303e7c63f032d51b0b9edbf3484265219ad6dafd2678cadcaf53"
         }
       ],
       "icon": [

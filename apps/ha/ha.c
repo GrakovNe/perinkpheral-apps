@@ -31,10 +31,10 @@
 #include <stddef.h>
 
 #include "app_draw.h"
+#include "app_state.h"
 #include "app_text.h"
 #include "host_api.h"
-
-#define SECONDS_PER_MINUTE 60
+#include "strings.h" /* made of the `strings` folder by tools/perinkpheral */
 
 /* What is asked and what comes of it, by its tag. */
 enum { REQUEST_SCREEN = HOST_REQUEST_FIRST };
@@ -57,55 +57,28 @@ static int32_t coming_status;
 /* Why there is nothing to show, when there is nothing: the status of the
  * last answer, an HTTP one or a HOST_FAILED_*. 0: nothing was asked yet. */
 #define STATUS_KEY "status"
-#define HTTP_OK           200
-#define HTTP_UNAUTHORIZED 401
+#define HTTP_OK    200
 static int32_t last_status;
 
 /* The list layout: the host's list of facts, moved with UP and DOWN. */
 static host_list_t list = { .selected = -1 };
 
-static int32_t length_of(const char *text)
-{
-    return app_text_length(text);
-}
-
 /* ---- asking ---- */
 
-static int32_t refresh_seconds(void)
-{
-    static const struct {
-        const char *name;
-        int32_t     seconds;
-    } PACES[] = { { "1 min", 60 }, { "5 min", 300 }, { "15 min", 900 }, { "1 h", 3600 } };
-    char chosen[16];
-    int32_t length = kv_get("every", 5, chosen, sizeof chosen - 1);
-    chosen[length > 0 ? length : 0] = '\0';
-    for (size_t i = 0; i < sizeof PACES / sizeof PACES[0]; i++) {
-        const char *name = PACES[i].name;
-        int32_t at = 0;
-        while (name[at] != '\0' && name[at] == chosen[at]) {
-            at++;
-        }
-        if (name[at] == chosen[at]) {
-            return PACES[i].seconds;
-        }
-    }
-    return 5 * SECONDS_PER_MINUTE; /* nothing chosen: the manifest's default */
-}
+/* How often: the "every" setting, "5 min" as the manifest has it when
+ * nothing is chosen. */
+#define REFRESH_DEFAULT_S (5 * 60)
 
-/* One request: "render this attribute of that sensor". The server and the
- * token are the host's to put in - the application never sees the token. */
 /* One request is enough for an instance that has just asked. */
 static bool has_asked;
 
+/* One request: the screen as Home Assistant renders it. The server and the
+ * token are the host's to put in - the application never sees the token. */
 static void ask(void)
 {
     has_asked = true;
     char entity[64];
-    int32_t length = kv_get("entity", 6, entity, sizeof entity - 1);
-    entity[length > 0 ? length : 0] = '\0';
-
-    if (entity[0] == '\0') {
+    if (app_setting("entity", entity, sizeof entity) == 0) {
         /* No sensor named: the screen is the integration's, which knows the
          * device by the secret it gave it and answers with the screen. */
         static const char URL[] = "{{server}}/api/perinkpheral/screen";
@@ -124,13 +97,13 @@ static void ask(void)
     app_text_add(&text, entity);
     app_text_add(&text, "','screen') }}\"}");
     http_request(REQUEST_SCREEN, HOST_HTTP_POST, URL, sizeof URL - 1, HEADERS, sizeof HEADERS - 1,
-                 body, length_of(body));
+                 body, app_text_length(body));
 }
 
 /* The screen is asked for now and again from now on. */
 static void keep_fresh(void)
 {
-    alarm_set_every(REFRESH_ALARM, refresh_seconds(), 0);
+    alarm_set_every(REFRESH_ALARM, app_setting_seconds("every", REFRESH_DEFAULT_S), 0);
     ask();
 }
 
@@ -275,27 +248,16 @@ static bool next_line(int32_t *at, line_t *line)
     return true;
 }
 
-static bool is(const char *text, const char *word)
-{
-    while (*word != '\0' && *text == *word) {
-        text++;
-        word++;
-    }
-    return *text == *word;
-}
-
 /* ---- text ----
  *
  * A value may have a degree sign in it, as Home Assistant gives it: the
  * host draws that one, and everything else beyond ASCII as "?". */
 
-#define DEGREE_FIRST  ((char)0xC2)
-#define DEGREE_SECOND ((char)0xB0)
-
+/* Where the degree sign is in a value, or -1. */
 static int32_t degree_at(const char *text)
 {
     for (int32_t i = 0; text[i] != '\0'; i++) {
-        if (text[i] == DEGREE_FIRST && text[i + 1] == DEGREE_SECOND) {
+        if (app_text_starts(text + i, APP_TEXT_DEGREE)) {
             return i;
         }
     }
@@ -356,7 +318,7 @@ static const picture_t PICTURES[] = {
 static const picture_t *picture_named(const char *name)
 {
     for (size_t i = 0; i < sizeof PICTURES / sizeof PICTURES[0]; i++) {
-        if (is(name, PICTURES[i].name)) {
+        if (app_text_equal(name, PICTURES[i].name)) {
             return &PICTURES[i];
         }
     }
@@ -479,7 +441,7 @@ static int32_t read_items(item_t items[ITEMS_MAX])
     line_t  line;
     int32_t at = 0, count = 0;
     while (count < ITEMS_MAX && next_line(&at, &line)) {
-        if (is(line.place, "item")) {
+        if (app_text_equal(line.place, "item")) {
             app_text_copy(items[count].name, sizeof items[count].name, line.parts[0]);
             items[count].picture = picture_named(line.parts[1]);
             app_text_copy(items[count].value, sizeof items[count].value, line.parts[2]);
@@ -489,9 +451,8 @@ static int32_t read_items(item_t items[ITEMS_MAX])
     return count;
 }
 
-/* An item as a cell of the host's: its name, its picture and its value,
- * laid out and sized by the kit. */
-/* The cell an item is, and the icon in it, or HOST_ICON_NONE. */
+/* An item as a cell of the host's - its name, its picture and its value,
+ * laid out and sized by the kit - and the icon in it, or HOST_ICON_NONE. */
 static int32_t cell_of(host_cell_t *cell, int32_t left, int32_t top, int32_t width, int32_t height,
                        const item_t *item)
 {
@@ -554,10 +515,10 @@ static layout_t layout_asked(void)
     line_t  line;
     int32_t at = 0;
     while (next_line(&at, &line)) {
-        if (is(line.place, "layout")) {
-            return is(line.parts[0], "tiles")    ? LAYOUT_TILES
-                   : is(line.parts[0], "single") ? LAYOUT_SINGLE
-                   : is(line.parts[0], "list")   ? LAYOUT_LIST
+        if (app_text_equal(line.place, "layout")) {
+            return app_text_equal(line.parts[0], "tiles")    ? LAYOUT_TILES
+                   : app_text_equal(line.parts[0], "single") ? LAYOUT_SINGLE
+                   : app_text_equal(line.parts[0], "list")   ? LAYOUT_LIST
                                                  : LAYOUT_HERO;
         }
     }
@@ -573,13 +534,13 @@ static void draw_hero_layout(void)
     /* What there is of each place, before any of it is drawn: the details
      * are one block, and the columns share the width. */
     while (next_line(&at, &line)) {
-        if (is(line.place, "detail") && detail_count < DETAILS_MAX) {
+        if (app_text_equal(line.place, "detail") && detail_count < DETAILS_MAX) {
             detail_line_t *detail = &details[detail_count++];
             app_text_copy(detail->value, sizeof detail->value, line.parts[0]);
             app_text_copy(detail->unit, sizeof detail->unit, line.parts[1]);
             detail->picture = picture_named(line.parts[2]);
             has_detail_pictures = has_detail_pictures || detail->picture != NULL;
-        } else if (is(line.place, "column") && column_count < COLUMNS_MAX) {
+        } else if (app_text_equal(line.place, "column") && column_count < COLUMNS_MAX) {
             column_count++;
         }
     }
@@ -602,23 +563,23 @@ static void draw_hero_layout(void)
     int32_t column = 0;
     at = 0;
     while (next_line(&at, &line)) {
-        if (is(line.place, "hero")) {
+        if (app_text_equal(line.place, "hero")) {
             draw_hero(&line);
-        } else if (is(line.place, "column") && column < column_count) {
+        } else if (app_text_equal(line.place, "column") && column < column_count) {
             draw_column(column++, column_count, &line);
         }
     }
 }
 
-/* Nothing to show yet, and why. */
 /* Why there is no screen: as every application says it, and for an
  * answer that came with no screen in it, this one's own word. */
 static void draw_reason(void)
 {
     if (ui_reason(last_status) == 0) {
-        static const host_notice_t NO_SCREEN = { .first = "No screen", .detail = "Set it up in HA",
-                                                 .icon = HOST_ICON_WARNING };
-        ui_notice(&NO_SCREEN);
+        host_notice_t no_screen = { .icon = HOST_ICON_WARNING };
+        app_text_copy(no_screen.first, sizeof no_screen.first, app_string(STR_NO_SCREEN));
+        app_text_copy(no_screen.detail, sizeof no_screen.detail, app_string(STR_SET_UP_IN_HA));
+        ui_notice(&no_screen);
     }
 }
 

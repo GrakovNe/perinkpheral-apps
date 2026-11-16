@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "app_draw.h"
 #include "app_state.h"
 #include "app_text.h"
 #include "app_ui.h"
@@ -34,6 +35,10 @@
 #define HTTP_OK            200
 /* A reminder that is this late - the device was off - is not given. */
 #define LATE_SECONDS       (5 * SECONDS_PER_MINUTE)
+/* How long before an event the reminder comes when nothing is chosen. */
+#define LEAD_DEFAULT_S     (10 * SECONDS_PER_MINUTE)
+/* The list is looked at again at least this often, whatever comes next. */
+#define TURN_MAX_S         (6 * 3600)
 /* What a feed answered when it is not a calendar: a page asking to sign in. */
 #define STATUS_NOT_A_CALENDAR 1
 #define STATUS_NO_TIME        2
@@ -61,7 +66,7 @@ static state_t         state;
 
 static void save_state(void)
 {
-    kv_set(STATE_KEY, sizeof STATE_KEY - 1, &state, sizeof state);
+    app_state_save(STATE_KEY, &state, sizeof state);
 }
 
 static bool is_same(const void *one, const void *other, int32_t size)
@@ -75,27 +80,15 @@ static bool is_same(const void *one, const void *other, int32_t size)
     return true;
 }
 
-/* The number a choice begins with, in seconds: "10 min", "1 h". */
-static int32_t seconds_of(const char *choice, int32_t otherwise)
-{
-    int32_t number = 0, at = 0;
-    while (choice[at] >= '0' && choice[at] <= '9') {
-        number = number * 10 + (choice[at++] - '0');
-    }
-    if (at == 0) {
-        return otherwise;
-    }
-    return number * (choice[at + 1] == 'h' ? 3600 : SECONDS_PER_MINUTE);
-}
-
-/* How long before an event the reminder comes; -1: never. */
+/* How long before an event the reminder comes; -1: never. The choices
+ * are the manifest's: "Off", "At start", "5 min" ... */
 static int32_t lead_seconds(void)
 {
     char choice[16];
     if (app_setting("remind", choice, sizeof choice) == 0) {
-        return 10 * SECONDS_PER_MINUTE; /* nothing chosen: the manifest's default */
+        return LEAD_DEFAULT_S;
     }
-    return choice[0] == 'O' ? -1 : seconds_of(choice, 0);
+    return app_text_equal(choice, "Off") ? -1 : app_seconds_of(choice, 0); /* "At start": 0 */
 }
 
 /* ---- the reminder ---- */
@@ -128,18 +121,9 @@ static void schedule_reminder(void)
 static void remind_of(const ics_event_t *event)
 {
     host_notice_t notice = { .icon = HOST_ICON_BELL };
-    notice.first[time_text(event->start, HOST_TIME_CLOCK, notice.first, sizeof notice.first - 1)] = '\0';
-    const char *title = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
-    int32_t length = 0;
-    while (title[length] != '\0' && length < (int32_t)sizeof notice.detail - 1) {
-        notice.detail[length] = title[length];
-        length++;
-    }
-    /* Cut between characters, not inside one of several bytes. */
-    while (length > 0 && ((uint8_t)title[length] & 0xC0) == 0x80) {
-        length--;
-    }
-    notice.detail[length] = '\0';
+    app_time_text(event->start, HOST_TIME_CLOCK, notice.first, sizeof notice.first);
+    app_text_copy(notice.detail, sizeof notice.detail,
+                  event->title[0] != '\0' ? event->title : app_string(STR_EVENT));
     notify(&notice);
 }
 
@@ -260,14 +244,13 @@ static void schedule_next_change(void)
     }
     /* A timer is at most some hours away: whatever is further is looked
      * at again when it comes. */
-    int64_t in_seconds = next == 0 || next - now > 6 * 3600 ? 6 * 3600 : next - now + 1;
+    int64_t in_seconds = next == 0 || next - now > TURN_MAX_S ? TURN_MAX_S : next - now + 1;
     timer_set(TURN_TIMER, (int32_t)in_seconds * MS_PER_SECOND);
 }
 
 void app_init(void)
 {
-    if (kv_get(STATE_KEY, sizeof STATE_KEY - 1, &state, sizeof state) != sizeof state ||
-        state.version != STATE_VERSION) {
+    if (!app_state_load(STATE_KEY, &state, sizeof state, STATE_VERSION)) {
         state = (state_t){ .version = STATE_VERSION };
     }
     if (file_read(EVENTS_FILE, sizeof EVENTS_FILE - 1, 0, &stored, sizeof stored) !=
@@ -363,19 +346,15 @@ void app_on_back(void)
 
 /* When an event is, as short as the host says it: "15:00" today, "Sat
  * 15:00" this week, "21 Nov" beyond it; a whole day is its day alone, and
- * one that has begun is "Now". */
+ * one that has begun is "Now". Returns the length. */
 static int32_t say_when(const ics_event_t *event, int64_t now, char *line, int32_t size)
 {
     if (event->start <= now) {
-        const char *word = app_string(event->is_all_day ? STR_TODAY : STR_NOW);
-        int32_t     length = app_text_length(word);
-        for (int32_t i = 0; i < length; i++) {
-            line[i] = word[i];
-        }
-        return length;
+        app_text_copy(line, size, app_string(event->is_all_day ? STR_TODAY : STR_NOW));
+        return app_text_length(line);
     }
-    return time_text(event->start, event->is_all_day ? HOST_TIME_NEAR_DAY : HOST_TIME_NEAR, line,
-                     size);
+    return app_time_text(event->start, event->is_all_day ? HOST_TIME_NEAR_DAY : HOST_TIME_NEAR, line,
+                         size);
 }
 
 /* Why there is nothing to show: the host's word for what the network
@@ -411,17 +390,16 @@ static void draw_event(const ics_event_t *event)
     app_text_t line;
     int32_t    width = gfx_width() - 2 * HOST_UI_MARGIN;
 
-    moment[time_text(event->start, HOST_TIME_DATE, moment, MOMENT_MAX)] = '\0';
-    int32_t top = ui_title(moment, app_text_length(moment));
+    int32_t top = ui_title(moment, app_time_text(event->start, HOST_TIME_DATE, moment, sizeof moment));
 
     app_text_start(&line, when, sizeof when);
     if (event->is_all_day) {
         app_text_add(&line, app_string(STR_ALL_DAY));
     } else {
-        moment[time_text(event->start, HOST_TIME_CLOCK, moment, MOMENT_MAX)] = '\0';
+        app_time_text(event->start, HOST_TIME_CLOCK, moment, sizeof moment);
         app_text_add(&line, moment);
         app_text_add(&line, " - ");
-        moment[time_text(event->end, HOST_TIME_CLOCK, moment, MOMENT_MAX)] = '\0';
+        app_time_text(event->end, HOST_TIME_CLOCK, moment, sizeof moment);
         app_text_add(&line, moment);
     }
     ui_text(HOST_UI_MARGIN, top, HOST_UI_TITLE, when, app_text_length(when), width);
@@ -429,7 +407,7 @@ static void draw_event(const ics_event_t *event)
 
     const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
     ui_text_lines(HOST_UI_MARGIN, top, HOST_UI_TEXT, name, app_text_length(name), width, TITLE_LINES);
-    ui_actions(NULL, 0, app_string(STR_BACK), app_text_length(app_string(STR_BACK)));
+    app_draw_actions(NULL, app_string(STR_BACK));
 }
 
 void app_on_draw(void)
@@ -462,7 +440,7 @@ void app_on_draw(void)
     for (int32_t row = first; row < first + visible && row < count; row++) {
         const ics_event_t *event = &stored.events[shown[row]];
         char when[MOMENT_MAX + 1];
-        int32_t when_length = say_when(event, now, when, MOMENT_MAX);
+        int32_t when_length = say_when(event, now, when, sizeof when);
         /* The host's row keeps the moment whole and cuts the name. */
         const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
         ui_list_row(&list, row, name, app_text_length(name), when, when_length, HOST_ICON_NONE);

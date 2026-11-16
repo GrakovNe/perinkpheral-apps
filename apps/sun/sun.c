@@ -291,25 +291,16 @@ static bool read_place(place_t *place)
     return true;
 }
 
-/* The header's left side: the city, what stands before the first comma
- * of "Saint Petersburg, Saint Petersburg, Russia", while its setting is
- * on. The right is the host's own. */
+/* The header's left side: the city, while its setting is on. The right is
+ * the host's own. */
 static void show_header(void)
 {
-    static const char EMPTY[] = " ";
-    char    city[128];
-    int32_t stored = kv_get(CITY_KEY, sizeof CITY_KEY - 1, city, sizeof city);
-    int32_t length = 0;
-    while (length < stored && city[length] != ',') {
-        length++;
-    }
-    if (length > HOST_HEADER_TEXT_MAX) {
-        length = HOST_HEADER_TEXT_MAX;
-    }
+    char    city[HOST_HEADER_TEXT_MAX + 1];
+    int32_t length = app_setting_place(CITY_KEY, city, sizeof city);
     if (app_setting_is_on(HEADER_CITY_KEY) && length > 0) {
         header_text(HOST_HEADER_LEFT, city, length);
     } else {
-        header_text(HOST_HEADER_LEFT, EMPTY, sizeof EMPTY - 1);
+        header_text(HOST_HEADER_LEFT, " ", 1); /* a space: the side stays empty */
     }
 }
 
@@ -369,7 +360,7 @@ static void clock_text(char *text, const sun_day_t *sun, int64_t moment)
         app_text_copy(text, TEXT_MAX, "--:--");
         return;
     }
-    text[time_text(moment, HOST_TIME_CLOCK, text, TEXT_MAX - 1)] = '\0';
+    app_time_text(moment, HOST_TIME_CLOCK, text, TEXT_MAX);
 }
 
 static void length_text(char *text, const sun_day_t *sun)

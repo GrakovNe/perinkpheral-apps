@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "app_draw.h"
 #include "app_text.h"
 #include "app_ui.h"
 #include "host_api.h"
@@ -256,7 +257,7 @@ static void draw_primitives(void)
     ui_text(120, row - 12, HOST_UI_VALUE, number, app_text_length(number), 0);
     ui_button(262, row + 14, "UP", 2, TEXT(STR_MORE), false);
     ui_bar(16, row + 58, gfx_width() - 32, bar_value, 10);
-    ui_actions("", 0, TEXT(STR_CLOSE));
+    app_draw_actions(NULL, app_string(STR_CLOSE));
 }
 
 void app_on_draw(void)
@@ -281,7 +282,7 @@ void app_on_draw(void)
     case PAGE_DETAILS:
         facts.height = gfx_height() - HOST_UI_ACTIONS_HEIGHT;
         draw_rows(&facts, FACT_LABELS, FACT_VALUES, FACT_TEXTS, -1);
-        ui_actions("", 0, TEXT(STR_BACK));
+        app_draw_actions(NULL, app_string(STR_BACK));
         break;
     case PAGE_CELL:
         draw_cells(1);

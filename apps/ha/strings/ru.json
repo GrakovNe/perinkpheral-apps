@@ -1,11 +1,13 @@
 {
+  "no_screen": "Нет экрана",
+  "set_up_in_ha": "Настройте в HA",
   "manifest": {
     "settings": {
       "server": {
         "title": "Сервер"
       },
       "token": {
-        "title": "Access Токен"
+        "title": "Токен доступа"
       },
       "entity": {
         "title": "Сенсор",

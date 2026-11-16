@@ -15,6 +15,7 @@
  */
 #include <stdbool.h>
 
+#include "app_draw.h"
 #include "app_state.h"
 #include "app_text.h"
 #include "host_api.h"
@@ -74,7 +75,7 @@ static void record_start_time(void)
     int64_t by_uptime_ms = time_uptime_ms() - state.started_uptime_ms;
     if (by_uptime_ms >= 0) {
         state.started_at = now - by_uptime_ms / MS_PER_SECOND;
-        app_state_save(STATE_KEY, &state, sizeof state);
+        save();
     }
 }
 
@@ -247,13 +248,14 @@ static int32_t font_for(const char *line, int32_t length)
     static const int32_t LARGEST_FIRST[] = { HOST_FONT_HUGE | HOST_FONT_TABULAR,
                                              HOST_FONT_DISPLAY | HOST_FONT_TABULAR,
                                              HOST_FONT_LARGE | HOST_FONT_TABULAR };
+    const int32_t        count = (int32_t)(sizeof LARGEST_FIRST / sizeof LARGEST_FIRST[0]);
     int32_t room = gfx_width() - 2 * HOST_UI_MARGIN;
-    for (int32_t i = 0; i < 2; i++) {
+    for (int32_t i = 0; i < count - 1; i++) {
         if (gfx_text_width(LARGEST_FIRST[i], line, length) <= room) {
             return LARGEST_FIRST[i];
         }
     }
-    return LARGEST_FIRST[2];
+    return LARGEST_FIRST[count - 1]; /* the smallest, whether it fits or not */
 }
 
 void app_on_draw(void)
@@ -279,6 +281,5 @@ void app_on_draw(void)
     const char *ok = app_string(state.is_running           ? STR_STOP
                                 : is_stopped_with_time ? STR_CONTINUE_
                                                          : STR_START);
-    const char *close = app_string(STR_CLOSE);
-    ui_actions(ok, app_text_length(ok), close, app_text_length(close));
+    app_draw_actions(ok, app_string(STR_CLOSE));
 }
