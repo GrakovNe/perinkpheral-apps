@@ -65,7 +65,7 @@ Pictures: the states of a weather entity as they are (`sunny`, `cloudy`,
 `moon`, `plug`, `bolt`, `chip`, `network`, `umbrella`, `wind`, `bell`,
 `clock`, `check`, `warning`, `info`, `play`.
 
-Text is ASCII; `°` is drawn. The whole of it is at most 1000 bytes.
+Text is ASCII; `°` is drawn. The whole of it is at most 512 bytes.
 
 ## On the device
 

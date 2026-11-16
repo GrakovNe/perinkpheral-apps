@@ -1,8 +1,9 @@
 {
   "name": "calendar",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "title": "Calendar",
   "abi": 2,
+  "writes_files": true,
   "settings": [
     { "key": "feed", "type": "link", "title": "Calendar address",
       "help": "The secret iCal address of the calendar." },

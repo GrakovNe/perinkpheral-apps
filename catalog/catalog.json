@@ -40,7 +40,7 @@
     {
       "name": "calendar",
       "title": "Calendar",
-      "version": "0.4.4",
+      "version": "0.4.5",
       "abi": 2,
       "files": [
         {
@@ -60,10 +60,11 @@
         },
         {
           "name": "manifest.json",
-          "size": 884,
-          "sha256": "ef3f70c9af7391b9143e0868bad3cecf453462d0d0334bbf218a57cb8c460c6f"
+          "size": 908,
+          "sha256": "5c5d911a176b0bf1898db4a7325d635aecd8ddd982a6b3740dd5542f870819e4"
         }
       ],
+      "writes_files": true,
       "icon": [
         "..#.....#..",
         ".#########.",
@@ -122,13 +123,13 @@
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.3.5",
+      "version": "0.3.6",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
           "size": 9607,
-          "sha256": "c0c7ce1b1d572dfa3fb84dfb83f782af597bf0474f30386dbaa6eec598842312"
+          "sha256": "8ea0d7496837119dc564974c317e109837c8792c8ae414e95da8a015e6e3f0f5"
         },
         {
           "name": "manifest.ru",
@@ -143,7 +144,7 @@
         {
           "name": "manifest.json",
           "size": 739,
-          "sha256": "e36cb66291cadd988aeb47a9be649a0979f109d9bf34d7ac2b34757777a0bba0"
+          "sha256": "b73c5c9689e715deaba80e4e15bec45373964f6f16e092de499d09ca9eefe810"
         }
       ],
       "icon": [
@@ -194,7 +195,7 @@
     {
       "name": "stocks",
       "title": "Stocks",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "abi": 2,
       "files": [
         {
@@ -219,10 +220,11 @@
         },
         {
           "name": "manifest.json",
-          "size": 3100,
-          "sha256": "1e71887be8c1df43c53de031d9404f313b714b4dd62248a4ed1f2cd919030e78"
+          "size": 3124,
+          "sha256": "3aa325d53233a5744997d096c117f1a22e1905fc033ad419b1d89eb92bbb58cc"
         }
       ],
+      "writes_files": true,
       "trusts": [
         "Russian Trusted Root CA"
       ],

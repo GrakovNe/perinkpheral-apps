@@ -43,7 +43,9 @@ enum { REQUEST_SCREEN = HOST_REQUEST_FIRST };
 
 /* The screen as Home Assistant rendered it, kept as it came. */
 #define SCREEN_KEY "screen"
-#define SCREEN_MAX 1000 /* a value of the store */
+/* Seven lines of the dashboard are some 350 bytes; a list has room for
+ * about fifteen. What comes beyond it is cut. */
+#define SCREEN_MAX 512
 static char    screen[SCREEN_MAX + 1];
 static int32_t screen_length;
 
