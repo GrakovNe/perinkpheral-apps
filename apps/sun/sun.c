@@ -21,7 +21,6 @@
 #include "app_state.h"
 #include "app_text.h"
 #include "host_api.h"
-#include "pictures.h" /* made of the `pictures` folder by tools/perinkpheral */
 #include "strings.h"  /* made of the `strings` folder by tools/perinkpheral */
 
 #define CITY_KEY        "city"
@@ -406,7 +405,9 @@ void app_on_draw(void)
 
     int32_t     width = gfx_width() / 2, height = gfx_height() / 2;
     host_cell_t cells[CELLS];
-    const uint8_t *pictures[CELLS] = { PICTURE_SUNRISE, PICTURE_SUNSET, PICTURE_DAY, moon_picture };
+    /* the sky is the host's icons; the moon is drawn here, as it is tonight */
+    const int32_t  icons[CELLS] = { HOST_ICON_SUNRISE, HOST_ICON_SUNSET, HOST_ICON_SUN, HOST_ICON_NONE };
+    const uint8_t *pictures[CELLS] = { 0, 0, 0, moon_picture };
     for (int32_t i = 0; i < CELLS; i++) {
         cells[i] = (host_cell_t){ .x = i % 2 * width, .y = i / 2 * height, .width = width,
                                   .height = height };
@@ -426,12 +427,12 @@ void app_on_draw(void)
     /* One size for all of them: the size the longest value can have. */
     int32_t size = 0;
     for (int32_t i = 0; i < CELLS; i++) {
-        int32_t fits = ui_cell_fit(&cells[i], pictures[i]);
+        int32_t fits = ui_cell_fit(&cells[i], pictures[i], icons[i]);
         size = fits > size ? fits : size;
     }
     for (int32_t i = 0; i < CELLS; i++) {
         cells[i].size = size;
-        ui_cell(&cells[i], pictures[i]);
+        ui_cell(&cells[i], pictures[i], icons[i]);
     }
     gfx_rect(width, RULE_INSET, 1, gfx_height() - 2 * RULE_INSET, HOST_RECT_FILLED);
     gfx_rect(RULE_INSET, height, gfx_width() - 2 * RULE_INSET, 1, HOST_RECT_FILLED);

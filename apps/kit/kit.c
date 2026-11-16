@@ -12,7 +12,6 @@
 #include "app_text.h"
 #include "app_ui.h"
 #include "host_api.h"
-#include "pictures.h" /* made of the `pictures` folder by tools/perinkpheral */
 
 #define COUNT_OF(array) ((int32_t)(sizeof(array) / sizeof(array)[0]))
 #define REDRAW          HOST_REDRAW_NO_BLINK
@@ -173,7 +172,7 @@ static void draw_cells(int32_t count)
 {
     static const char *const NAMES[] = { "Living room", "Humidity", "Power", "Door" };
     static const char *const VALUES[] = { "21\xC2\xB0", "40%", "1.2kW", "Closed" };
-    static const uint8_t *const PICTURES[] = { PICTURE_HOME, PICTURE_DROP, PICTURE_BOLT, NULL };
+    static const int32_t ICONS[] = { HOST_ICON_HOME, HOST_ICON_DROP, HOST_ICON_BOLT, HOST_ICON_NONE };
     int32_t columns = count > 1 ? 2 : 1, rows = count > 2 ? 2 : 1;
     int32_t width = gfx_width() / columns, height = gfx_height() / rows;
     host_cell_t cells[4];
@@ -183,12 +182,12 @@ static void draw_cells(int32_t count)
                                   .width = width, .height = height };
         app_text_copy(cells[i].name, sizeof cells[i].name, NAMES[i]);
         app_text_copy(cells[i].value, sizeof cells[i].value, VALUES[i]);
-        int32_t fits = ui_cell_fit(&cells[i], PICTURES[i]);
+        int32_t fits = ui_cell_fit(&cells[i], 0, ICONS[i]);
         size = fits > size ? fits : size;
     }
     for (int32_t i = 0; i < count; i++) {
         cells[i].size = size;
-        ui_cell(&cells[i], PICTURES[i]);
+        ui_cell(&cells[i], 0, ICONS[i]);
     }
     if (columns > 1) {
         gfx_rect(width, HOST_UI_MARGIN, 1, gfx_height() - 2 * HOST_UI_MARGIN, HOST_RECT_FILLED);

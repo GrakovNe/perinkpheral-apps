@@ -229,7 +229,7 @@ void app_on_button(int32_t event)
 #define DETAIL_UNIT_GAP   5
 /* The rule stands as far under the large icon as the icon stands under
  * the header's rule: the same margin on both sides. */
-#define RULE_TOP          (MARGIN + LARGE_ICON_CELLS * ICON_CELL_PIXELS + MARGIN)
+#define RULE_TOP          (MARGIN + ICON_SIDE(LARGE_ICON_CELL) + MARGIN)
 /* A day: its name as a caption, its icon, and "high / low" in one line. */
 #define DAY_NAME_TOP      133
 #define DAY_ICON_TOP      158
@@ -237,38 +237,11 @@ void app_on_button(int32_t event)
 #define DAY_SLASH_GAP     3
 #define LINE_HEIGHT       30
 
-static void draw_icon(const uint8_t *picture, int32_t left, int32_t top)
-{
-    gfx_picture(left, top, picture, ICON_CELL_PIXELS);
-}
-
-/* The columns of an icon that have ink: icons are not all as wide as
- * their cell. A picture is its width, its height and a bit a cell. */
-static void icon_ink_columns(const uint8_t *picture, int32_t *first, int32_t *end)
-{
-    int32_t width = picture[0], height = picture[1], stride = (width + 7) / 8;
-    *first = width;
-    *end = 0;
-    for (int32_t row = 0; row < height; row++) {
-        for (int32_t column = 0; column < width; column++) {
-            if ((picture[2 + row * stride + column / 8] & (0x80 >> (column % 8))) == 0) {
-                continue;
-            }
-            if (column < *first) {
-                *first = column;
-            }
-            if (column + 1 > *end) {
-                *end = column + 1;
-            }
-        }
-    }
-}
-
 /* How wide a line of the details is: the picture, and the value with its
  * unit as the host sets them. */
 static int32_t detail_width(const char *value, const char *unit)
 {
-    return DETAIL_ICON_CELLS * ICON_CELL_PIXELS + DETAIL_ICON_GAP +
+    return ICON_SIDE(DETAIL_ICON_CELL) + DETAIL_ICON_GAP +
            ui_value_width(HOST_FONT_TEXT, value, app_text_length(value), unit,
                           app_text_length(unit));
 }
@@ -278,9 +251,9 @@ static void draw_detail(int32_t left, int32_t line, detail_t detail, const char 
 {
     int32_t top = DETAIL_TOP + line * DETAIL_LINE;
     int32_t baseline = top + gfx_font_ascent(HOST_FONT_TEXT);
-    int32_t icon_size = DETAIL_ICON_CELLS * ICON_CELL_PIXELS;
+    int32_t icon_size = ICON_SIDE(DETAIL_ICON_CELL);
     /* The picture stands on the text's baseline. */
-    draw_icon(DETAIL_ICONS[detail], left, baseline - icon_size);
+    gfx_icon(DETAIL_ICONS[detail], left, baseline - icon_size, DETAIL_ICON_CELL);
     ui_value(left + icon_size + DETAIL_ICON_GAP, top, HOST_FONT_TEXT, value,
              app_text_length(value), unit, app_text_length(unit));
 }
@@ -290,11 +263,10 @@ static void draw_now(void)
     const condition_t *now = condition_of(forecast.code);
     /* The ink of the icon, not its cell, starts at the left edge and ends
      * where the digits are counted from. */
-    int32_t ink_first;
-    int32_t ink_end;
-    icon_ink_columns(LARGE_ICONS[now->icon], &ink_first, &ink_end);
-    int32_t icon_left = NOW_LEFT - ink_first * ICON_CELL_PIXELS;
-    draw_icon(LARGE_ICONS[now->icon], icon_left, MARGIN);
+    host_icon_ink_t ink = { 0, ICON_SIDE(LARGE_ICON_CELL) - 1, 0, ICON_SIDE(LARGE_ICON_CELL) - 1 };
+    gfx_icon_ink(WEATHER_ICONS[now->icon], LARGE_ICON_CELL, &ink);
+    int32_t icon_left = NOW_LEFT - ink.first_x;
+    gfx_icon(WEATHER_ICONS[now->icon], icon_left, MARGIN, LARGE_ICON_CELL);
 
     char buffer[24];
     app_text_t text;
@@ -306,8 +278,8 @@ static void draw_now(void)
                                                                  : HOST_FONT_LARGE;
     /* The digits stand in the middle of the large icon's height. */
     int32_t cap_height = gfx_font_cap_height(font);
-    int32_t cap_top = MARGIN + (LARGE_ICON_CELLS * ICON_CELL_PIXELS - cap_height) / 2;
-    int32_t text_left = icon_left + ink_end * ICON_CELL_PIXELS + NOW_TEXT_GAP;
+    int32_t cap_top = MARGIN + (ICON_SIDE(LARGE_ICON_CELL) - cap_height) / 2;
+    int32_t text_left = icon_left + ink.last_x + 1 + NOW_TEXT_GAP;
     app_text_add(&text, DEGREE_SIGN);
     app_draw_text(text_left, cap_top - (gfx_font_ascent(font) - cap_height), font, buffer);
 
@@ -355,9 +327,9 @@ static void draw_days(void)
             }
         }
         app_draw_centered(center, DAY_NAME_TOP, HOST_FONT_SMALL, name);
-        int32_t icon_size = SMALL_ICON_CELLS * ICON_CELL_PIXELS;
-        draw_icon(SMALL_ICONS[condition_of(forecast.days[day].code)->icon],
-                  center - icon_size / 2, DAY_ICON_TOP);
+        int32_t icon_size = ICON_SIDE(SMALL_ICON_CELL);
+        gfx_icon(WEATHER_ICONS[condition_of(forecast.days[day].code)->icon], center - icon_size / 2,
+                 DAY_ICON_TOP, SMALL_ICON_CELL);
 
         /* "high / low", the slash closer to its numbers than a space would
          * put it: three such ranges of a cold week have to stay apart. */

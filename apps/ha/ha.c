@@ -33,7 +33,6 @@
 #include "app_draw.h"
 #include "app_text.h"
 #include "host_api.h"
-#include "icons.h"
 
 #define SECONDS_PER_MINUTE 60
 
@@ -305,58 +304,53 @@ static int32_t degree_at(const char *text)
 
 /* ---- pictures, by the names a screen may use ---- */
 
-/* Where a picture is drawn from: each kind is a sheet of its own grid. */
-typedef enum {
-    PICTURE_WEATHER, /* an icon_t: the weather's own, 44 and 22 cells */
-    PICTURE_DETAIL,  /* a detail_t, 11 cells */
-    PICTURE_THING,   /* a thing_t, 11 cells */
-    PICTURE_FINE,    /* a fine_t, 22 cells */
-} picture_kind_t;
-
+/* A picture is one of the host's icons, which draws each at any size from
+ * its finest drawing: the weather in fine lines, the things of a home. */
 typedef struct {
-    const char    *name;
-    picture_kind_t kind;
-    int32_t        index;
+    const char *name;
+    int32_t     icon;
 } picture_t;
 
 /* The states of a weather entity are names here, so that
  * "{{ states('weather.home') }}" is a picture as it stands. */
 static const picture_t PICTURES[] = {
-    { "sunny", PICTURE_WEATHER, ICON_CLEAR },
-    { "partlycloudy", PICTURE_WEATHER, ICON_PARTLY_CLOUDY },
-    { "cloudy", PICTURE_WEATHER, ICON_CLOUDY },
-    { "fog", PICTURE_WEATHER, ICON_CLOUDY },
-    { "windy", PICTURE_WEATHER, ICON_CLOUDY },
-    { "windy-variant", PICTURE_WEATHER, ICON_CLOUDY },
-    { "rainy", PICTURE_WEATHER, ICON_RAIN },
-    { "pouring", PICTURE_WEATHER, ICON_RAIN },
-    { "snowy", PICTURE_WEATHER, ICON_SNOW },
-    { "snowy-rainy", PICTURE_WEATHER, ICON_SNOW },
-    { "hail", PICTURE_WEATHER, ICON_SNOW },
-    { "lightning", PICTURE_WEATHER, ICON_THUNDER },
-    { "lightning-rainy", PICTURE_WEATHER, ICON_THUNDER },
-    { "clear-night", PICTURE_THING, THING_MOON },
-    { "umbrella", PICTURE_DETAIL, DETAIL_RAIN },
-    { "wind", PICTURE_DETAIL, DETAIL_WIND },
-    { "drop", PICTURE_FINE, FINE_DROP },
-    { "co2", PICTURE_FINE, FINE_CO2 },
-    { "bolt", PICTURE_FINE, FINE_BOLT },
-    { "gauge", PICTURE_THING, THING_GAUGE },
-    { "thermometer", PICTURE_THING, THING_THERMOMETER },
-    { "battery", PICTURE_THING, THING_BATTERY },
-    { "bulb", PICTURE_THING, THING_BULB },
-    { "door", PICTURE_THING, THING_DOOR },
-    { "home", PICTURE_THING, THING_HOME },
-    { "moon", PICTURE_THING, THING_MOON },
-    { "plug", PICTURE_THING, THING_PLUG },
-    { "chip", PICTURE_THING, THING_CHIP },
-    { "network", PICTURE_THING, THING_NETWORK },
-    { "bell", PICTURE_THING, THING_BELL },
-    { "clock", PICTURE_THING, THING_CLOCK },
-    { "check", PICTURE_THING, THING_CHECK },
-    { "warning", PICTURE_THING, THING_WARNING },
-    { "info", PICTURE_THING, THING_INFO },
-    { "play", PICTURE_THING, THING_PLAY },
+    { "sunny", HOST_ICON_SUN },
+    { "partlycloudy", HOST_ICON_PARTLY_CLOUDY },
+    { "cloudy", HOST_ICON_CLOUD },
+    { "fog", HOST_ICON_CLOUD },
+    { "windy", HOST_ICON_CLOUD },
+    { "windy-variant", HOST_ICON_CLOUD },
+    { "rainy", HOST_ICON_RAIN },
+    { "pouring", HOST_ICON_RAIN },
+    { "snowy", HOST_ICON_SNOW },
+    { "snowy-rainy", HOST_ICON_SNOW },
+    { "hail", HOST_ICON_SNOW },
+    { "lightning", HOST_ICON_THUNDER },
+    { "lightning-rainy", HOST_ICON_THUNDER },
+    { "clear-night", HOST_ICON_MOON },
+    { "umbrella", HOST_ICON_UMBRELLA },
+    { "wind", HOST_ICON_WIND },
+    { "drop", HOST_ICON_DROP },
+    { "co2", HOST_ICON_CO2 },
+    { "bolt", HOST_ICON_BOLT },
+    { "gauge", HOST_ICON_GAUGE },
+    { "thermometer", HOST_ICON_THERMOMETER },
+    { "battery", HOST_ICON_BATTERY },
+    { "bulb", HOST_ICON_BULB },
+    { "door", HOST_ICON_DOOR },
+    { "home", HOST_ICON_HOME },
+    { "moon", HOST_ICON_MOON },
+    { "plug", HOST_ICON_PLUG },
+    { "chip", HOST_ICON_CHIP },
+    { "network", HOST_ICON_NETWORK },
+    { "bell", HOST_ICON_BELL },
+    { "clock", HOST_ICON_CLOCK },
+    { "check", HOST_ICON_CHECK },
+    { "warning", HOST_ICON_WARNING },
+    { "info", HOST_ICON_INFO },
+    { "play", HOST_ICON_PLAY },
+    { "sunrise", HOST_ICON_SUNRISE },
+    { "sunset", HOST_ICON_SUNSET },
 };
 
 static const picture_t *picture_named(const char *name)
@@ -371,33 +365,13 @@ static const picture_t *picture_named(const char *name)
 
 /* The three sizes a picture stands in: beside the hero, over a column,
  * beside a detail. */
-#define HERO_PICTURE   (LARGE_ICON_CELLS * ICON_CELL_PIXELS)  /* 88 */
-#define COLUMN_PICTURE (SMALL_ICON_CELLS * ICON_CELL_PIXELS)  /* 44 */
-#define DETAIL_PICTURE (DETAIL_ICON_CELLS * ICON_CELL_PIXELS) /* 22 */
-
-/* The drawing of a picture for a square of `side` pixels: the weather and
- * the thermometer have one made for the largest. */
-static const uint8_t *picture_bits(const picture_t *picture, int32_t side)
-{
-    switch (picture->kind) {
-    case PICTURE_WEATHER:
-        return side >= HERO_PICTURE ? LARGE_ICONS[picture->index] : SMALL_ICONS[picture->index];
-    case PICTURE_DETAIL:
-        return DETAIL_ICONS[picture->index];
-    case PICTURE_FINE:
-        return FINE_ICONS[picture->index];
-    case PICTURE_THING:
-    default:
-        return picture->index == THING_THERMOMETER && side >= HERO_PICTURE
-                   ? LARGE_THERMOMETER
-                   : THING_ICONS[picture->index];
-    }
-}
+#define HERO_PICTURE   88
+#define COLUMN_PICTURE 44
+#define DETAIL_PICTURE 22
 
 static void draw_picture(const picture_t *picture, int32_t left, int32_t top, int32_t side)
 {
-    const uint8_t *bits = picture_bits(picture, side);
-    gfx_picture(left, top, bits, side / bits[0]);
+    gfx_icon(picture->icon, left, top, side / HOST_ICON_CELLS);
 }
 
 /* ---- the screen: the weather's own composition, its places filled ---- */
@@ -517,17 +491,14 @@ static int32_t read_items(item_t items[ITEMS_MAX])
 
 /* An item as a cell of the host's: its name, its picture and its value,
  * laid out and sized by the kit. */
-static const uint8_t *cell_of(host_cell_t *cell, int32_t left, int32_t top, int32_t width,
-                              int32_t height, const item_t *item)
+/* The cell an item is, and the icon in it, or HOST_ICON_NONE. */
+static int32_t cell_of(host_cell_t *cell, int32_t left, int32_t top, int32_t width, int32_t height,
+                       const item_t *item)
 {
     *cell = (host_cell_t){ .x = left, .y = top, .width = width, .height = height };
     app_text_copy(cell->name, sizeof cell->name, item->name);
     app_text_copy(cell->value, sizeof cell->value, item->value);
-    bool is_whole_screen = width >= gfx_width() && height >= gfx_height();
-    return item->picture == NULL
-               ? NULL
-               : picture_bits(item->picture, is_whole_screen ? HOST_UI_CELL_PICTURE_LARGE
-                                                             : HOST_UI_CELL_PICTURE_SMALL);
+    return item->picture == NULL ? HOST_ICON_NONE : item->picture->icon;
 }
 
 /* One item is the whole screen, two are halves side by side, three and
@@ -541,16 +512,16 @@ static void draw_cells_of(const item_t *items, int32_t count)
     host_cell_t cell;
     int32_t     size = 0;
     for (int32_t i = 0; i < shown; i++) {
-        const uint8_t *picture =
+        int32_t icon =
             cell_of(&cell, i % columns * width, i / columns * height, width, height, &items[i]);
-        int32_t fits = ui_cell_fit(&cell, picture);
+        int32_t fits = ui_cell_fit(&cell, 0, icon);
         size = fits > size ? fits : size;
     }
     for (int32_t i = 0; i < shown; i++) {
-        const uint8_t *picture =
+        int32_t icon =
             cell_of(&cell, i % columns * width, i / columns * height, width, height, &items[i]);
         cell.size = size;
-        ui_cell(&cell, picture);
+        ui_cell(&cell, 0, icon);
     }
     if (columns > 1) {
         gfx_rect(width, MARGIN, 1, gfx_height() - 2 * MARGIN, HOST_RECT_FILLED);
