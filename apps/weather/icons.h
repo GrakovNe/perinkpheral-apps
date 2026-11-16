@@ -23,7 +23,6 @@ typedef enum {
     ICON_RAIN,
     ICON_SNOW,
     ICON_THUNDER,
-    ICON_COUNT,
 } icon_t;
 
 /* Every one of them fills its square from top to bottom, so that a row of
@@ -42,7 +41,6 @@ static const int32_t WEATHER_ICONS[] = {
 typedef enum {
     DETAIL_RAIN,
     DETAIL_WIND,
-    DETAIL_COUNT,
 } detail_t;
 
 static const int32_t DETAIL_ICONS[] = {

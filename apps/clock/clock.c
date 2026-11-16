@@ -16,7 +16,6 @@
 #define MINUTE_TIMER       0
 #define MS_PER_SECOND      1000
 #define SECONDS_PER_MINUTE 60
-#define DAYS_PER_WEEK      7
 #define RETRY_MS           5000 /* how soon to look again while the time is unknown */
 
 /* Its digits in columns: a minute turning does not move the hours. */
