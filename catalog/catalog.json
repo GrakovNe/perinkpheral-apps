@@ -205,7 +205,7 @@
     {
       "name": "stocks",
       "title": "Stocks",
-      "version": "0.2.2",
+      "version": "0.2.3",
       "abi": 2,
       "files": [
         {
@@ -230,8 +230,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 3124,
-          "sha256": "c6650914d0651ad76acefb9ce32e635a3579d0e2e6718c22d667397c15e05024"
+          "size": 3115,
+          "sha256": "614f1b8f687b26a4afa1cad35828816401d86a4f4ac187817cd433439fa0e0c3"
         }
       ],
       "writes_files": true,
@@ -296,7 +296,7 @@
     {
       "name": "sun",
       "title": "Sun and Moon",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "abi": 2,
       "files": [
         {
@@ -306,8 +306,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 220,
-          "sha256": "ee775ad6f655299415eedc7b879b4514d20594dcba08080cb39f62935e8c705d"
+          "size": 194,
+          "sha256": "dc87a051b62d848cab3f69a9cae64569090b6f5b71985e9af50bfe3c45f72929"
         },
         {
           "name": "strings.ru",
@@ -316,8 +316,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 785,
-          "sha256": "2b1c11fe86148fe021bc689c01327daa8009acb65aa7020d220c158ce1ab8a37"
+          "size": 781,
+          "sha256": "eb7799eb91f089f23f29ee14653fbe90bfd5d0021f729beb166b97fc5838c010"
         }
       ],
       "icon": [
@@ -378,7 +378,7 @@
     {
       "name": "weather",
       "title": "Weather",
-      "version": "0.2.7",
+      "version": "0.2.8",
       "abi": 2,
       "files": [
         {
@@ -388,8 +388,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 476,
-          "sha256": "149e30b78b9e5ceb327c5022d4a193aedfdd356ec2cf04619f67dc6166c25dd8"
+          "size": 450,
+          "sha256": "8d955b965ce2ba96065fc8de6d694a990d1cf014bf93b044194fec11fbfea793"
         },
         {
           "name": "strings.ru",
@@ -398,8 +398,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 1893,
-          "sha256": "292cf49db1a3303e7c63f032d51b0b9edbf3484265219ad6dafd2678cadcaf53"
+          "size": 1881,
+          "sha256": "8b364a1eb71a539840d8408e243ea1e2875fed600411a973ab413a077c446345"
         }
       ],
       "icon": [

@@ -1,7 +1,7 @@
 {
   "name": "weather",
   "title": "Weather",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "abi": 2,
   "icon": [
     "...#.......",
@@ -46,7 +46,7 @@
     {
       "key": "every",
       "type": "choice",
-      "title": "Update interval",
+      "title": "Refresh",
       "options": [
         "15 min",
         "30 min",
@@ -57,7 +57,7 @@
     {
       "key": "header_city",
       "type": "toggle",
-      "title": "Show Selected City",
+      "title": "City in header",
       "default": "1"
     }
   ],

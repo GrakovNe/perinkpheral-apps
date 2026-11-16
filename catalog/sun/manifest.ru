@@ -1,1 +1,1 @@
-{"title":"Солнце и Луна","settings":{"city":{"title":"Город"},"lat":{"title":"Широта"},"lon":{"title":"Долгота"},"header_city":{"title":"Показывать выбранный город"}}}
+{"title":"Солнце и Луна","settings":{"city":{"title":"Город"},"lat":{"title":"Широта"},"lon":{"title":"Долгота"},"header_city":{"title":"Город в шапке"}}}

@@ -1,7 +1,7 @@
 {
   "name": "sun",
   "title": "Sun and Moon",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "abi": 2,
   "icon": [
     "...........",
@@ -37,7 +37,7 @@
     {
       "key": "header_city",
       "type": "toggle",
-      "title": "Show Selected City",
+      "title": "City in header",
       "default": "1"
     }
   ],

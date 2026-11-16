@@ -1,7 +1,7 @@
 {
   "name": "stocks",
   "title": "Stocks",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "abi": 2,
   "writes_files": true,
   "fullscreen": false,
@@ -91,7 +91,7 @@
     {
       "key": "rotate",
       "type": "choice",
-      "title": "Rotation interval",
+      "title": "Rotation",
       "options": [
         "1 min",
         "2 min",
