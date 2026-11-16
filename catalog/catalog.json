@@ -20,10 +20,10 @@
         {
           "name": "manifest.json",
           "size": 353,
-          "sha256": "bc4e2567498d32cf808df8f8721d7b36dae439323ff5141c8ee2ad0ef6687782"
+          "sha256": "c30dca4f03dc0ef641bedf32bc880037d2203216832b9a493bfc3c4814d53135"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.0",
       "icon": [
         "......#....",
         ".....#.....",
@@ -62,10 +62,10 @@
         {
           "name": "manifest.json",
           "size": 1141,
-          "sha256": "a6a4e9757c8d5c52baebe2ed601c0573efe691d924c8df147b8a469839d4c81c"
+          "sha256": "9fb49d9019bc22d961c589724cf996fc97581e620f796b2cfc520a80862fdd3d"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.0",
       "writes_files": true,
       "icon": [
         "..#.....#..",
@@ -189,10 +189,10 @@
         {
           "name": "manifest.json",
           "size": 323,
-          "sha256": "95a5989124aadd11039bf8011b67b5f9fafa371876889fb2670fb583c4ee5aa7"
+          "sha256": "c3c07773a26da503e1b76cdafb4e5446ef48629d2fc95df9fb33ee4a4b96337c"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.4",
       "icon": [
         "###########",
         "#.........#",
@@ -236,10 +236,10 @@
         {
           "name": "manifest.json",
           "size": 3138,
-          "sha256": "e08b43f23ba8e3a4d96d1c1827136e8fbd56d5486a2ebee0105b424c38e8de99"
+          "sha256": "8cc40629e349bfdd7599038e9c1a75a12049f094c9685b9a1c281ce62234d4b1"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.0",
       "writes_files": true,
       "trusts": [
         "Russian Trusted Root CA"
@@ -324,10 +324,10 @@
         {
           "name": "manifest.json",
           "size": 804,
-          "sha256": "ae977979a3a2f068a47ffc674ab0e93585f55057995c7cab9115f455b27d6450"
+          "sha256": "38c86288eb4ef7d066f7bb9f4f7f2173bde42fba89071d10858a191a9362e5f9"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.4",
       "icon": [
         "...........",
         ".....#.....",
@@ -366,10 +366,10 @@
         {
           "name": "manifest.json",
           "size": 324,
-          "sha256": "e048b8f3a86989b8bc8dcfaf6702b277992ce7db3ca0530bac070d3613f2aaf1"
+          "sha256": "b435315fd45e75693a1cfe018f02debf2f7ced106bba86884c56cf6377f700b2"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.0",
       "icon": [
         ".#########.",
         ".#########.",

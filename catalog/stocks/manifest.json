@@ -117,5 +117,5 @@
   "certificates": [
     "russian-root-ca.pem"
   ],
-  "firmware": "0.1.8"
+  "firmware": "0.1.0"
 }
