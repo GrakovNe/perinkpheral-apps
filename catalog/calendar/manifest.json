@@ -1,22 +1,56 @@
 {
   "name": "calendar",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "title": "Calendar",
   "abi": 2,
   "writes_files": true,
   "settings": [
-    { "key": "feed", "type": "link", "title": "Calendar address",
-      "help": "The secret iCal address of the calendar." },
-    { "key": "every", "type": "choice", "title": "Refresh",
-      "options": ["15 min", "30 min", "1 h", "3 h"], "default": "15 min" },
-    { "key": "remind", "type": "choice", "title": "Reminder",
-      "options": ["Off", "At start", "5 min", "10 min", "15 min", "30 min"], "default": "10 min" }
+    {
+      "key": "feed",
+      "type": "link",
+      "title": "Calendar address",
+      "help": "The secret iCal address of the calendar."
+    },
+    {
+      "key": "every",
+      "type": "choice",
+      "title": "Refresh",
+      "options": [
+        "15 min",
+        "30 min",
+        "1 h",
+        "3 h"
+      ],
+      "default": "15 min"
+    },
+    {
+      "key": "remind",
+      "type": "choice",
+      "title": "Reminder",
+      "options": [
+        "Off",
+        "At start",
+        "5 min",
+        "10 min",
+        "15 min",
+        "30 min"
+      ],
+      "default": "10 min"
+    }
   ],
   "polls": [
-    { "url": "{{feed}}", "every": "{{every}}" }
+    {
+      "url": "{{feed}}",
+      "every": "{{every}}"
+    }
   ],
-  "hosts": ["{{feed}}"],
-  "intents": ["started", "time_changed"],
+  "hosts": [
+    "{{feed}}"
+  ],
+  "intents": [
+    "started",
+    "time_changed"
+  ],
   "icon": [
     "..#.....#..",
     ".#########.",
@@ -29,5 +63,6 @@
     ".#.#.#...#.",
     ".#.......#.",
     ".#########."
-  ]
+  ],
+  "firmware": "0.1.8"
 }

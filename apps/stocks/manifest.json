@@ -1,7 +1,7 @@
 {
   "name": "stocks",
   "title": "Stocks",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "abi": 2,
   "writes_files": true,
   "fullscreen": false,

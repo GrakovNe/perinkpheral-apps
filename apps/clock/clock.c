@@ -9,6 +9,7 @@
  */
 #include <stdbool.h>
 
+#include "app_draw.h"
 #include "app_text.h"
 #include "host_api.h"
 
@@ -38,15 +39,13 @@ static void schedule_next_frame(void)
     timer_set(MINUTE_TIMER, (SECONDS_PER_MINUTE - seconds_into_minute) * MS_PER_SECOND);
 }
 
-/* Draws the text centered, with the top of its capitals and digits at
+/* Draws the text centered by its ink, with the top of its capitals and digits at
  * `cap_top`, and returns where they end: the baseline. */
 static int32_t draw_centered(int32_t cap_top, int32_t font, const char *text)
 {
-    int32_t length = app_text_length(text);
-    int32_t width = gfx_text_width(font, text, length);
     int32_t cap_height = gfx_font_cap_height(font);
-    gfx_text((gfx_width() - width) / 2, cap_top - (gfx_font_ascent(font) - cap_height), font, text,
-             length);
+    gfx_text(app_text_center_x(gfx_width() / 2, font, text),
+             cap_top - (gfx_font_ascent(font) - cap_height), font, text, app_text_length(text));
     return cap_top + cap_height;
 }
 

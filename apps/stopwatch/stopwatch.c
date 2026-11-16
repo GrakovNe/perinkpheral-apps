@@ -268,7 +268,8 @@ void app_on_draw(void)
     int32_t body = gfx_height() - HOST_UI_ACTIONS_HEIGHT;
     int32_t cap = gfx_font_cap_height(font);
     int32_t top = (body - cap) / 2 - (gfx_font_ascent(font) - cap);
-    gfx_text((gfx_width() - gfx_text_width(font, line, length)) / 2, top, font, line, length);
+    /* In the middle by what is seen: a typeface may give a digit more room on one side. */
+    gfx_text(app_text_center_x(gfx_width() / 2, font, line), top, font, line, length);
 
     bool is_stopped_with_time = !state.is_running && state.banked_ms > 0;
     if (is_stopped_with_time) {
