@@ -1,0 +1,104 @@
+{
+  "name": "status",
+  "title": "Service status",
+  "description": "Status of up to four services.",
+  "version": "0.1.0",
+  "abi": 3,
+  "fullscreen": false,
+  "icon": [
+    "...........",
+    "....###....",
+    "...#...#...",
+    "..#.....#..",
+    "..#..#..#..",
+    "..#..#..#..",
+    "..#.....#..",
+    "...#...#...",
+    "....###....",
+    "...........",
+    "..........."
+  ],
+  "hosts": [
+    "{{page1}}",
+    "{{page2}}",
+    "{{page3}}",
+    "{{page4}}"
+  ],
+  "settings": [
+    {
+      "key": "page1",
+      "type": "link",
+      "title": "Page 1",
+      "default": "https://www.githubstatus.com/api/v2/status.json"
+    },
+    {
+      "key": "page2",
+      "type": "link",
+      "title": "Page 2",
+      "default": "https://www.cloudflarestatus.com/api/v2/status.json"
+    },
+    {
+      "key": "page3",
+      "type": "link",
+      "title": "Page 3",
+      "default": "https://discordstatus.com/api/v2/status.json"
+    },
+    {
+      "key": "page4",
+      "type": "link",
+      "title": "Page 4",
+      "default": "https://status.openai.com/api/v2/status.json"
+    },
+    {
+      "key": "pace",
+      "type": "choice",
+      "title": "Refresh",
+      "options": [
+        "1 min",
+        "5 min",
+        "15 min",
+        "30 min"
+      ],
+      "default": "5 min"
+    }
+  ],
+  "polls": [
+    {
+      "url": "{{page1}}",
+      "every": "{{pace}}",
+      "pick": [
+        "page.name",
+        "status.indicator",
+        "status.description"
+      ]
+    },
+    {
+      "url": "{{page2}}",
+      "every": "{{pace}}",
+      "pick": [
+        "page.name",
+        "status.indicator",
+        "status.description"
+      ]
+    },
+    {
+      "url": "{{page3}}",
+      "every": "{{pace}}",
+      "pick": [
+        "page.name",
+        "status.indicator",
+        "status.description"
+      ]
+    },
+    {
+      "url": "{{page4}}",
+      "every": "{{pace}}",
+      "pick": [
+        "page.name",
+        "status.indicator",
+        "status.description"
+      ]
+    }
+  ],
+  "firmware": "0.1.30"
+}

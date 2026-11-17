@@ -1,0 +1,14 @@
+{
+  "https://www.githubstatus.com/api/v2/status.json": {
+    "file": "../../tasks/samples/githubstatus.json"
+  },
+  "https://www.cloudflarestatus.com/api/v2/status.json": {
+    "file": "../../tasks/samples/cloudflarestatus.json"
+  },
+  "https://discordstatus.com/api/v2/status.json": {
+    "file": "../../tasks/samples/discordstatus.json"
+  },
+  "https://status.openai.com/api/v2/status.json": {
+    "file": "../../tasks/samples/openaistatus.json"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "app": "apps/status",
+  "at": 1794955920,
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 2",
+    "shot states"
+  ]
+}

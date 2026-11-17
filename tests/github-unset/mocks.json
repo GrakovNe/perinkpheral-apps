@@ -1,0 +1,6 @@
+{
+  "https://api.github.com/graphql": {
+    "status": 403,
+    "body": "{}"
+  }
+}

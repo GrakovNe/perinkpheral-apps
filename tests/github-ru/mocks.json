@@ -1,0 +1,5 @@
+{
+  "https://api.github.com/graphql": {
+    "file": "../github/calendar.json"
+  }
+}

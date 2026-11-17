@@ -1,0 +1,11 @@
+{
+  "operational": "Operational",
+  "minor": "Minor",
+  "major": "Major",
+  "critical": "Critical",
+  "maintenance": "Maintenance",
+  "unknown": "No data",
+  "down": "{0} down",
+  "all_good": "All OK",
+  "page": "Page {0}"
+}

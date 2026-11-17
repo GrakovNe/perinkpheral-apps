@@ -1,0 +1,20 @@
+{
+  "contributions": "Вклады за год",
+  "streak": "Подряд",
+  "days": "дн.",
+  "less": "Меньше",
+  "more": "Больше",
+  "months": "ЯФМАМИИАСОНД",
+  "manifest": {
+    "title": "Активность GitHub",
+    "description": "Календарь вкладов GitHub и текущая серия.",
+    "settings": {
+      "login": {
+        "title": "Логин"
+      },
+      "token": {
+        "title": "Токен для чтения"
+      }
+    }
+  }
+}

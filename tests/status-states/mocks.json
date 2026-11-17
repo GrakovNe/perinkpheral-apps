@@ -1,0 +1,14 @@
+{
+  "https://www.githubstatus.com/api/v2/status.json": {
+    "body": "{\"page\":{\"name\":\"Critical\"},\"status\":{\"indicator\":\"critical\",\"description\":\"Service state\"}}"
+  },
+  "https://www.cloudflarestatus.com/api/v2/status.json": {
+    "body": "{\"page\":{\"name\":\"Major\"},\"status\":{\"indicator\":\"major\",\"description\":\"Service state\"}}"
+  },
+  "https://discordstatus.com/api/v2/status.json": {
+    "body": "{\"page\":{\"name\":\"Maintenance\"},\"status\":{\"indicator\":\"maintenance\",\"description\":\"Service state\"}}"
+  },
+  "https://status.openai.com/api/v2/status.json": {
+    "body": "{\"page\":{\"name\":\"Operational\"},\"status\":{\"indicator\":\"none\",\"description\":\"Service state\"}}"
+  }
+}

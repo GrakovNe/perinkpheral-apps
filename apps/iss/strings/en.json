@@ -1,0 +1,10 @@
+{
+  "north": "N",
+  "south": "S",
+  "east": "E",
+  "west": "W",
+  "km": "km",
+  "speed": "km/h",
+  "day": "day",
+  "night": "night"
+}

@@ -188,6 +188,55 @@
       }
     },
     {
+      "name": "github",
+      "title": "GitHub activity",
+      "version": "0.1.0",
+      "abi": 3,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 12442,
+          "sha256": "04b0acf721bd8d47544214f3583d9b1c88243ced45782370a6b58626163dd3f7"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 221,
+          "sha256": "8aede2832168acc4e0ec1df8573ed135be575a7604571e86a88b4eedc6a6e460"
+        },
+        {
+          "name": "strings.ru",
+          "size": 111,
+          "sha256": "2a7c8ad75d2dd761f9a75e902d0b1a922f51735fbb31e0c938930c8fde464d77"
+        },
+        {
+          "name": "manifest.json",
+          "size": 731,
+          "sha256": "60a5b40020fce3df173f4e07f1da1582d47a6ae436de1c694119af91f5754bd3"
+        }
+      ],
+      "firmware": "0.1.30",
+      "icon": [
+        "...........",
+        ".##.....##.",
+        ".#.#####.#.",
+        ".#.......#.",
+        "#..#...#..#",
+        "#.........#",
+        ".#.......#.",
+        "..#######..",
+        "....#.#....",
+        "...##.##...",
+        "..........."
+      ],
+      "description": "GitHub contribution calendar and current streak.",
+      "translations": {
+        "ru": {
+          "title": "\u0410\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u044c GitHub",
+          "description": "\u041a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u044c \u0432\u043a\u043b\u0430\u0434\u043e\u0432 GitHub \u0438 \u0442\u0435\u043a\u0443\u0449\u0430\u044f \u0441\u0435\u0440\u0438\u044f."
+        }
+      }
+    },
+    {
       "name": "ha",
       "title": "HA Companion",
       "version": "0.3.15",
@@ -232,6 +281,60 @@
       "translations": {
         "ru": {
           "description": "\u041f\u0430\u043d\u0435\u043b\u044c Home Assistant."
+        }
+      }
+    },
+    {
+      "name": "iss",
+      "title": "ISS",
+      "version": "0.1.0",
+      "abi": 3,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 7430,
+          "sha256": "1f4e5d29358be6023bf23c59bf7c16b2062bfc4deb8a7ee7115894be0b24dbf2"
+        },
+        {
+          "name": "land.bin",
+          "size": 10000,
+          "sha256": "18a444421f341e71d4fb35dacb9c89f41bf80f05d8b9f75fb1c5e0c5fd5639e6"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 125,
+          "sha256": "fe64ff262215e8849c6dcdd41b11b5eb8dc4546131f580c6ebdff7b29befd740"
+        },
+        {
+          "name": "strings.ru",
+          "size": 79,
+          "sha256": "b47fd0f01b11504fdcb6c72fbfd09031223254f4a49f194d751914b473797999"
+        },
+        {
+          "name": "manifest.json",
+          "size": 754,
+          "sha256": "051fd3118e6482f1455c21e0a01e1eb48bb2441755912e9b1472d5211cd7f43e"
+        }
+      ],
+      "firmware": "0.1.30",
+      "icon": [
+        "...........",
+        "##.......##",
+        "###.....###",
+        ".###...###.",
+        "..###.###..",
+        "....###....",
+        "..###.###..",
+        ".###...###.",
+        "###.....###",
+        "##.......##",
+        "..........."
+      ],
+      "description": "International Space Station over a world map.",
+      "translations": {
+        "ru": {
+          "title": "\u041c\u041a\u0421",
+          "description": "\u041c\u0435\u0436\u0434\u0443\u043d\u0430\u0440\u043e\u0434\u043d\u0430\u044f \u043a\u043e\u0441\u043c\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u0441\u0442\u0430\u043d\u0446\u0438\u044f \u043d\u0430 \u043a\u0430\u0440\u0442\u0435 \u043c\u0438\u0440\u0430."
         }
       }
     },
@@ -485,6 +588,55 @@
         "ru": {
           "title": "\u041a\u0443\u0440\u0441\u044b \u0432\u0430\u043b\u044e\u0442",
           "description": "\u041a\u0443\u0440\u0441\u044b \u0432\u0430\u043b\u044e\u0442 \u0426\u0411 \u0420\u0424."
+        }
+      }
+    },
+    {
+      "name": "status",
+      "title": "Service status",
+      "version": "0.1.0",
+      "abi": 3,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 3224,
+          "sha256": "8991569a3be389e01d6469441c9f6d456ffc8fc42f298a1983b397a4b37d159f"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 409,
+          "sha256": "07b2959496bc870270287e8fd980268beca4a480997d0ceebbc1fea1fcf06967"
+        },
+        {
+          "name": "strings.ru",
+          "size": 172,
+          "sha256": "e862341afd58ebbb1e3b2707a40ba315a172235f7185497054c3127311c2aee2"
+        },
+        {
+          "name": "manifest.json",
+          "size": 2003,
+          "sha256": "6d438f6643c147599fe2d00e4eee5bd6fcaabb5ac2d8bd9196d10d2df7f52a69"
+        }
+      ],
+      "firmware": "0.1.30",
+      "icon": [
+        "...........",
+        "....###....",
+        "...#...#...",
+        "..#.....#..",
+        "..#..#..#..",
+        "..#..#..#..",
+        "..#.....#..",
+        "...#...#...",
+        "....###....",
+        "...........",
+        "..........."
+      ],
+      "description": "Status of up to four services.",
+      "translations": {
+        "ru": {
+          "title": "\u0421\u0442\u0430\u0442\u0443\u0441 \u0441\u0435\u0440\u0432\u0438\u0441\u043e\u0432",
+          "description": "\u0421\u0442\u0430\u0442\u0443\u0441 \u0434\u043e \u0447\u0435\u0442\u044b\u0440\u0435\u0445 \u0441\u0435\u0440\u0432\u0438\u0441\u043e\u0432."
         }
       }
     },

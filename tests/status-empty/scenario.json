@@ -1,0 +1,13 @@
+{
+  "app": "apps/status",
+  "at": 1794955920,
+  "store": {
+    "page2": "",
+    "page4": ""
+  },
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 2",
+    "shot two-services"
+  ]
+}

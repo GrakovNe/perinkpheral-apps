@@ -1,0 +1,14 @@
+{
+  "app": "apps/status",
+  "at": 1794955920,
+  "language": "en",
+  "glyphs": "glyphs",
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 2",
+    "shot services",
+    "press 2",
+    "wait 2",
+    "shot refreshed"
+  ]
+}

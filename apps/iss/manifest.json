@@ -1,0 +1,40 @@
+{
+  "name": "iss",
+  "title": "ISS",
+  "description": "International Space Station over a world map.",
+  "version": "0.1.0",
+  "abi": 3,
+  "fullscreen": false,
+  "icon": [
+    "...........",
+    "##.......##",
+    "###.....###",
+    ".###...###.",
+    "..###.###..",
+    "....###....",
+    "..###.###..",
+    ".###...###.",
+    "###.....###",
+    "##.......##",
+    "..........."
+  ],
+  "hosts": [
+    "api.wheretheiss.at"
+  ],
+  "polls": [
+    {
+      "url": "https://api.wheretheiss.at/v1/satellites/25544",
+      "every": 60,
+      "pick": [
+        "latitude",
+        "longitude",
+        "altitude",
+        "velocity",
+        "visibility",
+        "solar_lat",
+        "solar_lon",
+        "timestamp"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "github",
+  "title": "GitHub activity",
+  "description": "GitHub contribution calendar and current streak.",
+  "version": "0.1.0",
+  "abi": 3,
+  "fullscreen": false,
+  "icon": [
+    "...........",
+    ".##.....##.",
+    ".#.#####.#.",
+    ".#.......#.",
+    "#..#...#..#",
+    "#.........#",
+    ".#.......#.",
+    "..#######..",
+    "....#.#....",
+    "...##.##...",
+    "..........."
+  ],
+  "hosts": [
+    "api.github.com"
+  ],
+  "intents": [
+    "started",
+    "network_up",
+    "time_changed"
+  ],
+  "settings": [
+    {
+      "key": "login",
+      "type": "text",
+      "title": "Login"
+    },
+    {
+      "key": "token",
+      "type": "secret",
+      "title": "Read-only token"
+    }
+  ]
+}
