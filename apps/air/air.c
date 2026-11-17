@@ -173,6 +173,8 @@ static void number_text(char *buffer, int32_t capacity, int32_t value, int32_t d
     app_text_add_fixed(&text, value, decimals, 0);
 }
 
+#define HERO_WORD_GAP 10 /* between the index's capitals and its word */
+
 static void draw_hero(bool us)
 {
     int32_t band = index_band(state.aqi[us], us);
@@ -185,10 +187,16 @@ static void draw_hero(bool us)
     int32_t font = HOST_FONT_DISPLAY | HOST_FONT_TABULAR;
     if (app_text_width(font, value) > width) { font = HOST_FONT_LARGE | HOST_FONT_TABULAR; }
     if (app_text_width(font, value) > width) { font = HOST_FONT_MEDIUM | HOST_FONT_TABULAR; }
-    int32_t top = MARGIN + (HERO_PICTURE - gfx_font_cap_height(font)) / 2;
-    app_draw_centered(left + width / 2, top - (gfx_font_ascent(font) - gfx_font_cap_height(font)), font, value);
+    /* The number and its word are one block, as tall as its capitals and the word's and a gap,
+     * centred on the picture: the word stands under the number, not down by the rule. */
+    int32_t gap = HERO_WORD_GAP;
+    int32_t cap = gfx_font_cap_height(font), word_cap = gfx_font_cap_height(HOST_FONT_SMALL);
+    int32_t top = MARGIN + (HERO_PICTURE - (cap + gap + word_cap)) / 2;
+    app_draw_centered(left + width / 2, top - (gfx_font_ascent(font) - cap), font, value);
     const char *word = index_word(state.aqi[us], us);
-    app_draw_centered(left + width / 2, MARGIN + HERO_PICTURE, HOST_FONT_SMALL, word);
+    int32_t word_top = top + cap + gap;
+    app_draw_centered(left + width / 2, word_top - (gfx_font_ascent(HOST_FONT_SMALL) - word_cap),
+                      HOST_FONT_SMALL, word);
 }
 
 static int32_t detail_font(void)
