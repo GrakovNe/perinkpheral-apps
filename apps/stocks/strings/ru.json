@@ -4,7 +4,7 @@
   "no_data": "Нет данных",
   "manifest": {
     "title": "Акции",
-    "description": "Котировки акций и график за день.",
+    "description": "Котировки акций.",
     "settings": {
       "tickers": {
         "title": "Тикеры",

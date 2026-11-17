@@ -52,8 +52,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 567,
-          "sha256": "c1fd3e7d2988905cca29d26ba6e752fb06de8a9cf813a2e8c81e5878be6d0e5d"
+          "size": 535,
+          "sha256": "ca7c47eb48dd30148cc9e4cc884a5438f1939046676d2030e5b553a308d25291"
         },
         {
           "name": "strings.ru",
@@ -62,8 +62,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 1197,
-          "sha256": "d36eb33522bf14570ec0ae3c13e1936d4a2be48bd6ae810ba0dcb9ccaee5eb7b"
+          "size": 1178,
+          "sha256": "92f71a92e68ce636f2c75f1ee2437d5bcde7ba1f1912ce2cb8c92b52e2ae2137"
         }
       ],
       "firmware": "0.1.0",
@@ -81,11 +81,11 @@
         ".#.......#.",
         ".#########."
       ],
-      "description": "Upcoming events from your calendar.",
+      "description": "Calendar events.",
       "translations": {
         "ru": {
           "title": "\u041a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u044c",
-          "description": "\u0411\u043b\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u0441\u043e\u0431\u044b\u0442\u0438\u044f \u0438\u0437 \u0432\u0430\u0448\u0435\u0433\u043e \u043a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u044f."
+          "description": "\u0421\u043e\u0431\u044b\u0442\u0438\u044f \u0438\u0437 \u043a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u044f."
         }
       }
     },
@@ -151,8 +151,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 370,
-          "sha256": "eac0f77bb8d76bd861e57e0231c4d085f7a0934dc9ebcd34e3af5607b6a3ba03"
+          "size": 361,
+          "sha256": "64485e78da254d5402e04de04dbd0e6999806ab906ec72ee84b62be8d09de636"
         },
         {
           "name": "strings.ru",
@@ -161,8 +161,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 970,
-          "sha256": "cfcb88f984caff29850b8b7915ccfb67858a6ce24c6969724eaff095f7ad7cc9"
+          "size": 965,
+          "sha256": "df2d029c3d0911e2ad4ecd35c4fed0ea4c3f6169c6c19c8eeba8b46aa3ff7a3a"
         }
       ],
       "firmware": "0.1.8",
@@ -179,10 +179,10 @@
         ".##.###.##.",
         ".#########."
       ],
-      "description": "Your Home Assistant dashboard.",
+      "description": "Home Assistant dashboard.",
       "translations": {
         "ru": {
-          "description": "\u0412\u0430\u0448\u0430 \u043f\u0430\u043d\u0435\u043b\u044c Home Assistant."
+          "description": "\u041f\u0430\u043d\u0435\u043b\u044c Home Assistant."
         }
       }
     },
@@ -248,8 +248,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 509,
-          "sha256": "70111fb48e57834e1786ef4d170fbd35627a4b1a63e27c5e121ec258bf35a207"
+          "size": 479,
+          "sha256": "b06d385d18b34bf1d67f92f78a88ccae8fdb3c7e09fd126ff5e8fb1bef7e664c"
         },
         {
           "name": "russian-root-ca.pem",
@@ -263,8 +263,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 3192,
-          "sha256": "b7e1fe8af57bf5653d2a92138d645c3e56b796b283239cf06373f7ad43a2e0e2"
+          "size": 3172,
+          "sha256": "748897410f2aad864c4d3ae196c46c11a4dc1cea2b812095a28e473abbb02179"
         }
       ],
       "firmware": "0.1.0",
@@ -285,11 +285,11 @@
         "##########.",
         "..........."
       ],
-      "description": "Stock prices and the day's chart.",
+      "description": "Stock prices.",
       "translations": {
         "ru": {
           "title": "\u0410\u043a\u0446\u0438\u0438",
-          "description": "\u041a\u043e\u0442\u0438\u0440\u043e\u0432\u043a\u0438 \u0430\u043a\u0446\u0438\u0439 \u0438 \u0433\u0440\u0430\u0444\u0438\u043a \u0437\u0430 \u0434\u0435\u043d\u044c."
+          "description": "\u041a\u043e\u0442\u0438\u0440\u043e\u0432\u043a\u0438 \u0430\u043a\u0446\u0438\u0439."
         }
       }
     },
@@ -306,8 +306,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 107,
-          "sha256": "98c89d3608ecb127a633167a85cbdbd7c873a478c812eaa86f72c3aa42217232"
+          "size": 70,
+          "sha256": "af25e39d59a89eab44c7700eaf32388f6a8e32bf70e797c16459dc8388f01dfd"
         },
         {
           "name": "strings.ru",
@@ -316,8 +316,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 436,
-          "sha256": "1d1c6c3e3da7f7402a17700a3df28f6fbc149f014e9c5477272de892fa8dd64d"
+          "size": 397,
+          "sha256": "f0691d5263580dd6b5c91032b28fda10204a7102ffb1116b10fae3a7f845aff7"
         }
       ],
       "firmware": "0.1.8",
@@ -334,11 +334,11 @@
         "..#.....#..",
         "...#####..."
       ],
-      "description": "A stopwatch that keeps running in the background.",
+      "description": "Stopwatch.",
       "translations": {
         "ru": {
           "title": "\u0421\u0435\u043a\u0443\u043d\u0434\u043e\u043c\u0435\u0440",
-          "description": "\u0421\u0435\u043a\u0443\u043d\u0434\u043e\u043c\u0435\u0440, \u043a\u043e\u0442\u043e\u0440\u044b\u0439 \u0438\u0434\u0451\u0442 \u0432 \u0444\u043e\u043d\u0435."
+          "description": "\u0421\u0435\u043a\u0443\u043d\u0434\u043e\u043c\u0435\u0440."
         }
       }
     },
@@ -404,8 +404,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 105,
-          "sha256": "17613b1b7a08b555803741d39c1813bd0f49397140d2cef60c52eac6b785b181"
+          "size": 71,
+          "sha256": "29cf0151439102d2c833764186a9d513773243746a092916ef86c34ab87c05d0"
         },
         {
           "name": "strings.ru",
@@ -414,8 +414,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 385,
-          "sha256": "60902b857720f0278e9c50ae780cf979996ad366dbb3527428cf58834dfb3fb5"
+          "size": 355,
+          "sha256": "28523da61148245b04dda09647e5e7aec72086956817fcd635d8838cbb9f612a"
         }
       ],
       "firmware": "0.1.0",
@@ -432,11 +432,11 @@
         ".#########.",
         ".#########."
       ],
-      "description": "Countdown with an alert when time is up.",
+      "description": "Countdown.",
       "translations": {
         "ru": {
           "title": "\u0422\u0430\u0439\u043c\u0435\u0440",
-          "description": "\u041e\u0431\u0440\u0430\u0442\u043d\u044b\u0439 \u043e\u0442\u0441\u0447\u0451\u0442 \u0441 \u0441\u0438\u0433\u043d\u0430\u043b\u043e\u043c \u0432 \u043a\u043e\u043d\u0446\u0435."
+          "description": "\u041e\u0431\u0440\u0430\u0442\u043d\u044b\u0439 \u043e\u0442\u0441\u0447\u0451\u0442."
         }
       }
     },

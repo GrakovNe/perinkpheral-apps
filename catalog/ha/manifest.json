@@ -2,7 +2,7 @@
   "name": "ha",
   "version": "0.3.10",
   "title": "HA Companion",
-  "description": "Your Home Assistant dashboard.",
+  "description": "Home Assistant dashboard.",
   "abi": 2,
   "settings": [
     {

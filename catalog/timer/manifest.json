@@ -1,7 +1,7 @@
 {
   "name": "timer",
   "title": "Timer",
-  "description": "Countdown with an alert when time is up.",
+  "description": "Countdown.",
   "version": "0.3.6",
   "abi": 2,
   "icon": [
