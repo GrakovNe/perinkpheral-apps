@@ -2,7 +2,7 @@
   "name": "stopwatch",
   "version": "0.1.7",
   "title": "Stopwatch",
-  "description": "Counts on while other apps are open: minutes and seconds, then hours.",
+  "description": "A stopwatch that keeps running in the background.",
   "abi": 2,
   "intents": ["started"],
   "icon": [

@@ -1,7 +1,7 @@
 {
   "name": "sun",
   "title": "Sun and Moon",
-  "description": "Sunrise, sunset, the length of the day and the moon's phase. Worked out on the device.",
+  "description": "Sunrise, sunset and the moon's phase.",
   "version": "0.1.5",
   "abi": 2,
   "icon": [

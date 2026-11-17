@@ -1,7 +1,7 @@
 {
   "name": "weather",
   "title": "Weather",
-  "description": "The weather now and for three days, from Open-Meteo. No key or account needed.",
+  "description": "Weather now and for three days.",
   "version": "0.2.10",
   "abi": 2,
   "icon": [

@@ -5,7 +5,7 @@
   "miles_per_hour": "миль/ч",
   "manifest": {
     "title": "Погода",
-    "description": "Погода сейчас и на три дня от Open-Meteo. Без ключа и регистрации.",
+    "description": "Погода сейчас и на три дня.",
     "settings": {
       "city": {
         "title": "Город"

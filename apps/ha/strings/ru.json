@@ -2,7 +2,7 @@
   "no_screen": "Нет экрана",
   "set_up_in_ha": "Настройте в HA",
   "manifest": {
-    "description": "Экран из Home Assistant на устройстве: значения, плитки или список.",
+    "description": "Ваша панель Home Assistant.",
     "settings": {
       "server": {
         "title": "Сервер"

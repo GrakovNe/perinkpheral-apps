@@ -2,7 +2,7 @@
   "name": "calendar",
   "version": "0.4.8",
   "title": "Calendar",
-  "description": "Events of the next two weeks from Google, iCloud, Outlook or Nextcloud, with reminders.",
+  "description": "Upcoming events from your calendar.",
   "abi": 2,
   "writes_files": true,
   "settings": [

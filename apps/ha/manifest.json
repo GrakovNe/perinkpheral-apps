@@ -2,7 +2,7 @@
   "name": "ha",
   "version": "0.3.10",
   "title": "HA Companion",
-  "description": "A screen set up in Home Assistant and drawn on the device: values, tiles or a list.",
+  "description": "Your Home Assistant dashboard.",
   "abi": 2,
   "settings": [
     { "key": "server", "type": "url", "title": "Server" },
