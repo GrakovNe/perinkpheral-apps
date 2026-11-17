@@ -366,7 +366,7 @@ static const picture_t *picture_named(const char *name)
 
 static void draw_picture(const picture_t *picture, int32_t left, int32_t top, int32_t side)
 {
-    gfx_icon(picture->icon, left, top, side / HOST_ICON_CELLS);
+    gfx_icon(left, top, picture->icon, side / HOST_ICON_CELLS);
 }
 
 /* ---- the screen: the weather's own composition, its places filled ---- */

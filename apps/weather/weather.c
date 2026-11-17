@@ -243,7 +243,7 @@ static void draw_detail(int32_t left, int32_t line, detail_t detail, const char 
     int32_t baseline = top + gfx_font_ascent(HOST_FONT_TEXT);
     int32_t icon_size = ICON_SIDE(DETAIL_ICON_CELL);
     /* The picture stands on the text's baseline. */
-    gfx_icon(DETAIL_ICONS[detail], left, baseline - icon_size, DETAIL_ICON_CELL);
+    gfx_icon(left, baseline - icon_size, DETAIL_ICONS[detail], DETAIL_ICON_CELL);
     ui_value(left + icon_size + DETAIL_ICON_GAP, top, HOST_FONT_TEXT, value,
              app_text_length(value), unit, app_text_length(unit));
 }
@@ -256,7 +256,7 @@ static void draw_now(void)
     host_icon_ink_t ink = { 0, ICON_SIDE(LARGE_ICON_CELL) - 1, 0, ICON_SIDE(LARGE_ICON_CELL) - 1 };
     gfx_icon_ink(WEATHER_ICONS[now->icon], LARGE_ICON_CELL, &ink);
     int32_t icon_left = NOW_LEFT - ink.first_x;
-    gfx_icon(WEATHER_ICONS[now->icon], icon_left, MARGIN, LARGE_ICON_CELL);
+    gfx_icon(icon_left, MARGIN, WEATHER_ICONS[now->icon], LARGE_ICON_CELL);
 
     char buffer[24];
     app_text_t text;
@@ -317,8 +317,8 @@ static void draw_days(void)
             continue;
         }
         int32_t icon_size = ICON_SIDE(SMALL_ICON_CELL);
-        gfx_icon(WEATHER_ICONS[condition_of(forecast.days[day + shift].code)->icon], center - icon_size / 2,
-                 DAY_ICON_TOP, SMALL_ICON_CELL);
+        gfx_icon(center - icon_size / 2, DAY_ICON_TOP,
+                 WEATHER_ICONS[condition_of(forecast.days[day + shift].code)->icon], SMALL_ICON_CELL);
 
         /* "high / low", the slash closer to its numbers than a space would
          * put it: three such ranges of a cold week have to stay apart. */

@@ -2,7 +2,7 @@
   "name": "weather",
   "title": "Weather",
   "description": "Weather now and for three days.",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "abi": 2,
   "icon": [
     "...#.......",
