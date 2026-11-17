@@ -2,6 +2,10 @@
 # repository's main, the catalog that build makes held against the one committed - the
 # modules, their sums and the least firmware each asks for - and the applications run in the
 # simulator, their screens against the pictures kept in tests/.
+#
+# Every push to main is a release, once that passes: the next version - the last release's
+# with its patch one up, or 0.1.0 - with the catalog as an archive. Devices install from the
+# committed catalog/ itself; the release is what it was at that version.
 
 name: CI
 
@@ -11,13 +15,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   catalog:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - uses: actions/checkout@v5
         with:
           repository: GrakovNe/perinkpheral
@@ -56,3 +66,23 @@ jobs:
           name: simulator-pictures
           path: tests/**/*.actual.png
           if-no-files-found: ignore
+      - name: The catalog, as the run's artifact
+        run: (cd catalog && zip -qr ../catalog.zip .)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: catalog
+          path: catalog.zip
+      - name: Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          last=$(git tag -l 'v[0-9]*' --sort=-v:refname | head -1 | sed 's/^v//')
+          next=0.1.0
+          if [ -n "$last" ]; then
+            IFS=. read -r major minor patch <<< "$last"
+            next="$major.$minor.$((patch + 1))"
+          fi
+          git log --no-merges --format='- %s' ${last:+v$last..}HEAD > notes.md
+          gh release create "v$next" catalog.zip --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$next" --notes-file notes.md
