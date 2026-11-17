@@ -1,13 +1,12 @@
 {
   "name": "ha",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "title": "HA Companion",
   "description": "Home Assistant dashboard.",
   "abi": 2,
   "settings": [
-    { "key": "server", "type": "url", "title": "Server" },
-    { "key": "token", "type": "secret", "title": "Access token" },
-    { "key": "entity", "type": "text", "title": "Sensor", "help": "Empty with the integration." },
+    { "key": "server", "type": "url", "title": "Server", "hidden": true },
+    { "key": "token", "type": "secret", "title": "Access token", "hidden": true },
     { "key": "every", "type": "choice", "title": "Refresh",
       "options": ["1 min", "5 min", "15 min", "1 h"], "default": "5 min" }
   ],

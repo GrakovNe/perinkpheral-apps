@@ -2,30 +2,23 @@
  * SPDX-License-Identifier: MIT
  * Copyright (c) 2026 GrakovNe
  *
- * A screen that is described in Home Assistant and drawn here.
- *
- * In Home Assistant it is one template sensor with an attribute `screen`.
- * It does not arrange anything: the screen is drawn here, by hand, the
- * way the weather is, and the attribute says what stands in its places -
- * a line a place, the parts of it divided by '|', the values put in by
- * Home Assistant's own templates:
- *
- *     hero|{{ state_attr('weather.home','temperature') | round }}°|{{ states('weather.home') }}
- *     detail|{{ state_attr('weather.home','humidity') }}|%|drop
- *     detail|{{ state_attr('weather.home','pressure') | round }}|hPa|gauge
- *     column|Room|thermometer|{{ states('sensor.room') | round(1) }}°
- *     column|Fridge|thermometer|{{ states('sensor.fridge') }}°
- *     column|CO2|gauge|{{ states('sensor.co2') }}
- *
+ * A screen that is described in Home Assistant and drawn here. The
+ * perINKpheral integration of Home Assistant (perinkpheral-hacs) sets it up:
+ * it gives the application its server and a secret of its own (hidden
+ * settings, written by the integration and not on the device's page) and
+ * answers with the screen - a line a place, the parts of it divided by '|':
+ *     hero|21°|Cloudy
+ *     detail|54|%|drop
+ *     column|Room|thermometer|22.5°
  * `hero` is the one thing the screen is for: a value of a few characters
  * and a large picture. `detail` - two of them - is a smaller value with
  * its unit and a small picture, beside the hero. `column` - up to four -
- * is a name, a picture and a value, in a row under the rule.
- *
- * The application asks for that attribute, already rendered, every so
- * often - one request, plain text back - and keeps the last answer in
- * its store. It knows nothing of what the places say: what is shown and
- * how it is worked out is all Home Assistant's.
+ * is a name, a picture and a value, in a row under the rule. A layout of
+ * cells or a list is chosen in the integration too.
+ * The application asks for the screen every so often - one request, plain
+ * text back - and keeps the last answer in its store. It knows nothing of
+ * what the places say: what is shown and how it is worked out is all Home
+ * Assistant's.
  */
 #include <stdbool.h>
 #include <stddef.h>
@@ -78,27 +71,12 @@ static bool has_asked;
 static void ask(void)
 {
     has_asked = true;
-    char entity[64];
-    if (app_setting("entity", entity, sizeof entity) == 0) {
-        /* No sensor named: the screen is the integration's, which knows the
-         * device by the secret it gave it and answers with the screen. */
-        static const char URL[] = "{{server}}/api/perinkpheral/screen";
-        static const char HEADERS[] = "Authorization: Bearer {{token}}";
-        http_request(REQUEST_SCREEN, HOST_HTTP_GET, URL, sizeof URL - 1, HEADERS,
-                     sizeof HEADERS - 1, "", 0);
-        return;
-    }
-    /* A sensor of the user's own making: its attribute, rendered as a template. */
-    static const char URL[] = "{{server}}/api/template";
-    static const char HEADERS[] = "Authorization: Bearer {{token}}\nContent-Type: application/json";
-    char body[160];
-    app_text_t text;
-    app_text_start(&text, body, sizeof body);
-    app_text_add(&text, "{\"template\":\"{{ state_attr('");
-    app_text_add(&text, entity);
-    app_text_add(&text, "','screen') }}\"}");
-    http_request(REQUEST_SCREEN, HOST_HTTP_POST, URL, sizeof URL - 1, HEADERS, sizeof HEADERS - 1,
-                 body, app_text_length(body));
+    /* The screen is the integration's, which knows the device by the secret it gave it and
+     * answers with the screen. */
+    static const char URL[] = "{{server}}/api/perinkpheral/screen";
+    static const char HEADERS[] = "Authorization: Bearer {{token}}";
+    http_request(REQUEST_SCREEN, HOST_HTTP_GET, URL, sizeof URL - 1, HEADERS, sizeof HEADERS - 1,
+                 "", 0);
 }
 
 /* The screen is asked for now and again from now on. */

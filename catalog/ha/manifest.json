@@ -1,6 +1,6 @@
 {
   "name": "ha",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "title": "HA Companion",
   "description": "Home Assistant dashboard.",
   "abi": 2,
@@ -8,18 +8,14 @@
     {
       "key": "server",
       "type": "url",
-      "title": "Server"
+      "title": "Server",
+      "hidden": true
     },
     {
       "key": "token",
       "type": "secret",
-      "title": "Access token"
-    },
-    {
-      "key": "entity",
-      "type": "text",
-      "title": "Sensor",
-      "help": "Empty with the integration."
+      "title": "Access token",
+      "hidden": true
     },
     {
       "key": "every",

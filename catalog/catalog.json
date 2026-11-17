@@ -141,18 +141,18 @@
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.3.13",
+      "version": "0.3.14",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 6698,
-          "sha256": "e1655340b17a6bc163f8c794bc287cf960bed90acc6b63052609c7a2ddb845c3"
+          "size": 6257,
+          "sha256": "1b5e63a85f9e97c025379d41ea851411139b9ebca312530f931e875eadaf0b79"
         },
         {
           "name": "manifest.ru",
-          "size": 361,
-          "sha256": "64485e78da254d5402e04de04dbd0e6999806ab906ec72ee84b62be8d09de636"
+          "size": 264,
+          "sha256": "9c61c39c7cde1f12fce71c6b90e320330d109c7c68e2d7f4af59b8983797f93e"
         },
         {
           "name": "strings.ru",
@@ -161,8 +161,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 966,
-          "sha256": "c3de2ca1a359f2884536db1d1a3f7a042681c8ea575614130f71bf7a67c7cbbb"
+          "size": 883,
+          "sha256": "ab522d0f7d3ad2e241f84ab1b5acd39e890661a2eee7cf6b6130b7aba89974d7"
         }
       ],
       "firmware": "0.1.23",

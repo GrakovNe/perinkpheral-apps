@@ -1,1 +1,1 @@
-{"description":"Панель Home Assistant.","settings":{"server":{"title":"Сервер"},"token":{"title":"Токен доступа"},"entity":{"title":"Сенсор","help":"Пусто, если стоит интеграция."},"every":{"title":"Обновление","options":{"1 min":"1 мин","5 min":"5 мин","15 min":"15 мин","1 h":"1 ч"}}}}
+{"description":"Панель Home Assistant.","settings":{"server":{"title":"Сервер"},"token":{"title":"Токен доступа"},"every":{"title":"Обновление","options":{"1 min":"1 мин","5 min":"5 мин","15 min":"15 мин","1 h":"1 ч"}}}}
