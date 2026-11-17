@@ -10,7 +10,7 @@
  * what the interpreter costs. When the video ends, the numbers are on
  * the screen.
  *
- * The frames are files/frames.bin, made by tools/mkvideo; the format is
+ * The frames are files/frames.bin, made by tools/perinkpheral video; the format is
  * described there.
  */
 #include <stdbool.h>

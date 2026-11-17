@@ -13,7 +13,7 @@ if [ ! -x "$sdk/tools/perinkpheral" ]; then
 fi
 "$sdk/tools/perinkpheral" catalog "$here/apps" --out "$here/catalog"
 # The glyph packs - letters beyond ASCII for the device's fonts - are made
-# by tools/fontgen/mkpack.py of the perinkpheral repository, which needs
-# freetype; what it made is kept in glyphs/ and goes into the catalog as it is.
+# by tools/perinkpheral glyph-packs of the perinkpheral repository; what it
+# made is kept in glyphs/ and goes into the catalog as it is.
 mkdir -p "$here/catalog/glyphs"
 cp "$here"/glyphs/* "$here/catalog/glyphs/"
