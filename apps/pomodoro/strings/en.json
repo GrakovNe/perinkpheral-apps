@@ -1,0 +1,13 @@
+{
+  "work": "Work",
+  "break": "Break",
+  "long_break": "Long break",
+  "minutes": "{0} min",
+  "minute_unit": "min",
+  "last_minute": "<1 min",
+  "paused": "Paused",
+  "pause": "Pause",
+  "start": "Start",
+  "round": "Round {0} of {1}",
+  "of": "{0} of {1}"
+}

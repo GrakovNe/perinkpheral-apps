@@ -2,6 +2,55 @@
   "catalog": 1,
   "apps": [
     {
+      "name": "air",
+      "title": "Air quality",
+      "version": "0.1.0",
+      "abi": 3,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 6767,
+          "sha256": "318dbc3a61e04fd57a57df86f3805aa4c3ebaad2e1d5f1e42a4249ee76256018"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 526,
+          "sha256": "e96f28eba0265f69e5e8b724eaf5cd25f7d71ed0f2527f495d851f145eb43391"
+        },
+        {
+          "name": "strings.ru",
+          "size": 450,
+          "sha256": "6203f4d34d7daaf9ae9d8252d9727ec1319536dc1c09f2632cdc5382b864a42c"
+        },
+        {
+          "name": "manifest.json",
+          "size": 2156,
+          "sha256": "49b80469435991a9b9e5b2e2f1044fccb605872de2402d5092bb7b69dbd2b42c"
+        }
+      ],
+      "firmware": "0.1.30",
+      "icon": [
+        "...........",
+        "......###..",
+        "....##..#..",
+        "...#....#..",
+        "..#..#..#..",
+        "..#.#...#..",
+        "..##...#...",
+        "...####....",
+        "..#........",
+        ".#.........",
+        "..........."
+      ],
+      "description": "Air quality, particles, UV and the strongest irritants.",
+      "translations": {
+        "ru": {
+          "title": "\u041a\u0430\u0447\u0435\u0441\u0442\u0432\u043e \u0432\u043e\u0437\u0434\u0443\u0445\u0430",
+          "description": "\u041a\u0430\u0447\u0435\u0441\u0442\u0432\u043e \u0432\u043e\u0437\u0434\u0443\u0445\u0430, \u0447\u0430\u0441\u0442\u0438\u0446\u044b, \u0423\u0424 \u0438 \u0433\u043b\u0430\u0432\u043d\u044b\u0435 \u0440\u0430\u0437\u0434\u0440\u0430\u0436\u0438\u0442\u0435\u043b\u0438."
+        }
+      }
+    },
+    {
       "name": "badapple",
       "title": "Bad Apple",
       "version": "0.1.7",
@@ -232,6 +281,210 @@
         "ru": {
           "title": "\u041a\u0438\u0442 UI",
           "description": "\u042d\u043b\u0435\u043c\u0435\u043d\u0442\u044b \u0438\u043d\u0442\u0435\u0440\u0444\u0435\u0439\u0441\u0430 \u0434\u043b\u044f \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u043e\u0432."
+        }
+      }
+    },
+    {
+      "name": "life",
+      "title": "Life",
+      "version": "0.1.0",
+      "abi": 3,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 5187,
+          "sha256": "1b5179b38ac711e8401b54b749404687abf8d085daf1a4f458a28ef4e77ac8af"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 314,
+          "sha256": "71af4ba76f16b2dfab255c3ef227cde603a9d6a551d0f561a48317698d837fe6"
+        },
+        {
+          "name": "strings.ru",
+          "size": 70,
+          "sha256": "a694491e0c382ca957c1c066e2cfc398cfaae7a58a19beca9acf09481d5eb6a4"
+        },
+        {
+          "name": "manifest.json",
+          "size": 856,
+          "sha256": "a22e636d39e56f6ea8c32c29d18cae311265b72e4a4b500723c40e7262eacc98"
+        }
+      ],
+      "firmware": "0.1.30",
+      "icon": [
+        "...........",
+        "....##.....",
+        "....##.....",
+        "...........",
+        "......##...",
+        "......##...",
+        "..######...",
+        "..######...",
+        "...........",
+        "...........",
+        "..........."
+      ],
+      "description": "Conway's Game of Life.",
+      "translations": {
+        "ru": {
+          "title": "\u0416\u0438\u0437\u043d\u044c",
+          "description": "\u0418\u0433\u0440\u0430 \"\u0416\u0438\u0437\u043d\u044c\" \u041a\u043e\u043d\u0432\u0435\u044f."
+        }
+      }
+    },
+    {
+      "name": "metals",
+      "title": "Bank of Russia metals",
+      "version": "0.1.0",
+      "abi": 3,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 8991,
+          "sha256": "88186d2799763645997ff8530c83916b37f3b2e29a159a6a52ba488c073b2d34"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 335,
+          "sha256": "26e456b50e5d68f28c72f3f70e18e152d2fdae31275fefb23f038bb60452a90e"
+        },
+        {
+          "name": "russian-root-ca.pem",
+          "size": 2057,
+          "sha256": "aa800ef345422d6158c6fafe1c06c429dbda21c3df4bb1ccb45a920ec1111399"
+        },
+        {
+          "name": "strings.ru",
+          "size": 112,
+          "sha256": "8aef3b88206b395f6b07e7211d46d9d1c5c31e6fd67d865b40a7b6fcd403d480"
+        },
+        {
+          "name": "manifest.json",
+          "size": 774,
+          "sha256": "f1fbcaa7bf78aba45a8113369e4da03104fc53cec3b45f3cd1e9d1240ea432fe"
+        }
+      ],
+      "firmware": "0.1.30",
+      "trusts": [
+        "Russian Trusted Root CA"
+      ],
+      "icon": [
+        "...........",
+        "...........",
+        "...#####...",
+        "..#.....#..",
+        "..#.....#..",
+        ".#.......#.",
+        ".#########.",
+        ".#.......#.",
+        "..#######..",
+        "...........",
+        "..........."
+      ],
+      "description": "Bank of Russia prices of gold, silver, platinum and palladium.",
+      "translations": {
+        "ru": {
+          "title": "\u041c\u0435\u0442\u0430\u043b\u043b\u044b \u0411\u0430\u043d\u043a\u0430 \u0420\u043e\u0441\u0441\u0438\u0438",
+          "description": "\u0426\u0435\u043d\u044b \u0411\u0430\u043d\u043a\u0430 \u0420\u043e\u0441\u0441\u0438\u0438 \u043d\u0430 \u0437\u043e\u043b\u043e\u0442\u043e, \u0441\u0435\u0440\u0435\u0431\u0440\u043e, \u043f\u043b\u0430\u0442\u0438\u043d\u0443 \u0438 \u043f\u0430\u043b\u043b\u0430\u0434\u0438\u0439."
+        }
+      }
+    },
+    {
+      "name": "pomodoro",
+      "title": "Pomodoro",
+      "version": "0.1.0",
+      "abi": 3,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 5665,
+          "sha256": "1c0275480dbbe3c28c76280e6a0498b5650ec1ac5a3d1273a2539306edf22008"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 548,
+          "sha256": "e69daf9c76382235bafd19268c04bb6d54c74e8b41f035c963fdb6702e55d3fe"
+        },
+        {
+          "name": "strings.ru",
+          "size": 182,
+          "sha256": "854a3b1c1dd705aff420660996510fd8206e0e9b9b11d4d8ab9613c1cc5f4d49"
+        },
+        {
+          "name": "manifest.json",
+          "size": 1172,
+          "sha256": "19df8cb2aab1880e42ad9f531f90bdedae367913a14af079be08fe3b52e7c0b1"
+        }
+      ],
+      "firmware": "0.1.30",
+      "icon": [
+        ".....#.....",
+        "..#..#..#..",
+        "...#####...",
+        "..#######..",
+        ".##.....##.",
+        "##.......##",
+        "##.......##",
+        "##.......##",
+        ".##.....##.",
+        "..#######..",
+        "....###...."
+      ],
+      "description": "Work and breaks in turns.",
+      "translations": {
+        "ru": {
+          "title": "\u041f\u043e\u043c\u043e\u0434\u043e\u0440\u043e",
+          "description": "\u0420\u0430\u0431\u043e\u0442\u0430 \u0438 \u043f\u0435\u0440\u0435\u0440\u044b\u0432\u044b \u043f\u043e \u043e\u0447\u0435\u0440\u0435\u0434\u0438."
+        }
+      }
+    },
+    {
+      "name": "rates",
+      "title": "Exchange rates",
+      "version": "0.1.0",
+      "abi": 3,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 10584,
+          "sha256": "b7702a99b85260ef0f708faa9337e012d725abe69afe8cd404c1142c66277527"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 237,
+          "sha256": "6890be6614399fbee8c959a2fd105587dea91d7eb016e658fc8c73fe12e14e02"
+        },
+        {
+          "name": "strings.ru",
+          "size": 32,
+          "sha256": "f32882d6b5fa925c61682e4ab0c292fe314cf69854a36bd48ad8010106b73868"
+        },
+        {
+          "name": "manifest.json",
+          "size": 959,
+          "sha256": "5f11837a04900b9b5c4b2578a0dcc61ed254fb269dbec57f25c48a8ce666c634"
+        }
+      ],
+      "firmware": "0.1.30",
+      "icon": [
+        "...........",
+        ".....#.....",
+        "..#######..",
+        ".#...#.....",
+        ".#...#.....",
+        "..#######..",
+        ".....#...#.",
+        ".....#...#.",
+        "..#######..",
+        ".....#.....",
+        "..........."
+      ],
+      "description": "Exchange rates of the Bank of Russia.",
+      "translations": {
+        "ru": {
+          "title": "\u041a\u0443\u0440\u0441\u044b \u0432\u0430\u043b\u044e\u0442",
+          "description": "\u041a\u0443\u0440\u0441\u044b \u0432\u0430\u043b\u044e\u0442 \u0426\u0411 \u0420\u0424."
         }
       }
     },

@@ -1,0 +1,1 @@
+{"title":"Жизнь","description":"Игра \"Жизнь\" Конвея.","settings":{"speed":{"title":"Скорость","options":{"Slow":"Медленно","Fast":"Быстро"}},"cell":{"title":"Клетка","options":{"4 px":"4 пкс","5 px":"5 пкс","8 px":"8 пкс"}},"seed":{"title":"Зерно"}}}

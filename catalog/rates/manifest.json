@@ -1,0 +1,55 @@
+{
+  "name": "rates",
+  "title": "Exchange rates",
+  "description": "Exchange rates of the Bank of Russia.",
+  "version": "0.1.0",
+  "abi": 3,
+  "fullscreen": false,
+  "hosts": [
+    "www.cbr-xml-daily.ru"
+  ],
+  "polls": [
+    {
+      "url": "https://www.cbr-xml-daily.ru/daily_json.js",
+      "every": "{{every}}"
+    }
+  ],
+  "settings": [
+    {
+      "key": "codes",
+      "type": "list",
+      "title": "Currencies",
+      "help": "Up to 8.",
+      "default": [
+        "USD",
+        "EUR",
+        "CNY"
+      ]
+    },
+    {
+      "key": "every",
+      "type": "choice",
+      "title": "Refresh",
+      "options": [
+        "1 h",
+        "6 h",
+        "1 d"
+      ],
+      "default": "6 h"
+    }
+  ],
+  "icon": [
+    "...........",
+    ".....#.....",
+    "..#######..",
+    ".#...#.....",
+    ".#...#.....",
+    "..#######..",
+    ".....#...#.",
+    ".....#...#.",
+    "..#######..",
+    ".....#.....",
+    "..........."
+  ],
+  "firmware": "0.1.30"
+}

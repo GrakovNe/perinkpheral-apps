@@ -1,0 +1,16 @@
+{
+  "app": "apps/metals",
+  "at": 1794902400,
+  "tz": "Europe/Moscow",
+  "store": { "metal": "Gold" },
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 3",
+    "shot metals",
+    "press 3",
+    "shot silver"
+  ],
+  "language": "ru",
+  "font": "jersey",
+  "glyphs": "glyphs"
+}

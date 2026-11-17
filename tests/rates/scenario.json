@@ -1,0 +1,13 @@
+{
+  "app": "apps/rates",
+  "at": 1794913200,
+  "tz": "Europe/Moscow",
+  "store": {
+    "codes": "USD\nEUR\nCNY\nJPY"
+  },
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 3",
+    "shot rates"
+  ]
+}

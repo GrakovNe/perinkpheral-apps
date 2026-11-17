@@ -1,0 +1,20 @@
+{
+  "app": "apps/rates",
+  "at": 1794913200,
+  "tz": "Europe/Moscow",
+  "store": {
+    "codes": "USD\nEUR\nCNY\nJPY\nINR\nCHF\nGBP\nXXX"
+  },
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 3",
+    "shot rates",
+    "press 3L",
+    "shot scrolled",
+    "press 1L",
+    "shot top",
+    "press 2",
+    "wait 3",
+    "shot refreshed"
+  ]
+}

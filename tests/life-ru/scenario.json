@@ -1,0 +1,27 @@
+{
+  "app": "apps/life",
+  "at": 1794913200,
+  "tz": "Europe/Moscow",
+  "store": {
+    "seed": "1"
+  },
+  "mocks": {
+  },
+  "steps": [
+    "wait 1",
+    "shot start",
+    "press 3",
+    "shot step",
+    "press 2",
+    "wait 3",
+    "press 2",
+    "shot paused",
+    "press 1L",
+    "shot patterns",
+    "press 3L",
+    "shot ten-steps"
+  ],
+  "language": "ru",
+  "font": "jersey",
+  "glyphs": "glyphs"
+}

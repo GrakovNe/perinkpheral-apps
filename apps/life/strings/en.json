@@ -1,0 +1,8 @@
+{
+  "generation": "Gen",
+  "running": "Running",
+  "paused": "Paused",
+  "still": "Still",
+  "empty": "Empty",
+  "limit": "500"
+}

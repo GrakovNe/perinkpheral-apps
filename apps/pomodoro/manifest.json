@@ -1,0 +1,67 @@
+{
+  "name": "pomodoro",
+  "title": "Pomodoro",
+  "description": "Work and breaks in turns.",
+  "version": "0.1.0",
+  "abi": 3,
+  "fullscreen": false,
+  "settings": [
+    {
+      "key": "work",
+      "type": "choice",
+      "title": "Work",
+      "options": [
+        "15 min",
+        "25 min",
+        "45 min",
+        "50 min"
+      ],
+      "default": "25 min"
+    },
+    {
+      "key": "break",
+      "type": "choice",
+      "title": "Break",
+      "options": [
+        "5 min",
+        "10 min"
+      ],
+      "default": "5 min"
+    },
+    {
+      "key": "long",
+      "type": "choice",
+      "title": "Long break",
+      "options": [
+        "15 min",
+        "20 min",
+        "30 min"
+      ],
+      "default": "15 min"
+    },
+    {
+      "key": "rounds",
+      "type": "choice",
+      "title": "Long break after",
+      "options": [
+        "2",
+        "3",
+        "4"
+      ],
+      "default": "4"
+    }
+  ],
+  "icon": [
+    ".....#.....",
+    "..#..#..#..",
+    "...#####...",
+    "..#######..",
+    ".##.....##.",
+    "##.......##",
+    "##.......##",
+    "##.......##",
+    ".##.....##.",
+    "..#######..",
+    "....###...."
+  ]
+}

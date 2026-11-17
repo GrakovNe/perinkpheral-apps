@@ -1,0 +1,94 @@
+{
+  "name": "air",
+  "title": "Air quality",
+  "description": "Air quality, particles, UV and the strongest irritants.",
+  "version": "0.1.0",
+  "abi": 3,
+  "fullscreen": false,
+  "hosts": [
+    "air-quality-api.open-meteo.com"
+  ],
+  "settings": [
+    {
+      "key": "city",
+      "type": "place",
+      "title": "City",
+      "latitude": "lat",
+      "longitude": "lon"
+    },
+    {
+      "key": "lat",
+      "type": "number",
+      "title": "Latitude"
+    },
+    {
+      "key": "lon",
+      "type": "number",
+      "title": "Longitude"
+    },
+    {
+      "key": "scale",
+      "type": "choice",
+      "title": "Index",
+      "options": [
+        "European",
+        "US"
+      ],
+      "default": "European"
+    },
+    {
+      "key": "every",
+      "type": "choice",
+      "title": "Refresh",
+      "options": [
+        "15 min",
+        "30 min",
+        "1 h"
+      ],
+      "default": "30 min"
+    },
+    {
+      "key": "header_city",
+      "type": "toggle",
+      "title": "City in header",
+      "default": "1"
+    }
+  ],
+  "polls": [
+    {
+      "url": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude={{lat}}&longitude={{lon}}&current=european_aqi,us_aqi,pm2_5,pm10,uv_index,ozone,nitrogen_dioxide,sulphur_dioxide,carbon_monoxide,dust,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,ragweed_pollen,olive_pollen&timezone=auto",
+      "every": "{{every}}",
+      "pick": [
+        "current.european_aqi",
+        "current.us_aqi",
+        "current.pm2_5",
+        "current.pm10",
+        "current.uv_index",
+        "current.ozone",
+        "current.nitrogen_dioxide",
+        "current.sulphur_dioxide",
+        "current.carbon_monoxide",
+        "current.dust",
+        "current.alder_pollen",
+        "current.birch_pollen",
+        "current.grass_pollen",
+        "current.mugwort_pollen",
+        "current.ragweed_pollen",
+        "current.olive_pollen"
+      ]
+    }
+  ],
+  "icon": [
+    "...........",
+    "......###..",
+    "....##..#..",
+    "...#....#..",
+    "..#..#..#..",
+    "..#.#...#..",
+    "..##...#...",
+    "...####....",
+    "..#........",
+    ".#.........",
+    "..........."
+  ]
+}

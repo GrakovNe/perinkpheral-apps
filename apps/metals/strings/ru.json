@@ -1,0 +1,24 @@
+{
+  "gold": "Золото",
+  "silver": "Серебро",
+  "platinum": "Платина",
+  "palladium": "Палладий",
+  "source": "Банк России",
+  "unit": "руб/г",
+  "decimal_point": ",",
+  "manifest": {
+    "title": "Металлы Банка России",
+    "description": "Цены Банка России на золото, серебро, платину и палладий.",
+    "settings": {
+      "metal": {
+        "title": "Металл",
+        "options": {
+          "Gold": "Золото",
+          "Silver": "Серебро",
+          "Platinum": "Платина",
+          "Palladium": "Палладий"
+        }
+      }
+    }
+  }
+}

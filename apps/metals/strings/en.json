@@ -1,0 +1,9 @@
+{
+  "gold": "Gold",
+  "silver": "Silver",
+  "platinum": "Platinum",
+  "palladium": "Palladium",
+  "source": "Bank of Russia",
+  "unit": "RUB/g",
+  "decimal_point": "."
+}

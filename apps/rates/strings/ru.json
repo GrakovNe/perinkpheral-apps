@@ -1,0 +1,22 @@
+{
+  "no_data": "Нет данных",
+  "currency_name": "{0}",
+  "manifest": {
+    "title": "Курсы валют",
+    "description": "Курсы валют ЦБ РФ.",
+    "settings": {
+      "codes": {
+        "title": "Валюты",
+        "help": "До 8."
+      },
+      "every": {
+        "title": "Обновление",
+        "options": {
+          "1 h": "1 ч",
+          "6 h": "6 ч",
+          "1 d": "1 д"
+        }
+      }
+    }
+  }
+}

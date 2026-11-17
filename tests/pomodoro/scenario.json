@@ -1,0 +1,23 @@
+{
+  "app": "apps/pomodoro",
+  "at": 1794913200,
+  "tz": "Europe/Moscow",
+  "mocks": {
+  },
+  "steps": [
+    "shot idle",
+    "press 2",
+    "shot started",
+    "forward 1500",
+    "wait 1",
+    "shot break",
+    "press 2",
+    "shot break-running",
+    "press 2",
+    "shot paused",
+    "press 3",
+    "shot skipped-paused",
+    "press 2L",
+    "shot reset"
+  ]
+}

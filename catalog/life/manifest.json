@@ -1,0 +1,51 @@
+{
+  "name": "life",
+  "title": "Life",
+  "description": "Conway's Game of Life.",
+  "version": "0.1.0",
+  "abi": 3,
+  "fullscreen": true,
+  "settings": [
+    {
+      "key": "speed",
+      "type": "choice",
+      "title": "Speed",
+      "options": [
+        "Slow",
+        "Fast"
+      ],
+      "default": "Slow"
+    },
+    {
+      "key": "cell",
+      "type": "choice",
+      "title": "Cell",
+      "options": [
+        "4 px",
+        "5 px",
+        "8 px"
+      ],
+      "default": "5 px"
+    },
+    {
+      "key": "seed",
+      "type": "number",
+      "title": "Seed",
+      "hidden": true
+    }
+  ],
+  "icon": [
+    "...........",
+    "....##.....",
+    "....##.....",
+    "...........",
+    "......##...",
+    "......##...",
+    "..######...",
+    "..######...",
+    "...........",
+    "...........",
+    "..........."
+  ],
+  "firmware": "0.1.30"
+}

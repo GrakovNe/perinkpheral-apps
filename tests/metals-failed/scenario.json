@@ -1,0 +1,13 @@
+{
+  "app": "apps/metals",
+  "at": 1794902400,
+  "tz": "Europe/Moscow",
+  "store": { "metal": "Gold" },
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 3",
+    "shot failed",
+    "press 3",
+    "shot failed-next"
+  ]
+}

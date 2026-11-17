@@ -1,0 +1,12 @@
+{
+  "app": "apps/air",
+  "at": 1794942000,
+  "tz": "Europe/Moscow",
+  "store": {
+  },
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 3",
+    "shot air"
+  ]
+}

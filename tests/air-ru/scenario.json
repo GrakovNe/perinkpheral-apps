@@ -1,0 +1,18 @@
+{
+  "app": "apps/air",
+  "at": 1787223600,
+  "tz": "Europe/Moscow",
+  "store": {
+    "city": "Berlin",
+    "lat": "52.52",
+    "lon": "13.41"
+  },
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 3",
+    "shot air"
+  ],
+  "language": "ru",
+  "font": "jersey",
+  "glyphs": "glyphs"
+}

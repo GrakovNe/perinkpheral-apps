@@ -1,0 +1,6 @@
+{
+  "https://air-quality-api.open-meteo.com/*": {
+    "status": 200,
+    "body": "{\"latitude\":59.9,\"longitude\":30.3,\"generationtime_ms\":0.8767843246459961,\"utc_offset_seconds\":10800,\"timezone\":\"Europe/Moscow\",\"timezone_abbreviation\":\"GMT+3\",\"elevation\":0.0,\"current_units\":{\"time\":\"iso8601\",\"interval\":\"seconds\",\"european_aqi\":\"EAQI\",\"us_aqi\":\"USAQI\",\"pm2_5\":\"μg/m³\",\"pm10\":\"μg/m³\",\"uv_index\":\"\",\"ozone\":\"μg/m³\",\"nitrogen_dioxide\":\"μg/m³\",\"sulphur_dioxide\":\"μg/m³\",\"carbon_monoxide\":\"μg/m³\",\"dust\":\"μg/m³\",\"alder_pollen\":\"grains/m³\",\"birch_pollen\":\"grains/m³\",\"grass_pollen\":\"grains/m³\",\"mugwort_pollen\":\"grains/m³\",\"ragweed_pollen\":\"grains/m³\",\"olive_pollen\":\"grains/m³\"},\"current\":{\"time\":\"2026-11-17T22:00\",\"interval\":3600,\"european_aqi\":28,\"us_aqi\":41,\"pm2_5\":8.4,\"pm10\":9.6,\"ozone\":14.0,\"uv_index\":0.0,\"birch_pollen\":null,\"grass_pollen\":null,\"nitrogen_dioxide\":18.2,\"sulphur_dioxide\":4.3,\"carbon_monoxide\":223.0,\"dust\":0.8,\"alder_pollen\":null,\"mugwort_pollen\":null,\"ragweed_pollen\":null,\"olive_pollen\":null}}"
+  }
+}
