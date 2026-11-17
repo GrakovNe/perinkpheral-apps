@@ -10,7 +10,7 @@ holds as many as it has room for, up to 24; this is where the rest of them wait.
 |---|---|
 | `clock` | the time, the day of the week and the date, across the whole screen |
 | `weather` | now and three days, from Open-Meteo: no key, no account |
-| `timer` | a countdown that ends wherever you have gone, and takes the screen back; the minutes left stay in the header |
+| `timer` | a countdown that ends wherever you have gone, with a notice over whatever is on the screen; the minutes left stay in the header |
 | `badapple` | a 1-bit video: a test of the panel and of the interpreter |
 | `stopwatch` | minutes and seconds for the first hour, hours and minutes after; it goes on counting wherever you have gone |
 | `kit` | every part of the host's look an application may ask for, each on a page of its own |
@@ -35,8 +35,8 @@ The catalog is the `catalog` folder of this repository, served as it is:
 
 A catalog is static files: an index, `catalog.json`, and a folder for
 every application with its `app.wasm`, its `manifest.json` and whatever
-data it brings. It works the way a Debian repository does - the device
-reads the index, and nothing but the index tells it what is there - and
+data it brings. It works the way a Debian repository does - the device's
+page reads the index, and nothing but the index tells it what is there - and
 any hosting that serves files over HTTPS will do: a git hosting's raw
 files, its pages, a server of your own. Add the address of the folder on
 the device's page, next to this one.
