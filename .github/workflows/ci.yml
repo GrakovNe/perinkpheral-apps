@@ -1,0 +1,58 @@
+# Every push and pull request: every application built with the SDK of the perinkpheral
+# repository's main, the catalog that build makes held against the one committed - the
+# modules, their sums and the least firmware each asks for - and the applications run in the
+# simulator, their screens against the pictures kept in tests/.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: GrakovNe/perinkpheral
+          path: perinkpheral
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: wasi-sdk
+        run: |
+          curl -sSL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-34/wasi-sdk-34.0-x86_64-linux.tar.gz \
+            | tar -xz -C "$RUNNER_TEMP"
+          echo "WASI_SDK_PATH=$RUNNER_TEMP/wasi-sdk-34.0-x86_64-linux" >> "$GITHUB_ENV"
+      - name: The tools
+        run: perinkpheral/tools/perinkpheral > /dev/null
+      - name: The catalog is what the applications build to
+        env:
+          PERINKPHERAL: ${{ github.workspace }}/perinkpheral
+        run: |
+          ./build.sh
+          if ! git diff --exit-code --stat -- catalog; then
+            echo "The committed catalog is not what the applications build to: run build.sh and commit catalog/" >&2
+            exit 1
+          fi
+          if [ -n "$(git status --porcelain -- catalog)" ]; then
+            git status --porcelain -- catalog
+            echo "build.sh makes files the catalog has not committed" >&2
+            exit 1
+          fi
+      - name: The applications in the simulator
+        run: perinkpheral/tools/perinkpheral sim-test tests
+      - name: The pictures that differ
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-pictures
+          path: tests/**/*.actual.png
+          if-no-files-found: ignore

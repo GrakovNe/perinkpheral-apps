@@ -1,0 +1,11 @@
+{
+  "app": "apps/weather",
+  "at": 1794832230,
+  "tz": "Europe/Moscow",
+  "language": "ru",
+  "font": "jersey",
+  "glyphs": "glyphs",
+  "store": { "city": "Санкт-Петербург", "lat": "59.94", "lon": "30.31" },
+  "mocks": "mocks.json",
+  "steps": ["wait 2", "shot today"]
+}

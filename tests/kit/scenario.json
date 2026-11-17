@@ -1,0 +1,6 @@
+{
+  "app": "apps/kit",
+  "at": 1794832230,
+  "tz": "Europe/Moscow",
+  "steps": ["shot first", "press 3", "shot second", "press 3", "shot third", "press 3", "shot fourth"]
+}

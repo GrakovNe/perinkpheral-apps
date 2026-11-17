@@ -1,0 +1,5 @@
+{
+  "https://api.open-meteo.com/*": {
+    "body": "{\"current\":{\"temperature_2m\":-3.4,\"weather_code\":71,\"wind_speed_10m\":12.6},\"daily\":{\"weather_code\":[71,3,61],\"temperature_2m_max\":[-1.2,2.0,4.5],\"temperature_2m_min\":[-6.8,-4.1,0.3],\"precipitation_probability_max\":[80]}}"
+  }
+}
