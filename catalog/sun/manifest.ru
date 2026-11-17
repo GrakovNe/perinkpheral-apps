@@ -1,1 +1,1 @@
-{"title":"Солнце и Луна","settings":{"city":{"title":"Город"},"lat":{"title":"Широта"},"lon":{"title":"Долгота"},"header_city":{"title":"Город в шапке"}}}
+{"title":"Солнце и Луна","description":"Восход, закат, долгота дня и фаза Луны. Считается на устройстве.","settings":{"city":{"title":"Город"},"lat":{"title":"Широта"},"lon":{"title":"Долгота"},"header_city":{"title":"Город в шапке"}}}

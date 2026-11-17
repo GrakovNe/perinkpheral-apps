@@ -1,7 +1,8 @@
 {
   "name": "badapple",
   "title": "Bad Apple",
-  "version": "0.1.5",
+  "description": "A 1-bit video: a test of the panel and of the interpreter.",
+  "version": "0.1.6",
   "abi": 2,
   "fullscreen": true,
   "icon": [

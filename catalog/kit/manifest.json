@@ -1,7 +1,8 @@
 {
   "name": "kit",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "title": "UI Kit",
+  "description": "Every element of the device's interface, each on a page of its own. For developers.",
   "abi": 2,
   "icon": [
     "###########",

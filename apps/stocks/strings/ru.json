@@ -4,6 +4,7 @@
   "no_data": "Нет данных",
   "manifest": {
     "title": "Акции",
+    "description": "Цены и график за день: Yahoo Finance, Московская и СПБ биржи.",
     "settings": {
       "tickers": {
         "title": "Тикеры",

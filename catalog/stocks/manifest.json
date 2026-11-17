@@ -1,7 +1,8 @@
 {
   "name": "stocks",
   "title": "Stocks",
-  "version": "0.2.4",
+  "description": "Prices and the day's chart from Yahoo Finance, the Moscow Exchange and the SPB Exchange.",
+  "version": "0.2.5",
   "abi": 2,
   "writes_files": true,
   "fullscreen": false,

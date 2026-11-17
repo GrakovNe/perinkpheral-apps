@@ -10,6 +10,7 @@
   "back": "Назад",
   "manifest": {
     "title": "Календарь",
+    "description": "События на две недели из Google, iCloud, Outlook или Nextcloud, с напоминаниями.",
     "settings": {
       "feed": {
         "title": "Адрес календаря",
