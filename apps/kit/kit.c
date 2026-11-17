@@ -190,19 +190,13 @@ static void draw_cells(int32_t count)
     int32_t columns = count > 1 ? 2 : 1, rows = count > 2 ? 2 : 1;
     int32_t width = gfx_width() / columns, height = gfx_height() / rows;
     host_cell_t cells[4];
-    int32_t     size = 0;
     for (int32_t i = 0; i < count; i++) {
         cells[i] = (host_cell_t){ .x = i % columns * width, .y = i / columns * height,
                                   .width = width, .height = height };
         app_text_copy(cells[i].name, sizeof cells[i].name, app_string(NAMES[i]));
         app_text_copy(cells[i].value, sizeof cells[i].value, values[i]);
-        int32_t fits = ui_cell_fit(&cells[i], 0, ICONS[i]);
-        size = fits > size ? fits : size;
     }
-    for (int32_t i = 0; i < count; i++) {
-        cells[i].size = size;
-        ui_cell(&cells[i], 0, ICONS[i]);
-    }
+    app_draw_cells(cells, 0, ICONS, count); /* one size for all of them */
     if (columns > 1) {
         gfx_rect(width, HOST_UI_MARGIN, 1, gfx_height() - 2 * HOST_UI_MARGIN, HOST_RECT_FILLED);
         gfx_rect(HOST_UI_MARGIN, height, gfx_width() - 2 * HOST_UI_MARGIN, 1, HOST_RECT_FILLED);

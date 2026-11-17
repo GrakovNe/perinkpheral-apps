@@ -276,8 +276,11 @@ void app_init(void)
     }
 }
 
+static void restore_place(void);
+
 void app_on_focus(void)
 {
+    restore_place(); /* where the user was, when it was unloaded for another */
     schedule_next_change();
 }
 
@@ -326,6 +329,37 @@ static app_list_t list;
 static bool       is_reading_one; /* the page of one event, opened with OK */
 static uint32_t   read_uid;       /* which: the list under it may change */
 static int64_t    read_start;
+
+/* Where the user is - the row, and the event open on its page - kept while the calendar waits
+ * under another scene or is unloaded for another application's answer. */
+typedef struct {
+    int32_t  selected, first, count; /* count: as drawn last, for a press before the next drawing */
+    int32_t  is_reading_one;
+    uint32_t read_uid;
+    int64_t  read_start;
+} place_t;
+APP_SESSION_FITS(place_t);
+
+void app_on_blur(void)
+{
+    place_t place = { .selected = list.selected, .first = list.first, .count = list.count,
+                      .is_reading_one = is_reading_one,
+                      .read_uid = read_uid, .read_start = read_start };
+    app_session_save(&place, sizeof place);
+}
+
+static void restore_place(void)
+{
+    place_t place;
+    if (app_session_load(&place, sizeof place)) {
+        list.selected = place.selected;
+        list.first = place.first;
+        list.count = place.count;
+        is_reading_one = place.is_reading_one != 0;
+        read_uid = place.read_uid;
+        read_start = place.read_start;
+    }
+}
 
 static int32_t count_visible_events(int64_t now)
 {

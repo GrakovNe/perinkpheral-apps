@@ -142,12 +142,20 @@ void app_on_alarm(int32_t id)
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
+/* An alarm the device has no room for: said in the log, or what depends on it is taken for a hang. */
+static void say_if_unset(int32_t result, const char *what)
+{
+    if (result != HOST_OK) {
+        host_log(HOST_LOG_WARN, what, app_text_length(what));
+    }
+}
+
 static void start(void)
 {
     state.ends_at = uptime_seconds() + state.minutes * SECONDS_PER_MINUTE;
     state.boot = time_boot_id();
-    alarm_set(COUNTDOWN_ALARM, state.minutes * SECONDS_PER_MINUTE);
-    alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, 0);
+    say_if_unset(alarm_set(COUNTDOWN_ALARM, state.minutes * SECONDS_PER_MINUTE), "no room for the countdown's alarm");
+    say_if_unset(alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, 0), "no room for the minutes' alarm");
     show_in_header();
     schedule_minute_tick();
 }
@@ -160,8 +168,8 @@ void app_on_updated(void)
         return;
     }
     int32_t left = seconds_left();
-    alarm_set(COUNTDOWN_ALARM, left > 0 ? left : 1);
-    alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, 0);
+    say_if_unset(alarm_set(COUNTDOWN_ALARM, left > 0 ? left : 1), "no room for the countdown's alarm");
+    say_if_unset(alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, 0), "no room for the minutes' alarm");
     show_in_header();
 }
 

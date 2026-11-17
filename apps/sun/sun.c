@@ -18,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "app_draw.h"
 #include "app_state.h"
 #include "app_text.h"
 #include "host_api.h"
@@ -415,16 +416,7 @@ void app_on_draw(void)
     app_text_add_number(&value, moon.illuminated);
     app_text_add(&value, "%");
 
-    /* One size for all of them: the size the longest value can have. */
-    int32_t size = 0;
-    for (int32_t i = 0; i < CELLS; i++) {
-        int32_t fits = ui_cell_fit(&cells[i], pictures[i], icons[i]);
-        size = fits > size ? fits : size;
-    }
-    for (int32_t i = 0; i < CELLS; i++) {
-        cells[i].size = size;
-        ui_cell(&cells[i], pictures[i], icons[i]);
-    }
+    app_draw_cells(cells, pictures, icons, CELLS); /* one size for all of them */
     gfx_rect(width, RULE_INSET, 1, gfx_height() - 2 * RULE_INSET, HOST_RECT_FILLED);
     gfx_rect(RULE_INSET, height, gfx_width() - 2 * RULE_INSET, 1, HOST_RECT_FILLED);
 }

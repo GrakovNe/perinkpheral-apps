@@ -1,1 +1,0 @@
-{"title":"Солнце и Луна","description":"Восход, закат и фаза Луны.","settings":{"city":{"title":"Город"},"lat":{"title":"Широта"},"lon":{"title":"Долгота"},"header_city":{"title":"Город в заголовке"}}}

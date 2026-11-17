@@ -143,12 +143,21 @@ static void schedule_next_change(void)
     timer_set(TURN_TIMER, (int32_t)(turn_ms - into_turn_ms) + TURN_SLACK_MS);
 }
 
+/* An alarm the device has no room for: said in the log, or what depends on it is taken for a hang. */
+static void say_if_unset(int32_t result, const char *what)
+{
+    if (result != HOST_OK) {
+        host_log(HOST_LOG_WARN, what, app_text_length(what));
+    }
+}
+
 /* What a running stopwatch keeps going outside itself: its line in the
  * header, and the alarm that turns it every minute. */
 static void update_header_status(void)
 {
     int32_t into_minute_s = elapsed_seconds() % SECONDS_PER_MINUTE;
-    alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, SECONDS_PER_MINUTE - into_minute_s);
+    say_if_unset(alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, SECONDS_PER_MINUTE - into_minute_s),
+                 "no room for the minutes' alarm");
     show_in_header();
 }
 

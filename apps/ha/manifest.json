@@ -1,6 +1,6 @@
 {
   "name": "ha",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "title": "HA Companion",
   "description": "Home Assistant dashboard.",
   "abi": 2,

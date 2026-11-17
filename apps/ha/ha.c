@@ -33,6 +33,7 @@
 #include "app_draw.h"
 #include "app_state.h"
 #include "app_text.h"
+#include "app_ui.h"
 #include "host_api.h"
 #include "strings.h" /* made of the `strings` folder by tools/perinkpheral */
 
@@ -101,9 +102,18 @@ static void ask(void)
 }
 
 /* The screen is asked for now and again from now on. */
+/* An alarm the device has no room for: said in the log, or what depends on it is taken for a hang. */
+static void say_if_unset(int32_t result, const char *what)
+{
+    if (result != HOST_OK) {
+        host_log(HOST_LOG_WARN, what, app_text_length(what));
+    }
+}
+
 static void keep_fresh(void)
 {
-    alarm_set_every(REFRESH_ALARM, app_setting_seconds("every", REFRESH_DEFAULT_S), 0);
+    say_if_unset(alarm_set_every(REFRESH_ALARM, app_setting_seconds("every", REFRESH_DEFAULT_S), 0),
+                 "no room for the refresh's alarm");
     ask();
 }
 
@@ -182,8 +192,28 @@ void app_on_updated(void)
 
 /* Opened, it shows what is true now and not what was true at the last
  * alarm. */
+/* How far down the list the user was, kept while HA waits under another scene or is unloaded
+ * for another application's answer. */
+typedef struct {
+    int32_t first, count;
+} place_t;
+APP_SESSION_FITS(place_t);
+
+void app_on_blur(void)
+{
+    place_t place = { .first = list.first, .count = list.count };
+    app_session_save(&place, sizeof place);
+}
+
 void app_on_focus(void)
 {
+    place_t place;
+    if (app_session_load(&place, sizeof place)) {
+        /* held to the list's end when it is drawn; the count is the last one drawn, for a press
+         * that comes before the next drawing */
+        list.first = place.first;
+        list.count = place.count;
+    }
     if (!has_asked) {
         ask();
     }
@@ -204,11 +234,8 @@ void app_on_button(int32_t event)
 {
     if (event == BTN_OK_PRESSED) {
         ask(); /* "refresh" */
-    } else if (event == BTN_UP_PRESSED && list.first > 0) {
-        list.first--;
-        request_redraw(HOST_REDRAW_NO_BLINK);
-    } else if (event == BTN_DOWN_PRESSED) {
-        list.first++; /* held to the list's end when it is drawn */
+    } else if (event != BTN_BACK_PRESSED && app_list_button(&list, event) == APP_UI_CHANGED) {
+        /* UP and DOWN a row, held a page; held to the list's end when it is drawn */
         request_redraw(HOST_REDRAW_NO_BLINK);
     }
 }
@@ -475,21 +502,12 @@ static void draw_cells_of(const item_t *items, int32_t count)
     int32_t columns = count > 1 ? 2 : 1, rows = count > 2 ? 2 : 1;
     int32_t width = gfx_width() / columns, height = gfx_height() / rows;
     int32_t shown = count < columns * rows ? count : columns * rows;
-    /* One size for all of them: the size the longest value can have. */
-    host_cell_t cell;
-    int32_t     size = 0;
+    host_cell_t cells[4];
+    int32_t     icons[4];
     for (int32_t i = 0; i < shown; i++) {
-        int32_t icon =
-            cell_of(&cell, i % columns * width, i / columns * height, width, height, &items[i]);
-        int32_t fits = ui_cell_fit(&cell, 0, icon);
-        size = fits > size ? fits : size;
+        icons[i] = cell_of(&cells[i], i % columns * width, i / columns * height, width, height, &items[i]);
     }
-    for (int32_t i = 0; i < shown; i++) {
-        int32_t icon =
-            cell_of(&cell, i % columns * width, i / columns * height, width, height, &items[i]);
-        cell.size = size;
-        ui_cell(&cell, 0, icon);
-    }
+    app_draw_cells(cells, 0, icons, shown); /* one size for all of them */
     if (columns > 1) {
         gfx_rect(width, MARGIN, 1, gfx_height() - 2 * MARGIN, HOST_RECT_FILLED);
     }
@@ -504,11 +522,8 @@ static void draw_cells_of(const item_t *items, int32_t count)
 static void draw_list_of(const item_t *items, int32_t count)
 {
     list.count = count;
-    int32_t shown = ui_list_visible(&list);
-    if (list.first > count - shown) {
-        list.first = count > shown ? count - shown : 0;
-    }
-    for (int32_t i = list.first; i < list.first + shown && i < count; i++) {
+    int32_t first = app_list_first(&list), shown = ui_list_visible(&list);
+    for (int32_t i = first; i < first + shown && i < count; i++) {
         ui_list_row(&list, i, items[i].name, app_text_length(items[i].name), items[i].value,
                     app_text_length(items[i].value), HOST_ICON_NONE);
     }
