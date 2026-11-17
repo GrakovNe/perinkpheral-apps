@@ -19,8 +19,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 392,
-          "sha256": "4afdbdeb259943cbb7dda31de0f8dbe9d54115db07eec73cac3f56a3266748da"
+          "size": 402,
+          "sha256": "07b9f256e74678357bb97c96d28851d4a5a21c677d51a10f5de21d429fbb65ff"
         }
       ],
       "firmware": "0.1.0",
@@ -37,7 +37,7 @@
         "..#######..",
         "...##.##..."
       ],
-      "description": "A 1-bit animation."
+      "description": "The Bad Apple!! music video."
     },
     {
       "name": "calendar",
