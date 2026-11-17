@@ -20,10 +20,10 @@
         {
           "name": "manifest.json",
           "size": 388,
-          "sha256": "de7597ff6583b43fc945c8b0e5e8cd22d36a9d1054d39aa5806d2de074c3fecc"
+          "sha256": "889f78c2505ddd8b7119eb4c61615b6c028c4e9ff53ee4f2382d28a6ca028074"
         }
       ],
-      "firmware": "0.1.0",
+      "firmware": "0.1.8",
       "icon": [
         "......#....",
         ".....#.....",
@@ -210,10 +210,10 @@
         {
           "name": "manifest.json",
           "size": 383,
-          "sha256": "46d89b55c0fb18fce3f596ddd3ecd14b71c0e132b36b2ef8ebf213bd5c60a9c1"
+          "sha256": "62ba6927fbc66fe20603a81c8a0208d68a28cf10f12206b31ed57563ab19c05a"
         }
       ],
-      "firmware": "0.1.4",
+      "firmware": "0.1.8",
       "icon": [
         "###########",
         "#.........#",
@@ -238,13 +238,13 @@
     {
       "name": "stocks",
       "title": "Stocks",
-      "version": "0.2.6",
+      "version": "0.2.7",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 9209,
-          "sha256": "6be15c54e52c6f71ea45a2e106beada5b2fdd65ecf20cadc9a6e06a2d162b8cb"
+          "size": 9251,
+          "sha256": "457729ef621e3ffaf721d4c486ee06abf8914dd5a4be0f74165906b0285bc870"
         },
         {
           "name": "manifest.ru",
@@ -264,10 +264,10 @@
         {
           "name": "manifest.json",
           "size": 3172,
-          "sha256": "b6dabecbafa7838b9c13c487e003c7ed97f3c68fa842a10dd8436d2426336812"
+          "sha256": "f778ac540f2f797ccc628e4ebd371e98527ecfa9f32025daabe8972717da6cde"
         }
       ],
-      "firmware": "0.1.0",
+      "firmware": "0.1.8",
       "writes_files": true,
       "trusts": [
         "Russian Trusted Root CA"
@@ -345,13 +345,13 @@
     {
       "name": "sun",
       "title": "Sun and Moon",
-      "version": "0.1.7",
+      "version": "0.1.8",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 5339,
-          "sha256": "18bb78fc024a0302da5ef2e8543cb5eabc657cf2870db30c47828a9215813522"
+          "size": 5383,
+          "sha256": "40313c4dfe7eb0cc26356f0adbcd120bc094d435aefcd6895993f5d7e70a9a53"
         },
         {
           "name": "manifest.ru",
@@ -366,10 +366,10 @@
         {
           "name": "manifest.json",
           "size": 862,
-          "sha256": "c30712d0ce02cd4442d5a3cb091c8019fd23ace025d9c53d3510f56f76057cd8"
+          "sha256": "570e051bdd4b3a785a9620618e0b953a35f12c601e3cb4e72492db6cae61bd07"
         }
       ],
-      "firmware": "0.1.4",
+      "firmware": "0.1.8",
       "icon": [
         "...........",
         ".....#.....",
@@ -415,10 +415,10 @@
         {
           "name": "manifest.json",
           "size": 355,
-          "sha256": "3e7f067005c67dcbe5f9f60053fd98dd0a6aa0fd4c7fc63656fce146352b3a7b"
+          "sha256": "3f307a7c30681cbf3027bdccaf04a164171b6d589050275b8b613993cd47f09e"
         }
       ],
-      "firmware": "0.1.0",
+      "firmware": "0.1.8",
       "icon": [
         ".#########.",
         ".#########.",
@@ -443,13 +443,13 @@
     {
       "name": "weather",
       "title": "Weather",
-      "version": "0.2.12",
+      "version": "0.2.13",
       "abi": 2,
       "files": [
         {
           "name": "app.wasm",
-          "size": 5113,
-          "sha256": "24b924172cc7861d9f7a1015f946dbc3b2a015daf931e9df941fb075f3a50802"
+          "size": 5153,
+          "sha256": "32d688b2042638522550d762b0de58288202545301ec34079c3f6a1f773f8826"
         },
         {
           "name": "manifest.ru",
@@ -464,7 +464,7 @@
         {
           "name": "manifest.json",
           "size": 1958,
-          "sha256": "cfebac691ae7b2ef48ce862dfb599139b67881150408588df2272684b35190f5"
+          "sha256": "287a6b56701a673d999b86011915d323a41e8ae1e9f913331772d7e76d0352ad"
         }
       ],
       "firmware": "0.1.23",

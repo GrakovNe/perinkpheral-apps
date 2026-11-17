@@ -2,7 +2,7 @@
   "name": "sun",
   "title": "Sun and Moon",
   "description": "Sunrise, sunset and the moon's phase.",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "abi": 2,
   "icon": [
     "...........",
@@ -45,5 +45,5 @@
   "intents": [
     "time_changed"
   ],
-  "firmware": "0.1.4"
+  "firmware": "0.1.8"
 }

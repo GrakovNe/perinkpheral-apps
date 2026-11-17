@@ -2,7 +2,7 @@
   "name": "stocks",
   "title": "Stocks",
   "description": "Stock prices.",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "abi": 2,
   "writes_files": true,
   "fullscreen": false,
@@ -118,5 +118,5 @@
   "certificates": [
     "russian-root-ca.pem"
   ],
-  "firmware": "0.1.0"
+  "firmware": "0.1.8"
 }
