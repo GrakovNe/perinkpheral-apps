@@ -54,11 +54,12 @@ typedef struct {
 } stored_events_t;
 
 #define STATE_KEY     "state"
-#define STATE_VERSION 2
+#define STATE_VERSION 3
 typedef struct {
-    int32_t version;
-    int32_t status;      /* of the last fetch: 0 none yet, an HTTP one, a HOST_FAILED_*, a STATUS_* */
-    int64_t reminded_to; /* reminders due up to this moment were given */
+    int32_t  version;
+    int32_t  status;      /* of the last fetch: 0 none yet, an HTTP one, a HOST_FAILED_*, a STATUS_* */
+    int64_t  reminded_to; /* reminders due up to this moment were given */
+    uint32_t feed_hash;   /* of the address the stored events came from */
 } state_t;
 
 static stored_events_t stored;
@@ -167,6 +168,20 @@ static void store_events(int32_t count)
     }
 }
 
+static void schedule_next_change(void);
+
+/* FNV-1a of the address in the settings: which calendar the stored events are of. */
+static uint32_t feed_hash(void)
+{
+    char     feed[256];
+    uint32_t hash = 2166136261u;
+    app_setting("feed", feed, sizeof feed);
+    for (const char *at = feed; *at != '\0'; at++) {
+        hash = (hash ^ (uint8_t)*at) * 16777619u;
+    }
+    return hash;
+}
+
 static void finish_fetch(int32_t status)
 {
     is_reading = false;
@@ -175,6 +190,7 @@ static void finish_fetch(int32_t status)
         save_state();
     }
     schedule_reminder();
+    schedule_next_change(); /* the events it turns at may be others now */
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
@@ -251,7 +267,7 @@ static void schedule_next_change(void)
 void app_init(void)
 {
     if (!app_state_load(STATE_KEY, &state, sizeof state, STATE_VERSION)) {
-        state = (state_t){ .version = STATE_VERSION };
+        state = (state_t){ .version = STATE_VERSION, .feed_hash = feed_hash() };
     }
     if (file_read(EVENTS_FILE, sizeof EVENTS_FILE - 1, 0, &stored, sizeof stored) !=
             sizeof stored ||
@@ -280,9 +296,25 @@ void app_on_intent(int32_t intent)
     schedule_reminder();
 }
 
-void app_on_settings(void)
+/* A new version does not inherit the old one's alarm. */
+void app_on_updated(void)
 {
     schedule_reminder();
+}
+
+void app_on_settings(void)
+{
+    /* Another calendar: the events and reminders of the one before are not its. */
+    uint32_t hash = feed_hash();
+    if (hash != state.feed_hash) {
+        state.feed_hash = hash;
+        state.status = 0;
+        save_state();
+        stored = (stored_events_t){ .version = EVENTS_VERSION };
+        file_write(EVENTS_FILE, sizeof EVENTS_FILE - 1, 0, &stored, sizeof stored);
+    }
+    schedule_reminder();
+    schedule_next_change();
     request_redraw(HOST_REDRAW_NORMAL);
 }
 

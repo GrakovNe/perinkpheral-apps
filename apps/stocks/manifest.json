@@ -2,7 +2,7 @@
   "name": "stocks",
   "title": "Stocks",
   "description": "Stock prices.",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "abi": 2,
   "writes_files": true,
   "fullscreen": false,

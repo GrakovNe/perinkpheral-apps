@@ -328,11 +328,12 @@ static void yahoo_values(int32_t item, int32_t http_status)
         if (!app_value_number(PICK_PRICE_HINT, 0, &hint) || hint < 0 || hint > DECIMALS_MAX) {
             hint = 2;
         }
-        if (app_value_fixed(PICK_PRICE, hint, &price) && app_value_fixed(PICK_PREVIOUS, hint, &previous)) {
+        /* The price is what is shown; the close before it is kept when there is one. */
+        if (app_value_fixed(PICK_PRICE, hint, &price)) {
             record.has_data = 1;
             record.decimals = hint;
             record.price    = price;
-            record.previous = previous;
+            record.previous = app_value_fixed(PICK_PREVIOUS, hint, &previous) ? previous : price;
             if (!app_value_fixed(PICK_TIME, 0, &record.time)) {
                 record.time = 0;
             }

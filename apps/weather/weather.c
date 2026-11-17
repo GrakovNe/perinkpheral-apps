@@ -4,11 +4,11 @@
  *
  * The weather now and for three days, from Open-Meteo: no key, no
  * account, the device asks the service itself. The manifest names the
- * request and the twelve numbers wanted from the answer; the host makes
- * the request every fifteen minutes whether this application is on the
+ * request and the numbers wanted from the answer; the host makes the
+ * request at the pace the user chose, whether this application is on the
  * screen or not, and hands the numbers to app_on_values(). They go into
- * the store, and the picture is drawn from the store: the application is
- * unloaded between any two calls.
+ * the store, and the picture is drawn from the store: off the screen the
+ * application is loaded for the call and unloaded after it.
  *
  * The settings are in the store too, under the keys the manifest gives
  * them: the place (`lat`, `lon`), the units and how often to ask.
@@ -41,9 +41,10 @@ enum {
 
 /* What was learned last, as it lies in the store. */
 #define FORECAST_KEY     "forecast"
-#define FORECAST_VERSION 3
+#define FORECAST_VERSION 4
 typedef struct {
     int32_t version;
+    int32_t day;         /* the local day of days[0], in days since 1970; 0 unknown */
     int32_t temperature; /* whole degrees */
     int32_t code;        /* WMO weather code */
     int32_t wind;        /* km/h */
@@ -54,6 +55,13 @@ typedef struct {
 } forecast_t;
 
 static forecast_t forecast;
+
+/* Today, in the device's time, as days since 1970; 0 while the time is unknown. */
+static int32_t local_day(void)
+{
+    int64_t now = time_now();
+    return now == 0 ? 0 : (int32_t)((now + time_zone_offset()) / SECONDS_PER_DAY);
+}
 static bool       has_forecast;
 
 #define CITY_KEY        "city"
@@ -157,7 +165,7 @@ void app_on_values(int32_t request, int32_t http_status)
         kv_set(STATUS_KEY, sizeof STATUS_KEY - 1, &last_status, sizeof last_status);
         request_redraw(HOST_REDRAW_NORMAL);
     }
-    forecast_t fresh = { .version = FORECAST_VERSION };
+    forecast_t fresh = { .version = FORECAST_VERSION, .day = local_day() };
     bool is_whole = http_status == HTTP_OK &&
                     app_value_number(VALUE_TEMPERATURE, 0, &fresh.temperature) &&
                     app_value_number(VALUE_CODE, 0, &fresh.code) &&
@@ -286,6 +294,10 @@ static void draw_now(void)
 static void draw_days(void)
 {
     int64_t now = time_now();
+    /* A forecast of yesterday, kept through a night without an answer: its days move left, and
+     * what it does not know is left blank rather than called today's. */
+    int32_t today = local_day();
+    int32_t shift = forecast.day != 0 && today > forecast.day ? today - forecast.day : 0;
     int32_t column_width = gfx_width() / DAYS;
     gfx_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     for (int32_t day = 0; day < DAYS; day++) {
@@ -301,8 +313,11 @@ static void draw_days(void)
             name[0] = '\0';
         }
         app_draw_centered(center, DAY_NAME_TOP, HOST_FONT_SMALL, name);
+        if (day + shift >= DAYS) {
+            continue;
+        }
         int32_t icon_size = ICON_SIDE(SMALL_ICON_CELL);
-        gfx_icon(WEATHER_ICONS[condition_of(forecast.days[day].code)->icon], center - icon_size / 2,
+        gfx_icon(WEATHER_ICONS[condition_of(forecast.days[day + shift].code)->icon], center - icon_size / 2,
                  DAY_ICON_TOP, SMALL_ICON_CELL);
 
         /* "high / low", the slash closer to its numbers than a space would
@@ -311,9 +326,9 @@ static void draw_days(void)
         char low[8];
         app_text_t text;
         app_text_start(&text, high, sizeof high);
-        app_text_add_number(&text, shown_degrees(forecast.days[day].high));
+        app_text_add_number(&text, shown_degrees(forecast.days[day + shift].high));
         app_text_start(&text, low, sizeof low);
-        app_text_add_number(&text, shown_degrees(forecast.days[day].low));
+        app_text_add_number(&text, shown_degrees(forecast.days[day + shift].low));
         int32_t high_width = app_text_width(HOST_FONT_TEXT, high);
         int32_t slash_width = gfx_text_width(HOST_FONT_TEXT, "/", 1);
         int32_t low_width = app_text_width(HOST_FONT_TEXT, low);

@@ -306,7 +306,11 @@ static void repeat(ics_t *ics, int64_t duration)
             step = (window_day - first) / interval;
         }
         for (int32_t i = 0; i < STEPS_MAX && !run.is_over; i++, step++) {
-            occur(&run, first + step * interval);
+            int32_t days = first + step * interval;
+            /* "BYDAY=MO,TU,WE,TH,FR": only those days are the event's, and only they count. */
+            if (ics->weekdays == 0 || (ics->weekdays & (1 << weekday_of(days))) != 0) {
+                occur(&run, days);
+            }
         }
         break;
     }

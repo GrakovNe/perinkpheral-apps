@@ -174,6 +174,12 @@ void app_on_intent(int32_t intent)
     }
 }
 
+/* So did the version before this one, for this one. */
+void app_on_updated(void)
+{
+    keep_fresh();
+}
+
 /* Opened, it shows what is true now and not what was true at the last
  * alarm. */
 void app_on_focus(void)

@@ -199,6 +199,14 @@ void app_on_intent(int32_t intent)
     }
 }
 
+/* A new version does not inherit the old one's alarm either. */
+void app_on_updated(void)
+{
+    if (state.is_running) {
+        update_header_status();
+    }
+}
+
 void app_on_focus(void)
 {
     schedule_next_change();

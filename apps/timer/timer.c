@@ -152,6 +152,19 @@ static void start(void)
     schedule_minute_tick();
 }
 
+/* A new version of the timer does not inherit the old one's alarms: a countdown under way
+ * is set going again where it is. */
+void app_on_updated(void)
+{
+    if (state.ends_at == 0) {
+        return;
+    }
+    int32_t left = seconds_left();
+    alarm_set(COUNTDOWN_ALARM, left > 0 ? left : 1);
+    alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, 0);
+    show_in_header();
+}
+
 static void stop(void)
 {
     state.ends_at = 0;
