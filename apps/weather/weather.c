@@ -6,7 +6,7 @@
  * account, the device asks the service itself. The manifest names the
  * request and the numbers wanted from the answer; the host makes the
  * request at the pace the user chose, whether this application is on the
- * screen or not, and hands the numbers to app_on_values(). They go into
+ * screen or not, and hands the numbers to app_on_picked(). They go into
  * the store, and the picture is drawn from the store: off the screen the
  * application is loaded for the call and unloaded after it.
  *
@@ -140,13 +140,13 @@ static void show_header(void)
     char city[HOST_HEADER_TEXT_MAX + 1];
     int32_t length = app_setting_place(CITY_KEY, city, sizeof city);
     if (app_setting_is_on(HEADER_CITY_KEY) && length > 0) {
-        header_text(HOST_HEADER_LEFT, city, length);
+        header_set_text(HOST_HEADER_LEFT, city, length);
     } else {
-        header_text(HOST_HEADER_LEFT, " ", 1); /* a space: the side stays empty */
+        header_set_text(HOST_HEADER_LEFT, " ", 1); /* a space: the side stays empty */
     }
 }
 
-void app_init(void)
+void app_on_load(void)
 {
     load_forecast();
     show_header();
@@ -157,13 +157,13 @@ void app_on_focus(void)
     show_header();
 }
 
-void app_on_values(int32_t request, int32_t http_status)
+void app_on_picked(int32_t request, int32_t http_status)
 {
     (void)request;
     if (http_status != last_status) {
         last_status = http_status;
         kv_set(STATUS_KEY, sizeof STATUS_KEY - 1, &last_status, sizeof last_status);
-        request_redraw(HOST_REDRAW_NORMAL);
+        screen_redraw(HOST_REDRAW_NORMAL);
     }
     forecast_t fresh = { .version = FORECAST_VERSION, .day = local_day() };
     bool is_whole = http_status == HTTP_OK &&
@@ -183,7 +183,7 @@ void app_on_values(int32_t request, int32_t http_status)
     has_forecast = true;
     app_state_save(FORECAST_KEY, &forecast, sizeof forecast);
     show_header(); /* the day may have turned since the last answer */
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 /* The place may have changed, and then the forecast in hand is for
@@ -193,14 +193,14 @@ void app_on_settings(void)
     has_forecast = false;
     app_state_forget(FORECAST_KEY);
     show_header();
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 void app_on_button(int32_t event)
 {
     switch (event) {
     case BTN_OK_PRESSED:
-        poll_now(WEATHER_POLL); /* "refresh": the answer redraws the screen */
+        poll_run(WEATHER_POLL); /* "refresh": the answer redraws the screen */
         break;
     }
 }
@@ -243,8 +243,8 @@ static void draw_detail(int32_t left, int32_t line, detail_t detail, const char 
     int32_t baseline = top + gfx_font_ascent(HOST_FONT_TEXT);
     int32_t icon_size = ICON_SIDE(DETAIL_ICON_CELL);
     /* The picture stands on the text's baseline. */
-    gfx_icon(left, baseline - icon_size, DETAIL_ICONS[detail], DETAIL_ICON_CELL);
-    ui_value(left + icon_size + DETAIL_ICON_GAP, top, HOST_FONT_TEXT, value,
+    gfx_draw_icon(left, baseline - icon_size, DETAIL_ICONS[detail], DETAIL_ICON_CELL);
+    ui_draw_value(left + icon_size + DETAIL_ICON_GAP, top, HOST_FONT_TEXT, value,
              app_text_length(value), unit, app_text_length(unit));
 }
 
@@ -256,7 +256,7 @@ static void draw_now(void)
     host_icon_ink_t ink = { 0, ICON_SIDE(LARGE_ICON_CELL) - 1, 0, ICON_SIDE(LARGE_ICON_CELL) - 1 };
     gfx_icon_ink(WEATHER_ICONS[now->icon], LARGE_ICON_CELL, &ink);
     int32_t icon_left = NOW_LEFT - ink.first_x;
-    gfx_icon(icon_left, MARGIN, WEATHER_ICONS[now->icon], LARGE_ICON_CELL);
+    gfx_draw_icon(icon_left, MARGIN, WEATHER_ICONS[now->icon], LARGE_ICON_CELL);
 
     char buffer[24];
     app_text_t text;
@@ -299,7 +299,7 @@ static void draw_days(void)
     int32_t today = local_day();
     int32_t shift = forecast.day != 0 && today > forecast.day ? today - forecast.day : 0;
     int32_t column_width = gfx_width() / DAYS;
-    gfx_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
+    gfx_draw_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     for (int32_t day = 0; day < DAYS; day++) {
         int32_t center = day * column_width + column_width / 2;
         /* "Sat", in the device's language; today is "Today". */
@@ -317,7 +317,7 @@ static void draw_days(void)
             continue;
         }
         int32_t icon_size = ICON_SIDE(SMALL_ICON_CELL);
-        gfx_icon(center - icon_size / 2, DAY_ICON_TOP,
+        gfx_draw_icon(center - icon_size / 2, DAY_ICON_TOP,
                  WEATHER_ICONS[condition_of(forecast.days[day + shift].code)->icon], SMALL_ICON_CELL);
 
         /* "high / low", the slash closer to its numbers than a space would
@@ -349,9 +349,9 @@ void app_on_draw(void)
     }
     /* Why not, as every application says it; an answer that came without
      * a forecast in it is this one's own to name. */
-    if (ui_reason(last_status) == 0) {
+    if (ui_draw_reason(last_status) == 0) {
         host_notice_t no_data = { .icon = HOST_ICON_WARNING };
         app_text_copy(no_data.first, sizeof no_data.first, app_string(STR_NO_DATA));
-        ui_notice(&no_data);
+        ui_draw_notice(&no_data);
     }
 }

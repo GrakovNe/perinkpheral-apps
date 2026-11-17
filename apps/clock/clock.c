@@ -43,7 +43,7 @@ static void schedule_next_frame(void)
 static int32_t draw_centered(int32_t cap_top, int32_t font, const char *text)
 {
     int32_t cap_height = gfx_font_cap_height(font);
-    gfx_text(app_text_center_x(gfx_width() / 2, font, text),
+    gfx_draw_text(app_text_center_x(gfx_width() / 2, font, text),
              cap_top - (gfx_font_ascent(font) - cap_height), font, text, app_text_length(text));
     return cap_top + cap_height;
 }
@@ -56,7 +56,7 @@ void app_on_focus(void)
 void app_on_timer(int32_t id)
 {
     (void)id;
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
     schedule_next_frame();
 }
 
@@ -66,7 +66,7 @@ void app_on_timer(int32_t id)
 void app_on_intent(int32_t intent)
 {
     if (intent == HOST_INTENT_TIME_CHANGED) {
-        request_redraw(HOST_REDRAW_SOON);
+        screen_redraw(HOST_REDRAW_SOON);
     }
 }
 
@@ -74,7 +74,7 @@ void app_on_draw(void)
 {
     int64_t now = time_now();
     if (now == 0) {
-        ui_reason(HOST_FAILED_NO_NETWORK); /* the time comes with the network */
+        ui_draw_reason(HOST_FAILED_NO_NETWORK); /* the time comes with the network */
         return;
     }
     /* The host says a moment in words: no names of days here. */

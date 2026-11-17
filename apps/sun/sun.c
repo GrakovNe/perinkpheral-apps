@@ -299,9 +299,9 @@ static void show_header(void)
     char    city[HOST_HEADER_TEXT_MAX + 1];
     int32_t length = app_setting_place(CITY_KEY, city, sizeof city);
     if (app_setting_is_on(HEADER_CITY_KEY) && length > 0) {
-        header_text(HOST_HEADER_LEFT, city, length);
+        header_set_text(HOST_HEADER_LEFT, city, length);
     } else {
-        header_text(HOST_HEADER_LEFT, " ", 1); /* a space: the side stays empty */
+        header_set_text(HOST_HEADER_LEFT, " ", 1); /* a space: the side stays empty */
     }
 }
 
@@ -316,7 +316,7 @@ static void schedule_redraw(void)
     timer_set(REDRAW_TIMER, (SECONDS_PER_HOUR - into_hour) * MS_PER_SECOND);
 }
 
-void app_init(void)
+void app_on_load(void)
 {
     show_header();
 }
@@ -330,21 +330,21 @@ void app_on_focus(void)
 void app_on_timer(int32_t id)
 {
     (void)id;
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
     schedule_redraw();
 }
 
 void app_on_settings(void)
 {
     show_header();
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 /* The clock or the time zone is another: so is the day. */
 void app_on_intent(int32_t intent)
 {
     if (intent == HOST_INTENT_TIME_CHANGED) {
-        request_redraw(HOST_REDRAW_SOON);
+        screen_redraw(HOST_REDRAW_SOON);
         schedule_redraw();
     }
 }
@@ -382,12 +382,12 @@ void app_on_draw(void)
 {
     place_t place;
     if (!read_place(&place)) {
-        ui_reason(HOST_FAILED_NOT_READY);
+        ui_draw_reason(HOST_FAILED_NOT_READY);
         return;
     }
     int64_t now = time_now();
     if (now == 0) {
-        ui_reason(HOST_FAILED_NO_NETWORK); /* the time comes with the network */
+        ui_draw_reason(HOST_FAILED_NO_NETWORK); /* the time comes with the network */
         return;
     }
     int64_t   today = (now + time_zone_offset()) / SECONDS_PER_DAY;
@@ -417,6 +417,6 @@ void app_on_draw(void)
     app_text_add(&value, "%");
 
     app_draw_cells(cells, pictures, icons, CELLS); /* one size for all of them */
-    gfx_rect(width, RULE_INSET, 1, gfx_height() - 2 * RULE_INSET, HOST_RECT_FILLED);
-    gfx_rect(RULE_INSET, height, gfx_width() - 2 * RULE_INSET, 1, HOST_RECT_FILLED);
+    gfx_draw_rect(width, RULE_INSET, 1, gfx_height() - 2 * RULE_INSET, HOST_RECT_FILLED);
+    gfx_draw_rect(RULE_INSET, height, gfx_width() - 2 * RULE_INSET, 1, HOST_RECT_FILLED);
 }

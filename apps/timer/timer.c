@@ -50,7 +50,7 @@ static void save(void)
     app_state_save(STATE_KEY, &state, sizeof state);
 }
 
-void app_init(void)
+void app_on_load(void)
 {
     bool is_stored = app_state_load(STATE_KEY, &state, sizeof state, STATE_VERSION);
     /* A countdown from before a restart is over: uptime began again. */
@@ -85,7 +85,7 @@ void app_on_focus(void)
 void app_on_timer(int32_t id)
 {
     (void)id;
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
     schedule_minute_tick();
 }
 
@@ -110,12 +110,12 @@ static void show_in_header(void)
     const host_text_argument_t minutes = { .number = minutes_left() };
     int32_t length = text_fill(pattern, app_text_length(pattern), &minutes, 1, line, sizeof line - 1);
     line[length > 0 ? length : 0] = '\0';
-    header_status(HOST_HEADER_RIGHT, HOST_ICON_HOURGLASS, line, app_text_length(line));
+    header_set_status(HOST_HEADER_RIGHT, HOST_ICON_HOURGLASS, line, app_text_length(line));
 }
 
 static void release_header_status(void)
 {
-    header_status(HOST_HEADER_RIGHT, HOST_ICON_NONE, "", 0);
+    header_set_status(HOST_HEADER_RIGHT, HOST_ICON_NONE, "", 0);
     alarm_set(MINUTE_ALARM, 0);
 }
 
@@ -138,15 +138,15 @@ void app_on_alarm(int32_t id)
     app_text_add(&text, app_string(STR_TIME));
     app_text_start(&text, time_is_up.second, sizeof time_is_up.second);
     app_text_add(&text, app_string(STR_IS_UP));
-    notify(&time_is_up);
-    request_redraw(HOST_REDRAW_NORMAL);
+    notification_post(&time_is_up);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 /* An alarm the device has no room for: said in the log, or what depends on it is taken for a hang. */
 static void say_if_unset(int32_t result, const char *what)
 {
     if (result != HOST_OK) {
-        host_log(HOST_LOG_WARN, what, app_text_length(what));
+        log_write(HOST_LOG_WARN, what, app_text_length(what));
     }
 }
 
@@ -220,7 +220,7 @@ void app_on_button(int32_t event)
         return; /* the key going down and up changes nothing by itself */
     }
     save();
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 /* ---- the picture: the host's parts ----
@@ -228,7 +228,7 @@ void app_on_button(int32_t event)
  * The minutes are the page. Being set, they stand in the frame with the
  * arrows UP and DOWN have; counting, over a bar of how much is left. The
  * row of buttons along the bottom names what OK and BACK do. That the
- * time is up is the host's to say (notify). */
+ * time is up is the host's to say (notification_post). */
 
 #define FRAME_WIDTH   336
 #define FRAME_PADDING 16
@@ -250,18 +250,18 @@ void app_on_draw(void)
     app_text_add_number(&text, is_running ? minutes_left() : state.minutes);
     const char *unit = app_string(is_running ? STR_MINUTES_LEFT : STR_MINUTES);
     int32_t length = app_text_length(number), unit_length = app_text_length(unit);
-    ui_value((gfx_width() - ui_value_width(font, number, length, unit, unit_length)) / 2,
+    ui_draw_value((gfx_width() - ui_value_width(font, number, length, unit, unit_length)) / 2,
              frame_top + FRAME_PADDING - (gfx_font_ascent(font) - capitals), font, number, length,
              unit, unit_length);
 
     if (is_running) {
         /* How much is left, halfway from the digits to the row of buttons. */
         int32_t digits_bottom = frame_top + FRAME_PADDING + capitals;
-        ui_bar(frame_left, (digits_bottom + body - BAR_HEIGHT) / 2, FRAME_WIDTH, minutes_left(),
+        ui_draw_bar(frame_left, (digits_bottom + body - BAR_HEIGHT) / 2, FRAME_WIDTH, minutes_left(),
                state.minutes);
         app_draw_actions(app_string(STR_STOP), app_string(STR_CLOSE));
     } else {
-        ui_frame(frame_left, frame_top, FRAME_WIDTH, frame_height,
+        ui_draw_frame(frame_left, frame_top, FRAME_WIDTH, frame_height,
                  (state.minutes < MINUTES_MAX ? HOST_UI_ARROW_UP : 0) |
                      (state.minutes > MINUTES_MIN ? HOST_UI_ARROW_DOWN : 0));
         app_draw_actions(app_string(STR_START), app_string(STR_CLOSE));

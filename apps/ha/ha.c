@@ -75,7 +75,7 @@ static void ask(void)
      * answers with the screen. */
     static const char URL[] = "{{server}}/api/perinkpheral/screen";
     static const char HEADERS[] = "Authorization: Bearer {{token}}";
-    http_request(REQUEST_SCREEN, HOST_HTTP_GET, URL, sizeof URL - 1, HEADERS, sizeof HEADERS - 1,
+    http_send(REQUEST_SCREEN, HOST_HTTP_GET, URL, sizeof URL - 1, HEADERS, sizeof HEADERS - 1,
                  "", 0);
 }
 
@@ -84,7 +84,7 @@ static void ask(void)
 static void say_if_unset(int32_t result, const char *what)
 {
     if (result != HOST_OK) {
-        host_log(HOST_LOG_WARN, what, app_text_length(what));
+        log_write(HOST_LOG_WARN, what, app_text_length(what));
     }
 }
 
@@ -124,7 +124,7 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
         coming_status = http_status;
         coming_length = 0;
         accept_answer();
-        request_redraw(HOST_REDRAW_NORMAL);
+        screen_redraw(HOST_REDRAW_NORMAL);
         return;
     }
     if (flags & HOST_DATA_FIRST) {
@@ -136,13 +136,13 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
     }
     if (flags & HOST_DATA_LAST) {
         accept_answer();
-        request_redraw(HOST_REDRAW_NORMAL);
+        screen_redraw(HOST_REDRAW_NORMAL);
     }
 }
 
 /* ---- when to ask ---- */
 
-void app_init(void)
+void app_on_load(void)
 {
     int32_t length = kv_get(SCREEN_KEY, sizeof SCREEN_KEY - 1, screen, SCREEN_MAX);
     screen_length = length > 0 ? length : 0;
@@ -214,7 +214,7 @@ void app_on_button(int32_t event)
         ask(); /* "refresh" */
     } else if (event != BTN_BACK_PRESSED && app_list_button(&list, event) == APP_UI_CHANGED) {
         /* UP and DOWN a row, held a page; held to the list's end when it is drawn */
-        request_redraw(HOST_REDRAW_NO_BLINK);
+        screen_redraw(HOST_REDRAW_NO_BLINK);
     }
 }
 
@@ -344,7 +344,7 @@ static const picture_t *picture_named(const char *name)
 
 static void draw_picture(const picture_t *picture, int32_t left, int32_t top, int32_t side)
 {
-    gfx_icon(left, top, picture->icon, side / HOST_ICON_CELLS);
+    gfx_draw_icon(left, top, picture->icon, side / HOST_ICON_CELLS);
 }
 
 /* ---- the screen: the weather's own composition, its places filled ---- */
@@ -415,7 +415,7 @@ static void draw_detail(int32_t left, int32_t number, int32_t count, const detai
         draw_picture(detail->picture, left, baseline - DETAIL_PICTURE, DETAIL_PICTURE);
     }
     /* The value and, after it, its unit: the host's to set. */
-    ui_value(left + (has_pictures ? DETAIL_PICTURE + DETAIL_GAP : 0), top, HOST_FONT_TEXT,
+    ui_draw_value(left + (has_pictures ? DETAIL_PICTURE + DETAIL_GAP : 0), top, HOST_FONT_TEXT,
              detail->value, app_text_length(detail->value), detail->unit,
              app_text_length(detail->unit));
 }
@@ -487,10 +487,10 @@ static void draw_cells_of(const item_t *items, int32_t count)
     }
     app_draw_cells(cells, 0, icons, shown); /* one size for all of them */
     if (columns > 1) {
-        gfx_rect(width, MARGIN, 1, gfx_height() - 2 * MARGIN, HOST_RECT_FILLED);
+        gfx_draw_rect(width, MARGIN, 1, gfx_height() - 2 * MARGIN, HOST_RECT_FILLED);
     }
     if (rows > 1) {
-        gfx_rect(MARGIN, height, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
+        gfx_draw_rect(MARGIN, height, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     }
 }
 
@@ -502,7 +502,7 @@ static void draw_list_of(const item_t *items, int32_t count)
     list.count = count;
     int32_t first = app_list_first(&list), shown = ui_list_visible(&list);
     for (int32_t i = first; i < first + shown && i < count; i++) {
-        ui_list_row(&list, i, items[i].name, app_text_length(items[i].name), items[i].value,
+        ui_draw_list_row(&list, i, items[i].name, app_text_length(items[i].name), items[i].value,
                     app_text_length(items[i].value), HOST_ICON_NONE);
     }
 }
@@ -558,7 +558,7 @@ static void draw_hero_layout(void)
                     has_detail_pictures);
     }
 
-    gfx_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
+    gfx_draw_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     int32_t column = 0;
     at = 0;
     while (next_line(&at, &line)) {
@@ -574,11 +574,11 @@ static void draw_hero_layout(void)
  * answer that came with no screen in it, this one's own word. */
 static void draw_reason(void)
 {
-    if (ui_reason(last_status) == 0) {
+    if (ui_draw_reason(last_status) == 0) {
         host_notice_t no_screen = { .icon = HOST_ICON_WARNING };
         app_text_copy(no_screen.first, sizeof no_screen.first, app_string(STR_NO_SCREEN));
         app_text_copy(no_screen.detail, sizeof no_screen.detail, app_string(STR_SET_UP_IN_HA));
-        ui_notice(&no_screen);
+        ui_draw_notice(&no_screen);
     }
 }
 

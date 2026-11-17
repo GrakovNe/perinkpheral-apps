@@ -12,7 +12,7 @@
  * Moscow Exchange's. Each poll of the
  * manifest goes over the list ("each") and takes the items of its own
  * prefix ("prefix"), the one of Yahoo the rest; the host picks the values
- * from every answer and calls app_on_values() once per ticker. Each answer
+ * from every answer and calls app_on_picked() once per ticker. Each answer
  * is written to the file "quotes" as one fixed-size record at the ticker's
  * position in the list, so the application can be unloaded at any time and
  * draw again from the file. The screens are the list, in its order.
@@ -188,7 +188,7 @@ static void update_header(void)
     if (app_text_length(buffer) == 0) {
         app_text_add(&text, " ");
     }
-    header_text(HOST_HEADER_LEFT, buffer, app_text_length(buffer));
+    header_set_text(HOST_HEADER_LEFT, buffer, app_text_length(buffer));
 }
 
 static void select_ticker(int32_t step)
@@ -204,7 +204,7 @@ static void select_ticker(int32_t step)
 
 /* ---- Handlers ---- */
 
-void app_init(void)
+void app_on_load(void)
 {
     if (!app_state_load(STATE_KEY, &state, sizeof state, STATE_VERSION)) {
         state = (state_t){ .version = STATE_VERSION };
@@ -237,7 +237,7 @@ void app_on_settings(void)
     load_current();
     update_header();
     update_rotation();
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 void app_on_button(int32_t event)
@@ -260,7 +260,7 @@ void app_on_button(int32_t event)
         return;
     }
     update_rotation();
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 void app_on_timer(int32_t id)
@@ -270,7 +270,7 @@ void app_on_timer(int32_t id)
     }
     select_ticker(1);
     update_rotation();
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 /* The record of an item of the list, as it is kept, or a new one when the
@@ -297,7 +297,7 @@ static void written(int32_t item, int32_t had_data)
     if (item == loaded) {
         load_current();
         /* The first data of a ticker is what the user is waiting for. */
-        request_redraw(had_data ? HOST_REDRAW_NORMAL : HOST_REDRAW_SOON);
+        screen_redraw(had_data ? HOST_REDRAW_NORMAL : HOST_REDRAW_SOON);
     }
 }
 
@@ -409,7 +409,7 @@ static void moex_quote(int32_t item, int32_t http_status)
                     app_state_save(MOEX_DAY_KEY, now, MOEX_DATE_LENGTH);
                 }
                 if (is_new_day || record.count == 0) {
-                    poll_now(POLL_MOEX_DAY);
+                    poll_run(POLL_MOEX_DAY);
                 }
             }
         }
@@ -436,9 +436,9 @@ static void moex_day(int32_t item, int32_t http_status)
     written(item, 1);
 }
 
-void app_on_values(int32_t request, int32_t http_status)
+void app_on_picked(int32_t request, int32_t http_status)
 {
-    int32_t item = data_item();
+    int32_t item = answer_item();
     if (item < 0 || item >= TICKERS_MAX) {
         return;
     }
@@ -457,7 +457,7 @@ static void draw_notice(const char *first, const char *second)
     host_notice_t notice = { .icon = HOST_ICON_WARNING, .is_working = 0 };
     app_text_copy(notice.first, sizeof notice.first, first);
     app_text_copy(notice.second, sizeof notice.second, second);
-    ui_notice(&notice);
+    ui_draw_notice(&notice);
 }
 
 static void draw_title(int32_t top, int32_t right)
@@ -480,13 +480,13 @@ static void draw_title(int32_t top, int32_t right)
     int32_t suffix_width  = gfx_text_width(HOST_FONT_TEXT, suffix_buffer, suffix_length);
     int32_t x             = MARGIN;
     if (name_length > 0) {
-        int32_t length = gfx_text_fit(HOST_FONT_TEXT, quote.name, name_length,
+        int32_t length = gfx_fit_text(HOST_FONT_TEXT, quote.name, name_length,
                                       right - x - suffix_width, fitted, sizeof fitted);
-        x += gfx_text(x, top, HOST_FONT_TEXT, fitted, length);
+        x += gfx_draw_text(x, top, HOST_FONT_TEXT, fitted, length);
     }
-    int32_t length = gfx_text_fit(HOST_FONT_TEXT, suffix_buffer, suffix_length, right - x, fitted,
+    int32_t length = gfx_fit_text(HOST_FONT_TEXT, suffix_buffer, suffix_length, right - x, fitted,
                                   sizeof fitted);
-    gfx_text(x, top, HOST_FONT_TEXT, fitted, length);
+    gfx_draw_text(x, top, HOST_FONT_TEXT, fitted, length);
 }
 
 /* "16:00" today, "Fri 14 Nov 16:00" another day. */
@@ -508,7 +508,7 @@ void app_on_draw(void)
     int32_t height = gfx_height();
 
     if (ticker_count() == 0) {
-        ui_reason(HOST_FAILED_NOT_READY);
+        ui_draw_reason(HOST_FAILED_NOT_READY);
         return;
     }
     if (loaded != state.index) {
@@ -517,7 +517,7 @@ void app_on_draw(void)
     if (!quote.has_data) {
         if (quote.status == STATUS_NOT_FOUND) {
             draw_notice(app_string(STR_NOT_FOUND), quote.item);
-        } else if (!ui_reason(quote.status)) {
+        } else if (!ui_draw_reason(quote.status)) {
             draw_notice(app_string(STR_NO_DATA), quote.item);
         }
         return;
@@ -532,7 +532,7 @@ void app_on_draw(void)
     app_text_start(&text, price_buffer, sizeof price_buffer);
     app_text_add_fixed(&text, quote.price, quote.decimals, 0);
     int32_t row = MARGIN + gfx_font_height(HOST_FONT_TEXT) + 4;
-    ui_value(MARGIN, row, HOST_FONT_MEDIUM, price_buffer, app_text_length(price_buffer), quote.currency,
+    ui_draw_value(MARGIN, row, HOST_FONT_MEDIUM, price_buffer, app_text_length(price_buffer), quote.currency,
              app_text_length(quote.currency));
     row += gfx_font_height(HOST_FONT_MEDIUM);
 
@@ -550,13 +550,13 @@ void app_on_draw(void)
             .decimals = quote.decimals,
             .count    = quote.count,
         };
-        ui_chart(&chart, quote.series);
+        ui_draw_chart(&chart, quote.series);
     }
     /* When the last price was set, in the middle under the chart. */
     if (quote.time > 0) {
         char    when[32];
         int32_t length = when_text(quote.time, when, sizeof when);
         int32_t when_width = gfx_text_width(HOST_FONT_SMALL, when, length);
-        gfx_text((width - when_width) / 2, height - caption_height - 4, HOST_FONT_SMALL, when, length);
+        gfx_draw_text((width - when_width) / 2, height - caption_height - 4, HOST_FONT_SMALL, when, length);
     }
 }

@@ -9,7 +9,7 @@
  * account is bound to anything and nothing passes a server of ours.
  *
  * It reminds, too: some minutes before an event the host says what begins,
- * over whatever has the screen (notify). The reminder is an alarm of the
+ * over whatever has the screen (notification_post). The reminder is an alarm of the
  * host's at a moment worked out from the events in the store, so it comes
  * although the application is not loaded - and after a restart, which
  * forgets alarms, it is set again.
@@ -125,7 +125,7 @@ static void remind_of(const ics_event_t *event)
     app_time_text(event->start, HOST_TIME_CLOCK, notice.first, sizeof notice.first);
     app_text_copy(notice.detail, sizeof notice.detail,
                   event->title[0] != '\0' ? event->title : app_string(STR_EVENT));
-    notify(&notice);
+    notification_post(&notice);
 }
 
 void app_on_alarm(int32_t id)
@@ -191,7 +191,7 @@ static void finish_fetch(int32_t status)
     }
     schedule_reminder();
     schedule_next_change(); /* the events it turns at may be others now */
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 static ics_opening_t opening;
@@ -254,7 +254,7 @@ static void schedule_next_change(void)
     timer_set(TURN_TIMER, (int32_t)in_seconds * MS_PER_SECOND);
 }
 
-void app_init(void)
+void app_on_load(void)
 {
     if (!app_state_load(STATE_KEY, &state, sizeof state, STATE_VERSION)) {
         state = (state_t){ .version = STATE_VERSION, .feed_hash = feed_hash() };
@@ -277,7 +277,7 @@ void app_on_focus(void)
 void app_on_timer(int32_t id)
 {
     (void)id;
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
     schedule_next_change();
 }
 
@@ -308,7 +308,7 @@ void app_on_settings(void)
     }
     schedule_reminder();
     schedule_next_change();
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 /* ---- the buttons ---- */
@@ -365,7 +365,7 @@ static int32_t count_visible_events(int64_t now)
 void app_on_button(int32_t event)
 {
     if (event == BTN_OK_LONG_PRESSED) {
-        poll_now(FEED_POLL);
+        poll_run(FEED_POLL);
         return;
     }
     if (is_reading_one) {
@@ -378,10 +378,10 @@ void app_on_button(int32_t event)
             read_uid = stored.events[shown[list.selected]].uid;
             read_start = stored.events[shown[list.selected]].start;
         }
-        request_redraw(HOST_REDRAW_NORMAL);
+        screen_redraw(HOST_REDRAW_NORMAL);
         break;
     case APP_UI_CHANGED:
-        request_redraw(HOST_REDRAW_NO_BLINK);
+        screen_redraw(HOST_REDRAW_NO_BLINK);
         break;
     default:
         break;
@@ -392,9 +392,9 @@ void app_on_back(void)
 {
     if (is_reading_one) {
         is_reading_one = false;
-        request_redraw(HOST_REDRAW_NORMAL);
+        screen_redraw(HOST_REDRAW_NORMAL);
     } else {
-        request_exit();
+        screen_leave();
     }
 }
 
@@ -427,13 +427,13 @@ static void draw_reason(void)
     } else if (state.status == STATUS_NO_TIME) {
         app_text_add(&first, app_string(STR_NO_TIME_YET));
         notice.icon = HOST_ICON_CLOCK;
-    } else if (ui_reason(state.status) == 0) {
+    } else if (ui_draw_reason(state.status) == 0) {
         app_text_add(&first, app_string(STR_NO_EVENTS));
         notice.icon = HOST_ICON_CHECK;
     } else {
         return;
     }
-    ui_notice(&notice);
+    ui_draw_notice(&notice);
 }
 
 #define MOMENT_MAX  47 /* "Завтра 15:04" is two bytes a letter */
@@ -446,7 +446,7 @@ static void draw_event(const ics_event_t *event)
     app_text_t line;
     int32_t    width = gfx_width() - 2 * HOST_UI_MARGIN;
 
-    int32_t top = ui_title(moment, app_time_text(event->start, HOST_TIME_DATE, moment, sizeof moment));
+    int32_t top = ui_draw_title(moment, app_time_text(event->start, HOST_TIME_DATE, moment, sizeof moment));
 
     app_text_start(&line, when, sizeof when);
     if (event->is_all_day) {
@@ -458,11 +458,11 @@ static void draw_event(const ics_event_t *event)
         app_time_text(event->end, HOST_TIME_CLOCK, moment, sizeof moment);
         app_text_add(&line, moment);
     }
-    ui_text(HOST_UI_MARGIN, top, HOST_UI_TITLE, when, app_text_length(when), width);
+    ui_draw_text(HOST_UI_MARGIN, top, HOST_UI_TITLE, when, app_text_length(when), width);
     top += ui_text_height(HOST_UI_TITLE) + HOST_UI_MARGIN / 2;
 
     const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
-    ui_text_lines(HOST_UI_MARGIN, top, HOST_UI_TEXT, name, app_text_length(name), width, TITLE_LINES);
+    ui_draw_text_lines(HOST_UI_MARGIN, top, HOST_UI_TEXT, name, app_text_length(name), width, TITLE_LINES);
     app_draw_actions(NULL, app_string(STR_BACK));
 }
 
@@ -499,6 +499,6 @@ void app_on_draw(void)
         int32_t when_length = say_when(event, now, when, sizeof when);
         /* The host's row keeps the moment whole and cuts the name. */
         const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
-        ui_list_row(&list, row, name, app_text_length(name), when, when_length, HOST_ICON_NONE);
+        ui_draw_list_row(&list, row, name, app_text_length(name), when, when_length, HOST_ICON_NONE);
     }
 }

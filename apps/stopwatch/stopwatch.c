@@ -128,7 +128,7 @@ static void show_in_header(void)
     app_text_t text;
     app_text_start(&text, line, sizeof line);
     add_two_parts(&text, minutes / MINUTES_PER_HOUR, minutes % MINUTES_PER_HOUR);
-    header_status(HOST_HEADER_LEFT, HOST_ICON_PLAY, line, app_text_length(line));
+    header_set_status(HOST_HEADER_LEFT, HOST_ICON_PLAY, line, app_text_length(line));
 }
 
 /* When the number on the screen is next another: at the next second in
@@ -147,7 +147,7 @@ static void schedule_next_change(void)
 static void say_if_unset(int32_t result, const char *what)
 {
     if (result != HOST_OK) {
-        host_log(HOST_LOG_WARN, what, app_text_length(what));
+        log_write(HOST_LOG_WARN, what, app_text_length(what));
     }
 }
 
@@ -177,7 +177,7 @@ static void stop(void)
     state.is_running = 0;
     alarm_set(MINUTE_ALARM, 0);
     timer_set(TURN_TIMER, 0);
-    header_status(HOST_HEADER_LEFT, HOST_ICON_NONE, "", 0);
+    header_set_status(HOST_HEADER_LEFT, HOST_ICON_NONE, "", 0);
 }
 
 static void reset(void)
@@ -185,7 +185,7 @@ static void reset(void)
     state.banked_ms = 0;
 }
 
-void app_init(void)
+void app_on_load(void)
 {
     bool is_stored = app_state_load(STATE_KEY, &state, sizeof state, STATE_VERSION);
     if (!is_stored) {
@@ -226,7 +226,7 @@ void app_on_timer(int32_t id)
     (void)id;
     /* A second after a second: one picture of a row, with no full refresh
      * between them. A minute is an ordinary change. */
-    request_redraw(shows_seconds() ? HOST_REDRAW_NO_BLINK : HOST_REDRAW_NORMAL);
+    screen_redraw(shows_seconds() ? HOST_REDRAW_NO_BLINK : HOST_REDRAW_NORMAL);
     schedule_next_change();
 }
 
@@ -254,7 +254,7 @@ void app_on_button(int32_t event)
         return;
     }
     save();
-    request_redraw(HOST_REDRAW_NORMAL);
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
 
 /* The largest of the fonts the time fits in, whichever typeface is chosen -
@@ -286,14 +286,14 @@ void app_on_draw(void)
     int32_t cap = gfx_font_cap_height(font);
     int32_t top = (body - cap) / 2 - (gfx_font_ascent(font) - cap);
     /* In the middle by what is seen: a typeface may give a digit more room on one side. */
-    gfx_text(app_text_center_x(gfx_width() / 2, font, line), top, font, line, length);
+    gfx_draw_text(app_text_center_x(gfx_width() / 2, font, line), top, font, line, length);
 
     bool is_stopped_with_time = !state.is_running && state.banked_ms > 0;
     if (is_stopped_with_time) {
         const char *hint = app_string(STR_HOLD_TO_RESET);
         int32_t hint_length = app_text_length(hint);
         int32_t hint_top = body - ui_text_height(HOST_UI_CAPTION) - HOST_UI_MARGIN / 2;
-        ui_text((gfx_width() - ui_text_width(HOST_UI_CAPTION, hint, hint_length)) / 2, hint_top,
+        ui_draw_text((gfx_width() - ui_text_width(HOST_UI_CAPTION, hint, hint_length)) / 2, hint_top,
                 HOST_UI_CAPTION, hint, hint_length, 0);
     }
     const char *ok = app_string(state.is_running           ? STR_STOP

@@ -9,8 +9,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 3009,
-          "sha256": "21fab76e235a9c7abd865ee13356354a7e42e74a962995902ec4fe56fb3a67da"
+          "size": 3022,
+          "sha256": "39429f59dcd80bb682abad4a16d8210712fa09ccfa061968fb373c1988b4bb23"
         },
         {
           "name": "frames.bin",
@@ -47,8 +47,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 14025,
-          "sha256": "5de7931b616cb452117d5f8e41fe2c5ff33d40ef15e6afcae90aa76d82c7976e"
+          "size": 14073,
+          "sha256": "1ce9d74538cef69f701662ea9f864f38fdec08f8be14a87a576c6ad4020ce5c3"
         },
         {
           "name": "manifest.ru",
@@ -97,8 +97,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 991,
-          "sha256": "75b74362b988ae29e4eb4e022a40146a73b16400a524f97b3d40c7845d0a1270"
+          "size": 1000,
+          "sha256": "04192f15a2bfc957a16e52633d9abbcd5edb404a12d2074c55f20bc149ff7fd3"
         },
         {
           "name": "manifest.ru",
@@ -146,8 +146,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 6257,
-          "sha256": "1b5e63a85f9e97c025379d41ea851411139b9ebca312530f931e875eadaf0b79"
+          "size": 6302,
+          "sha256": "8f96feafa1f984b155627688ca044e60b12640a6aa465c5f8d01b42d7cefda88"
         },
         {
           "name": "manifest.ru",
@@ -194,8 +194,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 7370,
-          "sha256": "bc47d1faa6a0abd398dab9b075a70bf25734ec6a9635f9560e25c70693c8284d"
+          "size": 7434,
+          "sha256": "d92fa37628b2bf27598a47ff8280d4b2acbb78fce97ae58a6518d1fe7c071da5"
         },
         {
           "name": "manifest.ru",
@@ -243,8 +243,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 8505,
-          "sha256": "4c5f10d6c3d3a7da33d60589a23b5e8130d874f7ab4d22e00aae00171c4366d4"
+          "size": 8544,
+          "sha256": "633ed436b048a40bf57e649fc93473bc4ecdec58b12857509c417759e22fcc01"
         },
         {
           "name": "manifest.ru",
@@ -293,8 +293,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 2850,
-          "sha256": "a62675231c3b91262f2c542141da20816645e0c8aa54d559c381869d607ccc01"
+          "size": 2877,
+          "sha256": "9abe0ba6134c094e6a3e976e4f6250bb92d28eca5aba98e97821b08b9968d30e"
         },
         {
           "name": "manifest.ru",
@@ -342,8 +342,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 5383,
-          "sha256": "40313c4dfe7eb0cc26356f0adbcd120bc094d435aefcd6895993f5d7e70a9a53"
+          "size": 5404,
+          "sha256": "577e54798651c46b9da8b3c9b0db551068b74502537652bbe7035a45fbd7ba0b"
         },
         {
           "name": "manifest.ru",
@@ -391,8 +391,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 2959,
-          "sha256": "6d12b7e876835f8abd65700583194259ca2ea69fe93a022f38274abacc57f935"
+          "size": 3002,
+          "sha256": "9215a0d07a2c394c2e3feecbbd778ad1f34318e6b2fe11c116defc191f1d878c"
         },
         {
           "name": "manifest.ru",
@@ -440,8 +440,8 @@
       "files": [
         {
           "name": "app.wasm",
-          "size": 5153,
-          "sha256": "32d688b2042638522550d762b0de58288202545301ec34079c3f6a1f773f8826"
+          "size": 5191,
+          "sha256": "ecddc826558efbd340b52c04cb277067d631eb2ac4dc9b84f445c6eac9e22ae8"
         },
         {
           "name": "manifest.ru",

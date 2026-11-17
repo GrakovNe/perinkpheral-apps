@@ -80,14 +80,14 @@ static void open(page_t next)
     } else if (page == PAGE_OPTIONS) {
         units.selected = unit_set;
     }
-    request_redraw(REDRAW);
+    screen_redraw(REDRAW);
 }
 
 /* What one of the library's screens said about a press. */
 static void follow(app_ui_result_t result)
 {
     if (result == APP_UI_CHANGED) {
-        request_redraw(REDRAW);
+        screen_redraw(REDRAW);
     } else if (result == APP_UI_DONE || result == APP_UI_CANCELLED) {
         open(PAGE_CONTENTS);
     }
@@ -101,9 +101,9 @@ void app_on_button(int32_t event)
         if (result == APP_UI_DONE) {
             open((page_t)contents.selected);
         } else if (result == APP_UI_CANCELLED) {
-            request_exit();
+            screen_leave();
         } else if (result == APP_UI_CHANGED) {
-            request_redraw(REDRAW);
+            screen_redraw(REDRAW);
         }
         break;
     }
@@ -112,7 +112,7 @@ void app_on_button(int32_t event)
         break;
     case PAGE_DETAILS:
         if (app_list_button(&facts, event) == APP_UI_CHANGED) {
-            request_redraw(REDRAW);
+            screen_redraw(REDRAW);
         }
         break;
     case PAGE_OPTIONS: {
@@ -134,10 +134,10 @@ void app_on_button(int32_t event)
     case PAGE_PRIMITIVES:
         if (event == BTN_UP_PRESSED && bar_value < 10) {
             bar_value++;
-            request_redraw(REDRAW);
+            screen_redraw(REDRAW);
         } else if (event == BTN_DOWN_PRESSED && bar_value > 0) {
             bar_value--;
-            request_redraw(REDRAW);
+            screen_redraw(REDRAW);
         } else if (event == BTN_OK_PRESSED) {
             open(PAGE_CONTENTS);
         }
@@ -155,7 +155,7 @@ void app_on_button(int32_t event)
 void app_on_back(void)
 {
     if (page == PAGE_CONTENTS) {
-        request_exit();
+        screen_leave();
     } else if (page == PAGE_DATE || page == PAGE_TIME) {
         follow(app_date_button(&when, BTN_BACK_PRESSED));
     } else {
@@ -172,7 +172,7 @@ static void draw_rows(app_list_t *list, const int32_t *labels, const int32_t *va
     for (int32_t i = first; i < first + ui_list_visible(list) && i < list->count; i++) {
         const char *label = app_string(labels[i]);
         const char *value = values == NULL ? "" : values[i] >= 0 ? app_string(values[i]) : texts[i];
-        ui_list_row(list, i, label, app_text_length(label), value, app_text_length(value),
+        ui_draw_list_row(list, i, label, app_text_length(label), value, app_text_length(value),
                     i == checked ? HOST_ICON_CHECK : HOST_ICON_NONE);
     }
 }
@@ -198,8 +198,8 @@ static void draw_cells(int32_t count)
     }
     app_draw_cells(cells, 0, ICONS, count); /* one size for all of them */
     if (columns > 1) {
-        gfx_rect(width, HOST_UI_MARGIN, 1, gfx_height() - 2 * HOST_UI_MARGIN, HOST_RECT_FILLED);
-        gfx_rect(HOST_UI_MARGIN, height, gfx_width() - 2 * HOST_UI_MARGIN, 1, HOST_RECT_FILLED);
+        gfx_draw_rect(width, HOST_UI_MARGIN, 1, gfx_height() - 2 * HOST_UI_MARGIN, HOST_RECT_FILLED);
+        gfx_draw_rect(HOST_UI_MARGIN, height, gfx_width() - 2 * HOST_UI_MARGIN, 1, HOST_RECT_FILLED);
     }
 }
 
@@ -211,7 +211,7 @@ static void draw_charts(void)
                                       758, 771, 780, 779, 790, 802, 815, 811, 824, 840 };
     static const int32_t DAILY[] = { 3, 0, 6, 9, 2, 7, 6, 11, 8, 4, 13, 9, 1, 11 };
     static const int32_t NAMES[] = { STR_LINE, STR_AREA, STR_BARS, STR_STEPS };
-    int32_t top = ui_title(TEXT(STR_PAGE_CHARTS));
+    int32_t top = ui_draw_title(TEXT(STR_PAGE_CHARTS));
     int32_t column = (gfx_width() - 3 * HOST_UI_MARGIN) / 2;
     int32_t row = (gfx_height() - top - 2 * HOST_UI_MARGIN) / 2;
     /* the chart under its caption, whatever the typeface's height */
@@ -219,7 +219,7 @@ static void draw_charts(void)
     for (int32_t i = 0; i < 4; i++) {
         int32_t left = HOST_UI_MARGIN + i % 2 * (column + HOST_UI_MARGIN);
         int32_t at = top + i / 2 * (row + HOST_UI_MARGIN);
-        ui_text(left, at, HOST_UI_CAPTION, TEXT(NAMES[i]), 0);
+        ui_draw_text(left, at, HOST_UI_CAPTION, TEXT(NAMES[i]), 0);
         host_chart_t chart = {
             .x = left, .y = at + caption, .width = column, .height = row - caption,
             .kind = i, /* HOST_CHART_LINE, AREA, BARS, STEPS */
@@ -232,25 +232,25 @@ static void draw_charts(void)
         } else if (i == 2) {
             chart.flags |= HOST_CHART_FROM_ZERO;
         }
-        ui_chart(&chart, i == 2 ? DAILY : SERIES);
+        ui_draw_chart(&chart, i == 2 ? DAILY : SERIES);
     }
 }
 
 static void draw_primitives(void)
 {
-    int32_t top = ui_title(TEXT(STR_TITLE));
-    ui_text(16, top, HOST_UI_TEXT, TEXT(STR_TEXT), 0);
-    ui_text(16, top + 30, HOST_UI_CAPTION, TEXT(STR_CAPTION), 0);
+    int32_t top = ui_draw_title(TEXT(STR_TITLE));
+    ui_draw_text(16, top, HOST_UI_TEXT, TEXT(STR_TEXT), 0);
+    ui_draw_text(16, top + 30, HOST_UI_CAPTION, TEXT(STR_CAPTION), 0);
     int32_t row = top + 54;
-    ui_icon(16, row + 22, HOST_ICON_BELL, HOST_UI_ICON_SMALL);
-    ui_icon(52, row, HOST_ICON_BELL, HOST_UI_ICON_MEDIUM);
+    ui_draw_icon(16, row + 22, HOST_ICON_BELL, HOST_UI_ICON_SMALL);
+    ui_draw_icon(52, row, HOST_ICON_BELL, HOST_UI_ICON_MEDIUM);
     char number[8];
     app_text_t text;
     app_text_start(&text, number, sizeof number);
     app_text_add_number(&text, bar_value);
-    ui_text(120, row - 12, HOST_UI_VALUE, number, app_text_length(number), 0);
-    ui_button(262, row + 14, "UP", 2, TEXT(STR_MORE), false);
-    ui_bar(16, row + 58, gfx_width() - 32, bar_value, 10);
+    ui_draw_text(120, row - 12, HOST_UI_VALUE, number, app_text_length(number), 0);
+    ui_draw_button(262, row + 14, "UP", 2, TEXT(STR_MORE), false);
+    ui_draw_bar(16, row + 58, gfx_width() - 32, bar_value, 10);
     app_draw_actions(NULL, app_string(STR_CLOSE));
 }
 
@@ -301,7 +301,7 @@ void app_on_draw(void)
         app_text_copy(notice.first, sizeof notice.first, app_string(STR_NOT_SET_UP));
         app_text_copy(notice.detail, sizeof notice.detail, app_string(STR_OPEN_PAGE));
         notice.icon = HOST_ICON_GEAR;
-        ui_notice(&notice);
+        ui_draw_notice(&notice);
         break;
     case PAGE_QUESTION:
         app_text_copy(notice.first, sizeof notice.first, app_string(STR_REMOVE));
@@ -309,13 +309,13 @@ void app_on_draw(void)
         app_text_copy(notice.ok, sizeof notice.ok, app_string(STR_REMOVE));
         app_text_copy(notice.back, sizeof notice.back, app_string(STR_CANCEL));
         notice.icon = HOST_ICON_TRASH;
-        ui_notice(&notice);
+        ui_draw_notice(&notice);
         break;
     case PAGE_WORKING:
         app_text_copy(notice.first, sizeof notice.first, app_string(STR_LOADING));
         app_text_copy(notice.second, sizeof notice.second, app_string(STR_IN_PROGRESS));
         notice.is_working = 1;
-        ui_notice(&notice);
+        ui_draw_notice(&notice);
         break;
     default:
         break;

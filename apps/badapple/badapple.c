@@ -151,7 +151,7 @@ static void draw_frame(void)
                 ink_from = column;
             } else if (!ink && ink_from >= 0) {
                 /* A run of ink in a row is one rectangle. */
-                gfx_rect(left + ink_from * pixel_size, top + row * pixel_size,
+                gfx_draw_rect(left + ink_from * pixel_size, top + row * pixel_size,
                          (column - ink_from) * pixel_size, pixel_size, HOST_RECT_FILLED);
                 rectangles++;
                 ink_from = -1;
@@ -184,11 +184,11 @@ void app_on_timer(int32_t id)
         (int32_t)((time_uptime_ms() - started_ms) * frames_per_10_s / MS_PER_10_S);
     if (due_frame >= frame_count) {
         /* The row is over: the numbers on a panel cleaned of its traces. */
-        request_redraw(HOST_REDRAW_CLEAN);
+        screen_redraw(HOST_REDRAW_CLEAN);
         return;
     }
     /* Nobody pressed anything, it is wanted now, and it is one of a row. */
-    request_redraw(HOST_REDRAW_NO_BLINK);
+    screen_redraw(HOST_REDRAW_NO_BLINK);
     timer_set(FRAME_TIMER, MS_PER_10_S / frames_per_10_s);
 }
 
@@ -201,7 +201,7 @@ void app_on_button(int32_t event)
     case BTN_UP_PRESSED:
         /* Enough: to the numbers at once. */
         started_ms = time_uptime_ms() - (int64_t)frame_count * MS_PER_10_S / frames_per_10_s;
-        request_redraw(HOST_REDRAW_NORMAL);
+        screen_redraw(HOST_REDRAW_NORMAL);
         break;
     }
 }
@@ -216,7 +216,7 @@ static void draw_line(int32_t line, const char *label, int32_t value, const char
         app_text_add_number(&text, value);
         app_text_add(&text, unit);
     }
-    gfx_text(MARGIN, MARGIN + line * LINE_HEIGHT, HOST_FONT_TEXT, buffer, app_text_length(buffer));
+    gfx_draw_text(MARGIN, MARGIN + line * LINE_HEIGHT, HOST_FONT_TEXT, buffer, app_text_length(buffer));
 }
 
 static void draw_numbers(void)
@@ -234,12 +234,12 @@ static void draw_numbers(void)
      * next to none, so this is where the panel shows what they look like. */
     int32_t step_width = (gfx_width() - 2 * MARGIN) / (HOST_INK + 1);
     for (int32_t shade = HOST_PAPER; shade <= HOST_INK; shade++) {
-        gfx_color(shade);
-        gfx_rect(MARGIN + shade * step_width, GREYS_TOP, step_width, GREYS_HEIGHT,
+        gfx_set_color(shade);
+        gfx_draw_rect(MARGIN + shade * step_width, GREYS_TOP, step_width, GREYS_HEIGHT,
                  HOST_RECT_FILLED);
     }
-    gfx_color(HOST_INK);
-    gfx_rect(MARGIN, GREYS_TOP, (HOST_INK + 1) * step_width, GREYS_HEIGHT, HOST_RECT_OUTLINE);
+    gfx_set_color(HOST_INK);
+    gfx_draw_rect(MARGIN, GREYS_TOP, (HOST_INK + 1) * step_width, GREYS_HEIGHT, HOST_RECT_OUTLINE);
 }
 
 void app_on_draw(void)
