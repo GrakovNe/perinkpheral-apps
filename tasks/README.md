@@ -20,7 +20,7 @@ In the repository `perinkpheral` (next to this one):
   `app_draw.h`, `app_ui.h` (what the buttons do on the kit's screens), `app_state.h` (the store,
   settings, the session), `app_values.h` and `app_fixed.h` (numbers with decimals), `json_pick.h`,
   `app_days.h` (dates).
-- `docs/guide/perinkpheral-app-guide.pdf` - the guide; its source is `docs/guide/source/guide.html`.
+- the guide, attached to every firmware release (https://github.com/GrakovNe/perinkpheral/releases/latest/download/perinkpheral-app-guide.pdf); its source is `docs/guide/source/guide.html`.
 - The application named as the model in each task, in `apps/` here: read it whole and copy its
   shape - the file's opening comment, how it keeps state, how it draws.
 
