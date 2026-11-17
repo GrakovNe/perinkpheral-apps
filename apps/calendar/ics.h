@@ -100,3 +100,15 @@ void ics_begin(ics_t *ics, ics_event_t *events, int64_t from, int64_t until,
 void ics_feed(ics_t *ics, const char *data, int32_t length);
 /* The file is over: how many events there are, earliest first. */
 int32_t ics_end(ics_t *ics);
+
+#define ICS_CALENDAR_MARKER_BYTES 15
+#define ICS_ENCODING_MARK_BYTES 3
+
+typedef struct {
+    uint8_t bytes[ICS_CALENDAR_MARKER_BYTES + ICS_ENCODING_MARK_BYTES];
+    int32_t length;
+} ics_opening_t;
+
+/* Feed from a zeroed state: 0 until complete, 1 for BEGIN:VCALENDAR with
+ * an optional UTF-8 encoding mark, -1 for another document. */
+int ics_opening_feed(ics_opening_t *opening, const uint8_t *data, int32_t length);

@@ -4,8 +4,8 @@
     {
       "name": "badapple",
       "title": "Bad Apple",
-      "version": "0.1.6",
-      "abi": 2,
+      "version": "0.1.7",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
@@ -19,11 +19,11 @@
         },
         {
           "name": "manifest.json",
-          "size": 388,
-          "sha256": "889f78c2505ddd8b7119eb4c61615b6c028c4e9ff53ee4f2382d28a6ca028074"
+          "size": 389,
+          "sha256": "12c292c7682071eafaf2d819dd104c8c3975a9f13f0f96e307510937025e61a4"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.30",
       "icon": [
         "......#....",
         ".....#.....",
@@ -42,13 +42,13 @@
     {
       "name": "calendar",
       "title": "Calendar",
-      "version": "0.4.11",
-      "abi": 2,
+      "version": "0.4.12",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 13828,
-          "sha256": "557aba349ef69a6a76fa1f91c7cab6989153c8da5136233b36cebef9348a0d4e"
+          "size": 14025,
+          "sha256": "5de7931b616cb452117d5f8e41fe2c5ff33d40ef15e6afcae90aa76d82c7976e"
         },
         {
           "name": "manifest.ru",
@@ -63,10 +63,10 @@
         {
           "name": "manifest.json",
           "size": 1180,
-          "sha256": "4a3ef1a5f5e910b24941b56363738cc7d1c1510ae5adf1932dfc5e9e0c188cdb"
+          "sha256": "703b275fa652928f4100c10e86dfaba438511083658381fb2012c3f215db8b02"
         }
       ],
-      "firmware": "0.1.21",
+      "firmware": "0.1.30",
       "writes_files": true,
       "icon": [
         "..#.....#..",
@@ -92,8 +92,8 @@
     {
       "name": "clock",
       "title": "Clock",
-      "version": "0.1.7",
-      "abi": 2,
+      "version": "0.1.8",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
@@ -112,11 +112,11 @@
         },
         {
           "name": "manifest.json",
-          "size": 432,
-          "sha256": "6e9c2ecfe7f5922e361940f21591bf37d87edadeac6abdcbbeadad2caa8440c0"
+          "size": 433,
+          "sha256": "2fd71d37b3d2a0455f2fb3afc9ec20ae067da8946681ea2b39e00831e6cd6e12"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.30",
       "icon": [
         "...#####...",
         "..#.....#..",
@@ -141,8 +141,8 @@
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.3.14",
-      "abi": 2,
+      "version": "0.3.15",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
@@ -162,10 +162,10 @@
         {
           "name": "manifest.json",
           "size": 883,
-          "sha256": "ab522d0f7d3ad2e241f84ab1b5acd39e890661a2eee7cf6b6130b7aba89974d7"
+          "sha256": "eb0de30b7968887bfbdfacd9ddbcbd79ea252c44a9d904004453c9d51f0f1a26"
         }
       ],
-      "firmware": "0.1.23",
+      "firmware": "0.1.30",
       "icon": [
         ".....#.....",
         "....###....",
@@ -189,8 +189,8 @@
     {
       "name": "kit",
       "title": "UI Kit",
-      "version": "0.1.11",
-      "abi": 2,
+      "version": "0.1.12",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
@@ -209,11 +209,11 @@
         },
         {
           "name": "manifest.json",
-          "size": 383,
-          "sha256": "62ba6927fbc66fe20603a81c8a0208d68a28cf10f12206b31ed57563ab19c05a"
+          "size": 384,
+          "sha256": "9f0232fbea36288e0ef81e646b38ff54c36cf27a64fc2225f1a997c16e3bb924"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.30",
       "icon": [
         "###########",
         "#.........#",
@@ -238,23 +238,18 @@
     {
       "name": "stocks",
       "title": "Stocks",
-      "version": "0.2.7",
-      "abi": 2,
+      "version": "0.2.9",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 9251,
-          "sha256": "457729ef621e3ffaf721d4c486ee06abf8914dd5a4be0f74165906b0285bc870"
+          "size": 8505,
+          "sha256": "4c5f10d6c3d3a7da33d60589a23b5e8130d874f7ab4d22e00aae00171c4366d4"
         },
         {
           "name": "manifest.ru",
-          "size": 479,
-          "sha256": "b06d385d18b34bf1d67f92f78a88ccae8fdb3c7e09fd126ff5e8fb1bef7e664c"
-        },
-        {
-          "name": "russian-root-ca.pem",
-          "size": 2057,
-          "sha256": "aa800ef345422d6158c6fafe1c06c429dbda21c3df4bb1ccb45a920ec1111399"
+          "size": 449,
+          "sha256": "99055f45e23e67d78de2d7c8467f94db1459e464337d04e31501dceb96b43cd8"
         },
         {
           "name": "strings.ru",
@@ -263,15 +258,12 @@
         },
         {
           "name": "manifest.json",
-          "size": 3172,
-          "sha256": "f778ac540f2f797ccc628e4ebd371e98527ecfa9f32025daabe8972717da6cde"
+          "size": 2771,
+          "sha256": "574783fde6d2a4b5fb4eb3c2cede06b084b893644b68b20c0570593378966e86"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.30",
       "writes_files": true,
-      "trusts": [
-        "Russian Trusted Root CA"
-      ],
       "icon": [
         "...........",
         ".........#.",
@@ -296,8 +288,8 @@
     {
       "name": "stopwatch",
       "title": "Stopwatch",
-      "version": "0.1.9",
-      "abi": 2,
+      "version": "0.1.10",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
@@ -316,11 +308,11 @@
         },
         {
           "name": "manifest.json",
-          "size": 397,
-          "sha256": "1467a54ea02fadcba953dd59ffa66b93fd0b6897a70ef6b61fc02bc027c3eae2"
+          "size": 399,
+          "sha256": "115f266a25ae0213a9e875dc5ff27538db0e857f4654ef978ec6c8bf6c3f1e36"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.30",
       "icon": [
         "....###....",
         ".....#.....",
@@ -345,8 +337,8 @@
     {
       "name": "sun",
       "title": "Sun and Moon",
-      "version": "0.1.8",
-      "abi": 2,
+      "version": "0.1.9",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
@@ -365,11 +357,11 @@
         },
         {
           "name": "manifest.json",
-          "size": 862,
-          "sha256": "570e051bdd4b3a785a9620618e0b953a35f12c601e3cb4e72492db6cae61bd07"
+          "size": 863,
+          "sha256": "d18e5ad53cc579eafcdbea4958d26b9dfee3dc1a8c2e43ec5ef7b377c61a11be"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.30",
       "icon": [
         "...........",
         ".....#.....",
@@ -394,8 +386,8 @@
     {
       "name": "timer",
       "title": "Timer",
-      "version": "0.3.8",
-      "abi": 2,
+      "version": "0.3.9",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
@@ -414,11 +406,11 @@
         },
         {
           "name": "manifest.json",
-          "size": 355,
-          "sha256": "3f307a7c30681cbf3027bdccaf04a164171b6d589050275b8b613993cd47f09e"
+          "size": 356,
+          "sha256": "54fdc4b182b714090f6184cb0e7552c0683c5eae150f7039fbf47cdfe5f93015"
         }
       ],
-      "firmware": "0.1.8",
+      "firmware": "0.1.30",
       "icon": [
         ".#########.",
         ".#########.",
@@ -443,8 +435,8 @@
     {
       "name": "weather",
       "title": "Weather",
-      "version": "0.2.13",
-      "abi": 2,
+      "version": "0.2.14",
+      "abi": 3,
       "files": [
         {
           "name": "app.wasm",
@@ -464,10 +456,10 @@
         {
           "name": "manifest.json",
           "size": 1958,
-          "sha256": "287a6b56701a673d999b86011915d323a41e8ae1e9f913331772d7e76d0352ad"
+          "sha256": "27675a66240cb695ee19f1c96d3dfbca87833bfa3e6e4750fc4f2155c17e5ff8"
         }
       ],
-      "firmware": "0.1.23",
+      "firmware": "0.1.30",
       "icon": [
         "...#.......",
         ".#...#.....",

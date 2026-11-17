@@ -1,9 +1,9 @@
 {
   "name": "ha",
-  "version": "0.3.14",
+  "version": "0.3.15",
   "title": "HA Companion",
   "description": "Home Assistant dashboard.",
-  "abi": 2,
+  "abi": 3,
   "settings": [
     {
       "key": "server",
@@ -49,5 +49,5 @@
     ".##.###.##.",
     ".#########."
   ],
-  "firmware": "0.1.23"
+  "firmware": "0.1.30"
 }

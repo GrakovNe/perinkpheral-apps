@@ -733,3 +733,27 @@ int32_t ics_end(ics_t *ics)
     ics->count = kept;
     return kept;
 }
+
+/* 0 until the marker is whole, 1 when valid, -1 for another document.
+ * The stream may split even a UTF-8 encoding mark between pieces. */
+int ics_opening_feed(ics_opening_t *opening, const uint8_t *data, int32_t length)
+{
+    static const char CALENDAR_OPENING[] = "BEGIN:VCALENDAR";
+    int32_t wanted = sizeof CALENDAR_OPENING - 1;
+    for (int32_t i = 0; i < length && opening->length < (int32_t)sizeof opening->bytes; i++) {
+        opening->bytes[opening->length++] = data[i];
+    }
+    int32_t offset = opening->length > 0 && opening->bytes[0] == 0xEF ? ICS_ENCODING_MARK_BYTES : 0;
+    static const uint8_t ENCODING_MARK[] = { 0xEF, 0xBB, 0xBF };
+    for (int32_t i = 0; i < opening->length && i < offset; i++) {
+        if (opening->bytes[i] != ENCODING_MARK[i]) {
+            return -1;
+        }
+    }
+    for (int32_t i = offset; i < opening->length && i < offset + wanted; i++) {
+        if (opening->bytes[i] != (uint8_t)CALENDAR_OPENING[i - offset]) {
+            return -1;
+        }
+    }
+    return opening->length >= offset + wanted ? 1 : 0;
+}

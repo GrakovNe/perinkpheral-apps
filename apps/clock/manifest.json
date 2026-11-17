@@ -2,8 +2,8 @@
   "name": "clock",
   "title": "Clock",
   "description": "Large clock with the date.",
-  "version": "0.1.7",
-  "abi": 2,
+  "version": "0.1.8",
+  "abi": 3,
   "fullscreen": true,
   "icon": [
     "...#####...",

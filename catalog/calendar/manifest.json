@@ -1,9 +1,9 @@
 {
   "name": "calendar",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "title": "Calendar",
   "description": "Calendar events.",
-  "abi": 2,
+  "abi": 3,
   "writes_files": true,
   "settings": [
     {
@@ -65,5 +65,5 @@
     ".#.......#.",
     ".#########."
   ],
-  "firmware": "0.1.21"
+  "firmware": "0.1.30"
 }

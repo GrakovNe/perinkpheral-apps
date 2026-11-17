@@ -2,8 +2,8 @@
   "name": "stocks",
   "title": "Stocks",
   "description": "Stock prices.",
-  "version": "0.2.7",
-  "abi": 2,
+  "version": "0.2.9",
+  "abi": 3,
   "writes_files": true,
   "fullscreen": false,
   "polls": [
@@ -50,16 +50,6 @@
       "pick": [
         "candles.data[*][0]"
       ]
-    },
-    {
-      "url": "https://spbexchange.ru/api/reader/marketdata/charts/chistory?symbol={{tickers}}&resolution=15&from={{spb_from}}&to=4102444800",
-      "every": "{{refresh}}",
-      "each": "tickers",
-      "prefix": "SPB:",
-      "pick": [
-        "[*].close",
-        "[*].bar_unixtime"
-      ]
     }
   ],
   "settings": [
@@ -67,14 +57,13 @@
       "key": "tickers",
       "type": "list",
       "title": "Tickers",
-      "help": "AAPL, IBM, 7203.T (Tokyo), MOEX:SBER (Moscow), SPB:SPBE (SPB Exchange)",
+      "help": "AAPL, IBM, 7203.T (Tokyo), MOEX:SBER (Moscow)",
       "default": [
         "AAPL",
         "IBM",
         "7203.T",
         "MOEX:SBER",
-        "MOEX:GAZP",
-        "SPB:SPBE"
+        "MOEX:GAZP"
       ]
     },
     {
@@ -114,8 +103,5 @@
     "#........#.",
     "##########.",
     "..........."
-  ],
-  "certificates": [
-    "russian-root-ca.pem"
   ]
 }

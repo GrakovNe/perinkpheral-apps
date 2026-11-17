@@ -1,9 +1,9 @@
 {
   "name": "calendar",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "title": "Calendar",
   "description": "Calendar events.",
-  "abi": 2,
+  "abi": 3,
   "writes_files": true,
   "settings": [
     { "key": "feed", "type": "link", "title": "Calendar address",

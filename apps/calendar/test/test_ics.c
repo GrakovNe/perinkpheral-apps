@@ -3,13 +3,21 @@
  * Copyright (c) 2026 GrakovNe
  *
  * The calendar's reader, tried on a computer:
- *     cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -I.. -o test_ics test_ics.c ../ics.c && ./test_ics
+ * The catalog CI links the SDK's pure date and text helpers and runs it
+ * with address and undefined-behaviour sanitizers.
  */
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 
 #include "ics.h"
+
+/* The reader only uses pure text helpers; this linked helper is not used. */
+int32_t time_text(int64_t moment, int32_t style, char *text, int32_t capacity)
+{
+    (void)moment; (void)style; (void)text; (void)capacity;
+    return -2;
+}
 
 static int checks, failures;
 #define CHECK(condition)                                                      \
@@ -183,8 +191,35 @@ static void test_rejects_non_calendar(void)
     CHECK(strcmp(events[0].title, "After a long line") == 0);
 }
 
+static void test_opening_at_every_split(void)
+{
+    static const char *const VALID[] = {
+        "BEGIN:VCALENDAR\r\n", "\xEF\xBB\xBF" "BEGIN:VCALENDAR\r\n",
+    };
+    for (unsigned i = 0; i < sizeof VALID / sizeof VALID[0]; i++) {
+        int32_t length = (int32_t)strlen(VALID[i]);
+        for (int32_t split = 0; split <= length; split++) {
+            ics_opening_t opening = { 0 };
+            CHECK(ics_opening_feed(&opening, (const uint8_t *)VALID[i], split) >= 0);
+            CHECK(ics_opening_feed(&opening, (const uint8_t *)VALID[i] + split, length - split) == 1);
+        }
+        ics_opening_t opening = { 0 };
+        for (int32_t at = 0; at < length; at++) {
+            CHECK(ics_opening_feed(&opening, (const uint8_t *)VALID[i] + at, 1) >= 0);
+        }
+        CHECK(ics_opening_feed(&opening, NULL, 0) == 1);
+    }
+    ics_opening_t opening = { 0 };
+    CHECK(ics_opening_feed(&opening, (const uint8_t *)"BEGIN:VCAL", 10) == 0);
+    CHECK(ics_opening_feed(&opening, (const uint8_t *)"X", 1) == -1);
+    opening = (ics_opening_t){ 0 };
+    CHECK(ics_opening_feed(&opening, (const uint8_t *)"\xEF\xBB", 2) == 0);
+    CHECK(ics_opening_feed(&opening, (const uint8_t *)"X", 1) == -1);
+}
+
 int main(void)
 {
+    test_opening_at_every_split();
     test_single_events();
     test_summer_time();
     test_repeating();

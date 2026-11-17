@@ -1,9 +1,9 @@
 {
   "name": "stopwatch",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "title": "Stopwatch",
   "description": "Stopwatch.",
-  "abi": 2,
+  "abi": 3,
   "intents": [
     "started"
   ],
@@ -20,5 +20,5 @@
     "..#.....#..",
     "...#####..."
   ],
-  "firmware": "0.1.8"
+  "firmware": "0.1.30"
 }

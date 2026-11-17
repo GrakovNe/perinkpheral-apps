@@ -8,7 +8,7 @@
     "settings": {
       "tickers": {
         "title": "Тикеры",
-        "help": "AAPL, IBM, 7203.T (Токио), MOEX:SBER (Москва), SPB:SPBE (СПБ Биржа)"
+        "help": "AAPL, IBM, 7203.T (Токио), MOEX:SBER (Москва)"
       },
       "refresh": {
         "title": "Обновление",

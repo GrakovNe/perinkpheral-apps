@@ -194,21 +194,7 @@ static void finish_fetch(int32_t status)
     request_redraw(HOST_REDRAW_NORMAL);
 }
 
-static bool is_calendar_start(const uint8_t *data, int32_t length)
-{
-    static const char OPENING[] = "BEGIN:VCALENDAR";
-    int32_t at = 0;
-    /* Some servers put a mark of the encoding first. */
-    if (length >= 3 && data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF) {
-        at = 3;
-    }
-    for (int32_t i = 0; OPENING[i] != '\0'; i++) {
-        if (at + i >= length || data[at + i] != (uint8_t)OPENING[i]) {
-            return false;
-        }
-    }
-    return true;
-}
+static ics_opening_t opening;
 
 void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t flags,
                  int32_t http_status)
@@ -223,12 +209,11 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
     if (flags & HOST_DATA_FIRST) {
         int64_t now = time_now();
         is_reading = false;
+        opening = (ics_opening_t){ 0 };
         if (http_status != HTTP_OK) {
             finish_fetch(http_status);
         } else if (now == 0) {
             finish_fetch(STATUS_NO_TIME); /* "the next two weeks" needs a today */
-        } else if (!is_calendar_start(data, length)) {
-            finish_fetch(STATUS_NOT_A_CALENDAR);
         } else {
             ics_begin(&reader, incoming, now, now + (int64_t)DAYS_AHEAD * SECONDS_PER_DAY,
                       time_zone_offset());
@@ -236,6 +221,11 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
         }
     }
     if (!is_reading) {
+        return;
+    }
+    int start = ics_opening_feed(&opening, data, length);
+    if (start < 0 || ((flags & HOST_DATA_LAST) && start == 0)) {
+        finish_fetch(STATUS_NOT_A_CALENDAR);
         return;
     }
     ics_feed(&reader, (const char *)data, length);

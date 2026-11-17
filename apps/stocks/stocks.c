@@ -9,7 +9,7 @@
  *
  * Data: one list of tickers ("tickers"), the exchange said by a prefix as
  * TradingView writes it - "AAPL" and "7203.T" are Yahoo's, "MOEX:SBER" the
- * Moscow Exchange's, "SPB:SPBE" the SPB Exchange's. Each poll of the
+ * Moscow Exchange's. Each poll of the
  * manifest goes over the list ("each") and takes the items of its own
  * prefix ("prefix"), the one of Yahoo the rest; the host picks the values
  * from every answer and calls app_on_values() once per ticker. Each answer
@@ -20,13 +20,6 @@
  * The Moscow chart is the trading day's candles, an address that names the
  * day: the quote brings the exchange's date, kept under "day", and the
  * candles' poll puts it into its address as {{day}}.
- *
- * The SPB Exchange gives a ticker's 15-minute bars of a period, and
- * nothing else: the last bar's close is the price, the bars of the last day
- * the chart, and the start of that day is kept under "spb_from" for the
- * poll's address. Its site is certified by the Russian Trusted Root CA, which
- * the browsers' set does not have: the application brings it
- * ("certificates"), for its own requests only.
  *
  * Buttons: UP and DOWN switch tickers; OK starts and stops the rotation
  * (a timer, on the screen only, at the "rotate" interval).
@@ -42,7 +35,7 @@
 #define MARGIN HOST_UI_MARGIN
 
 /* The manifest's polls. */
-enum { POLL_YAHOO, POLL_MOEX, POLL_MOEX_DAY, POLL_SPB };
+enum { POLL_YAHOO, POLL_MOEX, POLL_MOEX_DAY };
 
 /* Positions of the paths in the "pick" of POLL_YAHOO. */
 enum {
@@ -72,16 +65,10 @@ enum {
 /* Of POLL_MOEX_DAY: the closes of the day's candles. */
 enum { MOEX_CLOSE };
 
-/* Of POLL_SPB: the bars' closes and when each began. */
-enum { SPB_CLOSE, SPB_TIME };
-
-#define SPB_BAR_S    (15 * 60)
-#define SPB_PERIOD_S (24 * 3600)
 
 #define TICKERS "tickers"
 static const char QUOTES_FILE[] = "quotes";
 #define QUOTES_FILE_LENGTH ((int32_t)sizeof QUOTES_FILE - 1)
-#define SPB_PREFIX "SPB:" /* the poll's own "prefix": what is left of the item is the ticker */
 
 #define MOSCOW_OFFSET_S (3 * 3600) /* Moscow keeps UTC+3 the year round */
 
@@ -95,8 +82,7 @@ static const char QUOTES_FILE[] = "quotes";
 /* What an exchange that has no such ticker comes to: it answers with an
  * empty table, and the screen says "Not found" as for an HTTP 404. */
 #define STATUS_NOT_FOUND 404
-/* What the poll over SPB asks from and the Moscow day the candles are of. */
-#define SPB_FROM_KEY "spb_from"
+/* The Moscow day the candles are of. */
 #define MOEX_DAY_KEY "day"
 #define MOEX_DATE_LENGTH 10 /* "2026-11-15" */
 
@@ -450,87 +436,6 @@ static void moex_day(int32_t item, int32_t http_status)
     written(item, 1);
 }
 
-/* The start of the period the SPB poll asks for: a day ago, on the hour, so that it is
- * written to the store once an hour and not with every answer. True when it changed. */
-static bool spb_move_period(void)
-{
-    int64_t now = time_now();
-    if (now == 0) {
-        return false; /* the time is not known yet */
-    }
-    char       wanted[24], kept[24];
-    app_text_t text;
-    app_text_start(&text, wanted, sizeof wanted);
-    app_text_add_fixed(&text, (now - SPB_PERIOD_S) / 3600 * 3600, 0, 0);
-    app_setting(SPB_FROM_KEY, kept, sizeof kept);
-    if (app_text_equal(wanted, kept)) {
-        return false;
-    }
-    app_state_save(SPB_FROM_KEY, wanted, app_text_length(wanted));
-    return true;
-}
-
-/* The decimals the closes are written with, as few as say them all: "177.200000" is 1. */
-static int32_t spb_decimals(int32_t count)
-{
-    int32_t most = 2;
-    for (int32_t element = 0; element < count; element++) {
-        char text[24];
-        if (!app_value_element_text(SPB_CLOSE, element, text, sizeof text)) {
-            continue;
-        }
-        const char *point = text;
-        while (*point && *point != '.') {
-            point++;
-        }
-        int32_t length = 0;
-        for (int32_t at = 1; *point && point[at]; at++) {
-            if (point[at] != '0') {
-                length = at;
-            }
-        }
-        most = length > most ? length : most;
-    }
-    return most > DECIMALS_MAX ? DECIMALS_MAX : most;
-}
-
-static void spb_values(int32_t item, int32_t http_status)
-{
-    quote_t record;
-    int32_t had_data;
-    /* The period moves with the clock; the first poll waits for it ("not ready"). */
-    if (spb_move_period() && http_status == HOST_FAILED_NOT_READY) {
-        poll_now(POLL_SPB);
-        return;
-    }
-    if (!record_for(item, &record, &had_data)) {
-        return;
-    }
-    if (is_success(http_status)) {
-        int32_t count = app_value_count(SPB_CLOSE);
-        int32_t decimals = spb_decimals(count);
-        int64_t price, began;
-        if (count == 0) {
-            /* An empty list: no such ticker, or no trades in the whole day. */
-            record.has_data = 0;
-            http_status     = STATUS_NOT_FOUND;
-        } else if (app_value_element_fixed(SPB_CLOSE, count - 1, decimals, &price)) {
-            record.has_data = 1;
-            record.decimals = decimals;
-            record.price    = price;
-            record.previous = price;
-            record.name[0]  = 0; /* the exchange names nothing here: the ticker says it */
-            app_text_copy(record.symbol, sizeof record.symbol, record.item + sizeof SPB_PREFIX - 1);
-            app_text_copy(record.currency, sizeof record.currency, "RUB");
-            record.time = app_value_element_fixed(SPB_TIME, count - 1, 0, &began) ? began + SPB_BAR_S : 0;
-            record.count = app_value_series(SPB_CLOSE, decimals, record.series, HOST_CHART_VALUES_MAX);
-        }
-    }
-    record.status = http_status;
-    write_quote(item, &record);
-    written(item, had_data);
-}
-
 void app_on_values(int32_t request, int32_t http_status)
 {
     int32_t item = data_item();
@@ -541,7 +446,6 @@ void app_on_values(int32_t request, int32_t http_status)
     case POLL_YAHOO: yahoo_values(item, http_status); break;
     case POLL_MOEX: moex_quote(item, http_status); break;
     case POLL_MOEX_DAY: moex_day(item, http_status); break;
-    case POLL_SPB: spb_values(item, http_status); break;
     default: break;
     }
 }

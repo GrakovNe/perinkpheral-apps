@@ -59,6 +59,14 @@ jobs:
             echo "build.sh makes files the catalog has not committed" >&2
             exit 1
           fi
+      - name: Calendar reader host tests
+        run: |
+          cc -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -fsanitize=address,undefined \
+            '-DHOST_IMPORT(name,...)=__VA_ARGS__' \
+            -Iapps/calendar -Iperinkpheral/sdk/lib apps/calendar/test/test_ics.c apps/calendar/ics.c \
+            perinkpheral/sdk/lib/app_days.c perinkpheral/sdk/lib/app_text.c -Iperinkpheral/sdk \
+            -o "$RUNNER_TEMP/test_ics"
+          "$RUNNER_TEMP/test_ics"
       - name: The applications in the simulator
         run: perinkpheral/tools/perinkpheral sim-test tests
       - name: The pictures that differ
