@@ -3,7 +3,7 @@
   "title": "Air quality",
   "author": "Perinkpheral",
   "description": "Air quality, particles, UV and the strongest irritants.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "abi": 3,
   "fullscreen": false,
   "hosts": [
