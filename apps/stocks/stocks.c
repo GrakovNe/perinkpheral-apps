@@ -138,7 +138,7 @@ static void read_quote(int32_t index, quote_t *out)
 
 /* Records are written in place, so the file is first extended with empty
  * ones up to the record being written. */
-static void write_quote(int32_t index, const quote_t *record)
+static bool write_quote(int32_t index, const quote_t *record)
 {
     int32_t size   = file_size(QUOTES_FILE, QUOTES_FILE_LENGTH);
     int32_t offset = index * (int32_t)sizeof *record;
@@ -148,10 +148,10 @@ static void write_quote(int32_t index, const quote_t *record)
     size -= size % (int32_t)sizeof *record;
     while (size < offset) {
         static const quote_t empty;
-        file_write(QUOTES_FILE, QUOTES_FILE_LENGTH, size, &empty, sizeof empty);
+        if (file_write(QUOTES_FILE, QUOTES_FILE_LENGTH, size, &empty, sizeof empty) != HOST_OK) { return false; }
         size += (int32_t)sizeof empty;
     }
-    file_write(QUOTES_FILE, QUOTES_FILE_LENGTH, offset, record, sizeof *record);
+    return file_write(QUOTES_FILE, QUOTES_FILE_LENGTH, offset, record, sizeof *record) == HOST_OK;
 }
 
 /* The record of the ticker on the screen, empty if it belongs to another. */
@@ -291,12 +291,19 @@ static bool record_for(int32_t item, quote_t *record, int32_t *had_data)
     return true;
 }
 
-/* A record was written: the screen shows it again when it is the one on it. */
-static void written(int32_t item, int32_t had_data)
+/* Skip identical polls: a closed market need not rewrite the quote file. */
+static void keep_quote(int32_t item, const quote_t *record, const quote_t *before, int32_t had_data)
 {
+    const uint8_t *fresh = (const uint8_t *)record, *previous = (const uint8_t *)before;
+    bool changed = false;
+    for (int32_t byte = 0; byte < (int32_t)sizeof *record; byte++) {
+        if (fresh[byte] != previous[byte]) { changed = true; break; }
+    }
+    if (!changed) { return; }
+    write_quote(item, record);
     if (item == loaded) {
-        load_current();
-        /* The first data of a ticker is what the user is waiting for. */
+        /* Fresh data still belongs on screen when storage is full. The next poll retries. */
+        quote = *record;
         screen_redraw(had_data ? HOST_REDRAW_NORMAL : HOST_REDRAW_SOON);
     }
 }
@@ -308,6 +315,7 @@ static void yahoo_values(int32_t item, int32_t http_status)
     if (!record_for(item, &record, &had_data)) {
         return;
     }
+    quote_t before = record;
     int32_t hint = 2;
     int64_t price, previous;
     if (is_success(http_status)) {
@@ -337,8 +345,7 @@ static void yahoo_values(int32_t item, int32_t http_status)
         }
     }
     record.status = http_status;
-    write_quote(item, &record);
-    written(item, had_data);
+    keep_quote(item, &record, &before, had_data);
 }
 
 /* "2026-11-15" and "16:52:00", Moscow's, as Unix time. */
@@ -365,6 +372,7 @@ static void moex_quote(int32_t item, int32_t http_status)
     if (!record_for(item, &record, &had_data)) {
         return;
     }
+    quote_t before = record;
     if (is_success(http_status)) {
         int32_t decimals = 2;
         int64_t price, previous;
@@ -415,8 +423,7 @@ static void moex_quote(int32_t item, int32_t http_status)
         }
     }
     record.status = http_status;
-    write_quote(item, &record);
-    written(item, had_data);
+    keep_quote(item, &record, &before, had_data);
 }
 
 static void moex_day(int32_t item, int32_t http_status)
@@ -431,9 +438,9 @@ static void moex_day(int32_t item, int32_t http_status)
     if (!record.has_data || !app_text_equal(asked, record.item)) {
         return;
     }
+    quote_t before = record;
     record.count = app_value_series(MOEX_CLOSE, record.decimals, record.series, HOST_CHART_VALUES_MAX);
-    write_quote(item, &record);
-    written(item, 1);
+    keep_quote(item, &record, &before, 1);
 }
 
 void app_on_picked(int32_t request, int32_t http_status)

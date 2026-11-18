@@ -78,6 +78,7 @@ jobs:
           sh tests/pomodoro/check-stop.sh
           apps/badapple/test/check.sh
           apps/rates/test/check.sh
+          tests/stocks/check-storage.sh
       - name: The applications in the simulator
         run: |
           perinkpheral/tools/perinkpheral sim-test tests
