@@ -14,6 +14,7 @@ static char request_body[HOST_HTTP_BODY_MAX + 1];
 static int64_t now = 1768478400;
 static uint8_t event_file[8192];
 static int32_t event_file_size;
+static int32_t session_value, session_length;
 
 static record_t *record(const char *key, int32_t length)
 {
@@ -89,7 +90,13 @@ int32_t alarm_set_at(int32_t id, int64_t when) { (void)id; (void)when; return HO
 int32_t alarm_set_every(int32_t id, int32_t seconds, int32_t first)
 { (void)id; (void)seconds; (void)first; return HOST_OK; }
 int32_t timer_set(int32_t id, int32_t ms) { (void)id; (void)ms; return HOST_OK; }
-int32_t session_get(void *value, int32_t capacity) { (void)value; (void)capacity; return HOST_ERR_NOT_FOUND; }
+int32_t session_get(void *value, int32_t capacity)
+{
+    if (!session_length) return HOST_ERR_NOT_FOUND;
+    assert(session_length == sizeof session_value && capacity >= session_length);
+    memcpy(value, &session_value, session_length);
+    return session_length;
+}
 int32_t header_set_text(int32_t side, const char *text, int32_t length)
 { (void)side; (void)text; (void)length; return HOST_OK; }
 void log_write(int32_t level, const char *text, int32_t length)

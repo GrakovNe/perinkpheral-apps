@@ -194,13 +194,13 @@
     {
       "name": "github",
       "title": "GitHub activity",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 12919,
-          "sha256": "7bceb0451eca2fff57830587c1121c8a56b8b6ffcc398337d2f31c1fd8bbfc71"
+          "size": 12925,
+          "sha256": "abe442e830cec4efd82ff50ebfabb4ec2f19295df59b656c24058144b3cda0ae"
         },
         {
           "name": "manifest.ru",
@@ -215,7 +215,7 @@
         {
           "name": "manifest.json",
           "size": 728,
-          "sha256": "4ec2fe0e7cb830e5406f60ee46b8ac019bb37b79a17a64bc96f10beefa6f7dcf"
+          "sha256": "3203cba68bc79da74560414a40511982a54445ba5a7b2fa7a115f21675a2edc3"
         }
       ],
       "author": "Perinkpheral",

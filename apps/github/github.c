@@ -122,7 +122,7 @@ void app_on_blur(void)
     app_session_save(&entered, sizeof entered);
 }
 void app_on_installed(void) { schedule(); }
-void app_on_updated(void) { schedule(); }
+void app_on_updated(void) { schedule(); refresh(); }
 void app_on_settings(void)
 {
     char login[40];
