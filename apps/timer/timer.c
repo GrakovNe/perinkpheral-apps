@@ -169,7 +169,10 @@ void app_on_updated(void)
     }
     int32_t left = seconds_left();
     say_if_unset(alarm_set(COUNTDOWN_ALARM, left > 0 ? left : 1), "no room for the countdown's alarm");
-    say_if_unset(alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE, 0), "no room for the minutes' alarm");
+    int32_t first_minute = left % SECONDS_PER_MINUTE;
+    say_if_unset(alarm_set_every(MINUTE_ALARM, SECONDS_PER_MINUTE,
+                                first_minute > 0 ? first_minute : SECONDS_PER_MINUTE),
+                 "no room for the minutes' alarm");
     show_in_header();
 }
 
@@ -181,33 +184,35 @@ static void stop(void)
     timer_set(MINUTE_TIMER, 0);
 }
 
-static void change_minutes(int32_t by)
+static bool change_minutes(int32_t by)
 {
     if (state.ends_at != 0) {
-        return; /* a running countdown is stopped first */
+        return false; /* a running countdown is stopped first */
     }
+    int32_t previous = state.minutes;
     state.minutes += by;
     if (state.minutes < MINUTES_MIN) {
         state.minutes = MINUTES_MIN;
     } else if (state.minutes > MINUTES_MAX) {
         state.minutes = MINUTES_MAX;
     }
+    return state.minutes != previous;
 }
 
 void app_on_button(int32_t event)
 {
     switch (event) {
     case BTN_UP_PRESSED:
-        change_minutes(1);
+        if (!change_minutes(1)) return;
         break;
     case BTN_DOWN_PRESSED:
-        change_minutes(-1);
+        if (!change_minutes(-1)) return;
         break;
     case BTN_UP_LONG_PRESSED:
-        change_minutes(MINUTES_STEP_LONG);
+        if (!change_minutes(MINUTES_STEP_LONG)) return;
         break;
     case BTN_DOWN_LONG_PRESSED:
-        change_minutes(-MINUTES_STEP_LONG);
+        if (!change_minutes(-MINUTES_STEP_LONG)) return;
         break;
     case BTN_OK_PRESSED:
         if (state.ends_at != 0) {

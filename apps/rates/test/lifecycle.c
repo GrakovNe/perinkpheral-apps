@@ -140,6 +140,33 @@ int main(int argc, char **argv)
     assert(navigation.rotating);
     app_on_timer(ROTATE_TIMER);
     assert(navigation.index == 0 && !strcmp(chart.code, "JPY"));
+    size_t daily_length = strlen(daily);
+    assert(daily_length > 2 && !strcmp(daily + daily_length - 2, "}}"));
+    strcpy(daily + daily_length - 2, ",\"CAD\":{\"ID\":\"R01350\",\"Value\":45.125,\"Nominal\":1}}}");
+    const char *lists[] = { "USD", "USD\nEUR\nCNY", "USD\nEUR\nCNY\nJPY",
+        "USD\nEUR\nCNY\nJPY\nGBP\nCHF\nAUD\nCAD" };
+    const int picker_counts[] = { 1, 1, 2, 3 };
+    for (int test = 0; test < 4; test++) {
+        configured_codes = lists[test];
+        begin_reading();
+        assert(active_pickers == picker_counts[test]);
+        for (size_t offset = 0; offset < strlen(daily); offset++) {
+            for (int group = 0; group < active_pickers; group++)
+                assert(json_pick_feed(&pickers[group], daily + offset, 1));
+        }
+        assert(take_response());
+        assert(state.rates[0].nominal == 1 && state.rates[0].value == 824529);
+        if (test > 0) assert(state.rates[2].nominal == 1 && state.rates[2].value == 123419);
+        if (test > 1) assert(state.rates[3].nominal == 100 && state.rates[3].value == 518246);
+        if (test == 3) {
+            assert(state.rates[7].nominal == 1 && state.rates[7].value == 451250);
+            assert(state.rates[6].nominal == 0); /* Missing codes stay missing. */
+        }
+    }
+    configured_codes = "";
+    begin_reading();
+    assert(active_pickers == 1 && count == 0);
+    assert(json_pick_feed(&pickers[0], daily, strlen(daily)) && take_response());
     free(daily); free(usd); free(jpy);
     puts("Rates lifecycle: cached quotes, ID-safe reorder, write failures, history reuse, navigation and rotation passed");
     return 0;

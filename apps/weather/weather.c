@@ -14,6 +14,7 @@
  * them: the place (`lat`, `lon`), the units and how often to ask.
  */
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "app_draw.h"
 #include "app_state.h"
@@ -41,7 +42,8 @@ enum {
 
 /* What was learned last, as it lies in the store. */
 #define FORECAST_KEY     "forecast"
-#define FORECAST_VERSION 4
+#define FORECAST_VERSION 5
+#define PREVIOUS_FORECAST_VERSION 4
 typedef struct {
     int32_t version;
     int32_t day;         /* the local day of days[0], in days since 1970; 0 unknown */
@@ -52,6 +54,7 @@ typedef struct {
     struct {
         int32_t code, high, low;
     } days[DAYS];
+    char lat[40], lon[40];
 } forecast_t;
 
 static forecast_t forecast;
@@ -63,6 +66,21 @@ static int32_t local_day(void)
     return now == 0 ? 0 : (int32_t)((now + time_zone_offset()) / SECONDS_PER_DAY);
 }
 static bool       has_forecast;
+static bool       forecast_dirty;
+
+static void forecast_place(forecast_t *value)
+{
+    app_setting("lat", value->lat, sizeof value->lat);
+    app_setting("lon", value->lon, sizeof value->lon);
+}
+
+static bool same_place(void)
+{
+    char lat[40], lon[40];
+    app_setting("lat", lat, sizeof lat);
+    app_setting("lon", lon, sizeof lon);
+    return app_text_equal(lat, forecast.lat) && app_text_equal(lon, forecast.lon);
+}
 
 #define CITY_KEY        "city"
 #define HEADER_CITY_KEY "header_city"
@@ -112,7 +130,16 @@ static void load_forecast(void)
         sizeof last_status) {
         last_status = 0;
     }
-    has_forecast = app_state_load(FORECAST_KEY, &forecast, sizeof forecast, FORECAST_VERSION);
+    int32_t length = kv_get(FORECAST_KEY, sizeof FORECAST_KEY - 1, &forecast, sizeof forecast);
+    bool migrated = length == offsetof(forecast_t, lat) && forecast.version == PREVIOUS_FORECAST_VERSION;
+    forecast_dirty = migrated;
+    if (migrated) {
+        /* The previous version cleared its cache on every settings change. */
+        forecast.version = FORECAST_VERSION;
+        forecast_place(&forecast);
+    }
+    has_forecast = (length == sizeof forecast || migrated) &&
+                   forecast.version == FORECAST_VERSION && same_place();
 }
 
 /* ---- the settings ---- */
@@ -179,9 +206,16 @@ void app_on_picked(int32_t request, int32_t http_status)
     if (!is_whole) {
         return; /* what was known before is still the best there is */
     }
+    forecast_place(&fresh);
+    bool changed = !has_forecast;
+    for (int32_t byte = 0; byte < (int32_t)sizeof fresh; byte++) {
+        changed |= ((const uint8_t *)&fresh)[byte] != ((const uint8_t *)&forecast)[byte];
+    }
     forecast = fresh;
     has_forecast = true;
-    app_state_save(FORECAST_KEY, &forecast, sizeof forecast);
+    if (changed || forecast_dirty) {
+        forecast_dirty = !app_state_save(FORECAST_KEY, &forecast, sizeof forecast);
+    }
     show_header(); /* the day may have turned since the last answer */
     screen_redraw(HOST_REDRAW_NORMAL);
 }
@@ -190,8 +224,11 @@ void app_on_picked(int32_t request, int32_t http_status)
  * somewhere else: it is dropped, and the host fetches a new one at once. */
 void app_on_settings(void)
 {
-    has_forecast = false;
-    app_state_forget(FORECAST_KEY);
+    if (has_forecast && !same_place()) {
+        has_forecast = false;
+        forecast_dirty = false;
+        app_state_forget(FORECAST_KEY);
+    }
     show_header();
     screen_redraw(HOST_REDRAW_NORMAL);
 }

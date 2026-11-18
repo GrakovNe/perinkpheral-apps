@@ -22,6 +22,27 @@ static void feed(int32_t length, int32_t piece)
         calendar_picker_feed(&picker, (uint8_t *)response + offset, length - offset < piece ? length - offset : piece);
     }
 }
+static int32_t synthetic_calendar(int32_t days)
+{
+    int32_t length = snprintf(response, sizeof response,
+        "{\"data\":{\"user\":{\"login\":\"synthetic\",\"contributionsCollection\":{"
+        "\"contributionCalendar\":{\"totalContributions\":0,\"weeks\":[");
+    for (int32_t index = 0; index < days; index++) {
+        if (index % 7 == 0) {
+            length += snprintf(response + length, sizeof response - (size_t)length,
+                               "%s{\"contributionDays\":[", index ? "," : "");
+        }
+        int32_t year, month, day;
+        app_date_from_days(app_days_from_date(2025, 1, 5) + index, &year, &month, &day);
+        length += snprintf(response + length, sizeof response - (size_t)length,
+            "%s{\"date\":\"%04d-%02d-%02d\",\"contributionLevel\":\"NONE\"}",
+            index % 7 ? "," : "", year, month, day);
+        if (index % 7 == 6 || index == days - 1) {
+            length += snprintf(response + length, sizeof response - (size_t)length, "]}");
+        }
+    }
+    return length + snprintf(response + length, sizeof response - (size_t)length, "]}}}}}");
+}
 int main(void)
 {
     FILE *file = fopen("tests/github/calendar.json", "rb");
@@ -59,5 +80,20 @@ int main(void)
     date[8] = '3'; date[9] = '2';
     feed(length, 7);
     assert(!calendar_picker_finish(&picker));
-    puts("GitHub picker: chunking, packed levels, dates, streaks and incomplete data passed");
+    /* Weekly padding can make the response longer than a bare calendar year;
+     * a short history is also complete when the JSON closes normally. */
+    const int32_t day_counts[] = { 0, 1, 7, 364, 365, 366, 367, 368, 371, 372, 378, 379 };
+    for (int32_t test = 0; test < (int32_t)(sizeof day_counts / sizeof day_counts[0]); test++) {
+        int32_t days = day_counts[test];
+        length = synthetic_calendar(days);
+        for (int32_t chunk = 0; chunk < 6; chunk++) {
+            feed(length, pieces[chunk]);
+            assert(calendar_picker_finish(&picker) == (days > 0 && days <= CALENDAR_DAYS));
+            if (days > 0 && days <= CALENDAR_DAYS) {
+                assert(picker.calendar.count == days && picker.calendar.total == 0);
+                assert(calendar_level(&picker.calendar, days - 1) == 0);
+            }
+        }
+    }
+    puts("GitHub picker: chunking, packed levels, dates, streaks, padded/short calendars and incomplete data passed");
 }

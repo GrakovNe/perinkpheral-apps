@@ -106,7 +106,7 @@ static bool tag_is(const char *tag, const char *name)
     return !tag[length] || space(tag[length]);
 }
 
-static bool valid_id(const char *id)
+bool history_valid_id(const char *id)
 {
     int32_t length = app_text_length(id);
     if (length < 2 || length >= HISTORY_ID_BYTES || id[0] != 'R') return false;
@@ -125,7 +125,7 @@ static bool finish_tag(history_parser_t *parser)
     }
     if (tag_is(tag, "ValCurs")) {
         char *id, *date;
-        if (parser->started || parser->depth || !attributes(tag, true, &id, &date) || !valid_id(id)) return false;
+        if (parser->started || parser->depth || !attributes(tag, true, &id, &date) || !history_valid_id(id)) return false;
         app_text_copy(parser->result.id, sizeof parser->result.id, id);
         if (!(parser->result.as_of = history_day(date, false))) return false;
         parser->started = true;

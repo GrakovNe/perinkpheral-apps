@@ -51,7 +51,7 @@ static void load_chart(void);
 static json_pick_t pickers[PICKERS];
 static char paths[PICKERS][PATHS][40];
 static const char *path_refs[PICKERS][PATHS];
-static int32_t count, status, saved_status;
+static int32_t count, active_pickers, status, saved_status;
 static bool reading;
 
 static int32_t currency_count(void)
@@ -70,7 +70,8 @@ static void begin_reading(void)
 {
     incoming = (state_t){ .version = SNAPSHOT_VERSION, .has_data = 1 };
     count = currency_count();
-    for (int32_t group = 0; group < PICKERS; group++) {
+    active_pickers = count > 0 ? (count + PER_PICKER - 1) / PER_PICKER : 1;
+    for (int32_t group = 0; group < active_pickers; group++) {
         static const char *const fields[] = { "Value", "Nominal", "Name", "ID" };
         for (int32_t p = 0; p < PATHS; p++) {
             paths[group][p][0] = 0;
@@ -100,9 +101,18 @@ static void begin_reading(void)
     reading = true;
 }
 
+static bool same_bytes(const void *first, const void *second, size_t length)
+{
+    const uint8_t *left = first, *right = second;
+    for (size_t byte = 0; byte < length; byte++) {
+        if (left[byte] != right[byte]) return false;
+    }
+    return true;
+}
+
 static bool take_response(void)
 {
-    for (int32_t group = 0; group < PICKERS; group++) {
+    for (int32_t group = 0; group < active_pickers; group++) {
         if (!json_pick_finish(&pickers[group])) { return false; }
     }
     const char *date = json_pick_value(&pickers[0], 0);
@@ -126,9 +136,7 @@ static bool take_response(void)
         if (name) { app_text_copy(rate->name, sizeof rate->name, name); }
         if (id) { app_text_copy(rate->id, sizeof rate->id, id); }
     }
-    const uint8_t *a = (const uint8_t *)&state, *b = (const uint8_t *)&incoming;
-    bool changed = false;
-    for (int32_t i = 0; i < (int32_t)sizeof state; i++) { changed |= a[i] != b[i]; }
+    bool changed = !same_bytes(&state, &incoming, sizeof state);
     state = incoming;
     if (changed) { app_state_save("state", &state, sizeof state); }
     return true;
@@ -189,22 +197,13 @@ static void append_date(app_text_t *text, int32_t day)
     app_text_add_number(text, year);
 }
 
-static bool safe_id(const char *id)
-{
-    int32_t length = app_text_length(id);
-    if (length < 2 || length >= HISTORY_ID_BYTES || id[0] != 'R') return false;
-    for (int32_t index = 1; index < length; ++index)
-        if ((id[index] < '0' || id[index] > '9') && (id[index] < 'A' || id[index] > 'Z')) return false;
-    return true;
-}
-
 static void request_histories(void)
 {
     int32_t day = history_day(state.date, true);
     if (!day) return;
     for (int32_t index = 0; index < currency_count(); ++index) {
         const rate_t *rate = rate_for(index);
-        if (!rate || !rate->nominal || !safe_id(rate->id)) continue;
+        if (!rate || !rate->nominal || !history_valid_id(rate->id)) continue;
         cached_history_t previous;
         read_history(index, &previous);
         if (app_text_equal(previous.code, rate->code) && app_text_equal(previous.history.id, rate->id) &&
@@ -330,9 +329,7 @@ static void history_answer(const uint8_t *data, int32_t length, int32_t flags, i
                 previous.history.as_of > fresh->as_of) continue;
             cached_history_t record = { .version = HISTORY_VERSION, .history = *fresh };
             app_text_copy(record.code, sizeof record.code, rate->code);
-            bool changed = false;
-            for (size_t byte = 0; byte < sizeof record; ++byte)
-                changed |= ((const uint8_t *)&previous)[byte] != ((const uint8_t *)&record)[byte];
+            bool changed = !same_bytes(&previous, &record, sizeof record);
             if (changed && !write_history(index, &record)) continue;
             if (index == navigation.index) { chart = record; screen_redraw(HOST_REDRAW_NORMAL); }
         }
@@ -353,7 +350,7 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
     } else {
         if (flags & HOST_DATA_FIRST) { status = http_status; begin_reading(); }
         if (reading && status >= 200 && status < 300) {
-            for (int32_t group = 0; group < PICKERS; ++group)
+            for (int32_t group = 0; group < active_pickers; ++group)
                 json_pick_feed(&pickers[group], (const char *)data, length);
             if (flags & HOST_DATA_LAST) {
                 if (!take_response()) status = HOST_FAILED_NO_ANSWER;

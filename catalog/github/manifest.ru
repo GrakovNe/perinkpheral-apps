@@ -1,1 +1,1 @@
-{"title":"Активность GitHub","description":"Календарь вкладов GitHub и текущая серия.","settings":{"login":{"title":"Логин"},"token":{"title":"Токен для чтения"}}}
+{"title":"Активность GitHub","description":"Календарь активности","settings":{"login":{"title":"Логин"},"token":{"title":"Токен для чтения"}}}

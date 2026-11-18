@@ -1,0 +1,6 @@
+{
+  "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?range=1d&interval=5m": {
+    "body": "{\"chart\": {\"result\": [{\"meta\": {\"longName\": \"Apple\", \"shortName\": \"Apple\", \"symbol\": \"AAPL\", \"regularMarketPrice\": 123.45, \"chartPreviousClose\": 122, \"priceHint\": 2, \"regularMarketTime\": 1794955920, \"currency\": \"USD\"}, \"indicators\": {\"quote\": [{\"close\": [119, 120.5, 119.6, 121.3, 122.7, 121.9, 122.4, 123.45]}]}}]}}",
+    "status": 200
+  }
+}

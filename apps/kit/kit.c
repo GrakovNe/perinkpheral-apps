@@ -169,7 +169,8 @@ static void draw_rows(app_list_t *list, const int32_t *labels, const int32_t *va
                       const char *const *texts, int32_t checked)
 {
     int32_t first = app_list_first(list);
-    for (int32_t i = first; i < first + ui_list_visible(list) && i < list->count; i++) {
+    int32_t visible = ui_list_visible(list);
+    for (int32_t i = first; i < first + visible && i < list->count; i++) {
         const char *label = app_string(labels[i]);
         const char *value = values == NULL ? "" : values[i] >= 0 ? app_string(values[i]) : texts[i];
         ui_draw_list_row(list, i, label, app_text_length(label), value, app_text_length(value),
