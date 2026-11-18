@@ -693,13 +693,13 @@
     {
       "name": "stopwatch",
       "title": "Stopwatch",
-      "version": "0.1.10",
+      "version": "0.1.11",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2877,
-          "sha256": "9abe0ba6134c094e6a3e976e4f6250bb92d28eca5aba98e97821b08b9968d30e"
+          "size": 2996,
+          "sha256": "69c3b3fdfde221ff0bd15ec64eb4f78a2bc70d561255da138a4395fbd39c561b"
         },
         {
           "name": "manifest.ru",
@@ -713,8 +713,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 399,
-          "sha256": "115f266a25ae0213a9e875dc5ff27538db0e857f4654ef978ec6c8bf6c3f1e36"
+          "size": 419,
+          "sha256": "6f8ca68340391955e8ae9ca2764a3920da19f43b537abfc4485637bbfa9d0f34"
         }
       ],
       "firmware": "0.1.30",

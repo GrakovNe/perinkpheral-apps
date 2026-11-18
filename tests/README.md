@@ -6,12 +6,15 @@ Run from the repository root with Java 21 or later, wasi-sdk, a C compiler and M
 ```sh
 tests/check-logic.sh
 tests/life/check-session.sh
+tests/stopwatch/check-resume.sh
 ../perinkpheral/tools/perinkpheral sim-test tests
 ```
 
 `check-logic.sh` covers air-quality ranking, the streamed GitHub calendar parser and
 ISS geometry/history with address and undefined-behavior sanitizers. The Life check
-exercises scene restoration. Calendar's standalone reader test is in
+exercises scene restoration. The Stopwatch check runs the actual application handlers
+through cold boot, delayed time synchronization and background restoration.
+Calendar's standalone reader test is in
 [apps/calendar/test](../apps/calendar/test/); CI builds it with SDK text/date helpers.
 
 Simulator scenarios run real WASM applications with local mock responses and compare

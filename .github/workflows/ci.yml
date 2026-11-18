@@ -73,6 +73,7 @@ jobs:
         run: |
           tests/check-logic.sh
           tests/life/check-session.sh
+          tests/stopwatch/check-resume.sh
       - name: The applications in the simulator
         run: perinkpheral/tools/perinkpheral sim-test tests
       - name: The pictures that differ

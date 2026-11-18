@@ -135,7 +135,7 @@ static void show_in_header(void)
  * the first hour, at the next minute after it. */
 static void schedule_next_change(void)
 {
-    if (!state.is_running) {
+    if (!state.is_running || run_ms() < 0) {
         return;
     }
     int64_t turn_ms = shows_seconds() ? MS_PER_SECOND : SECONDS_PER_MINUTE * MS_PER_SECOND;
@@ -191,7 +191,8 @@ void app_on_load(void)
     if (!is_stored) {
         state = (stopwatch_t){ .version = STATE_VERSION };
     }
-    if (state.is_running && run_ms() < 0) {
+    /* A saved wall-clock anchor remains usable after cold boot once time is known. */
+    if (state.is_running && state.boot != time_boot_id() && state.started_at == 0) {
         /* The run began without a clock and the device has restarted: how
          * long it lasted is not to be had. What was counted before it is. */
         state.is_running = 0;
@@ -203,21 +204,30 @@ void app_on_load(void)
  * run did not. */
 void app_on_intent(int32_t intent)
 {
-    if (intent == HOST_INTENT_STARTED && state.is_running) {
+    if (intent != HOST_INTENT_STARTED && intent != HOST_INTENT_TIME_CHANGED) {
+        return;
+    }
+    record_start_time();
+    if (state.is_running && run_ms() >= 0) {
         update_header_status();
+        schedule_next_change();
+        screen_redraw(HOST_REDRAW_NORMAL);
     }
 }
 
 /* A new version does not inherit the old one's alarm either. */
 void app_on_updated(void)
 {
-    if (state.is_running) {
+    if (state.is_running && run_ms() >= 0) {
         update_header_status();
     }
 }
 
 void app_on_focus(void)
 {
+    if (state.is_running && run_ms() >= 0) {
+        update_header_status();
+    }
     schedule_next_change();
 }
 

@@ -1,11 +1,12 @@
 {
   "name": "stopwatch",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "title": "Stopwatch",
   "description": "Stopwatch.",
   "abi": 3,
   "intents": [
-    "started"
+    "started",
+    "time_changed"
   ],
   "icon": [
     "....###....",
