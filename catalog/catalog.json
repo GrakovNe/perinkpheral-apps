@@ -293,13 +293,13 @@
     {
       "name": "iss",
       "title": "ISS",
-      "version": "0.1.7",
+      "version": "0.1.8",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 9493,
-          "sha256": "0903af23a5cf87dcccfff4a1bbb74ecbb01fe853c567f08845664e24831d955e"
+          "size": 8256,
+          "sha256": "1c677385e8df289d24d2d722a09c8281fc9b7a6cac806309a7338b73cb131282"
         },
         {
           "name": "land.bin",
@@ -308,8 +308,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 125,
-          "sha256": "fe64ff262215e8849c6dcdd41b11b5eb8dc4546131f580c6ebdff7b29befd740"
+          "size": 72,
+          "sha256": "f7d2fa6a40a02d11b562876ce61ed099c103f9fb753271854d51f6a1e8d4fbd0"
         },
         {
           "name": "strings.ru",
@@ -319,7 +319,7 @@
         {
           "name": "manifest.json",
           "size": 760,
-          "sha256": "8b2550ce6590692f635a47fb44f57f1b39698d6c810bd683e94cde552e847c35"
+          "sha256": "40cebca488710bf423d8f41557d8fa29662bfa00dc291efec3d507bafc6632bd"
         }
       ],
       "author": "Perinkpheral",
@@ -341,7 +341,7 @@
       "translations": {
         "ru": {
           "title": "\u041c\u041a\u0421",
-          "description": "\u041c\u0435\u0436\u0434\u0443\u043d\u0430\u0440\u043e\u0434\u043d\u0430\u044f \u043a\u043e\u0441\u043c\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u0441\u0442\u0430\u043d\u0446\u0438\u044f \u043d\u0430 \u043a\u0430\u0440\u0442\u0435 \u043c\u0438\u0440\u0430."
+          "description": "\u041c\u041a\u0421 \u043d\u0430 \u043c\u0438\u0440\u043e\u0432\u043e\u0439 \u043a\u0430\u0440\u0442\u0435"
         }
       }
     },

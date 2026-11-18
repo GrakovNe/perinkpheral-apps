@@ -35,5 +35,10 @@ ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     "$sdk/sdk/lib/app_values.c" "$sdk/sdk/lib/app_fixed.c" "$sdk/sdk/lib/app_text.c" \
     -o "$build/iss-lifecycle"
 "$build/iss-lifecycle"
+${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+    -ffunction-sections -fdata-sections "$strip" '-DHOST_IMPORT(name,...)=__VA_ARGS__' \
+    -I"$build" -I"$sdk/sdk" -I"$sdk/sdk/lib" \
+    tests/iss/track.c apps/iss/orbit.c -o "$build/iss-track"
+"$build/iss-track"
 
 sh tests/network/check.sh
