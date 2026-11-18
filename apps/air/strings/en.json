@@ -19,7 +19,6 @@
   "uv": "UV",
   "birch": "Birch",
   "grass": "Grass",
-  "concentration": "ug/m3",
   "no2": "NO2",
   "so2": "SO2",
   "co": "CO",
@@ -27,7 +26,5 @@
   "alder": "Alder",
   "mugwort": "Mugwort",
   "ragweed": "Ragweed",
-  "olive": "Olive",
-  "index": "index",
-  "grains": "grains/m3"
+  "olive": "Olive"
 }
