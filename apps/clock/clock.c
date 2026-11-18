@@ -78,7 +78,7 @@ void app_on_draw(void)
         ui_draw_reason(HOST_FAILED_NO_NETWORK); /* the time comes with the network */
         return;
     }
-    /* The host says a moment in words: no names of days here. */
+    /* Perinkpheral OS says a moment in words: no names of days here. */
     char time_line[8], weekday_line[24], date_line[24];
     app_time_text(now, HOST_TIME_CLOCK, time_line, sizeof time_line);
     app_time_text(now, HOST_TIME_WEEKDAY, weekday_line, sizeof weekday_line);

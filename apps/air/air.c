@@ -3,7 +3,7 @@
 /*
  * Air quality from Open-Meteo and CAMS: an index and its picture, two
  * particle details and, under the rule, UV and the three worst irritants.
- * The host picks current readings only. One versioned snapshot keeps the
+ * Perinkpheral OS picks current readings only. One versioned snapshot keeps the
  * last good answer and its place; missing pollen stays distinct from zero.
  * Changing the index scale needs no request. OK asks for fresh data.
  */

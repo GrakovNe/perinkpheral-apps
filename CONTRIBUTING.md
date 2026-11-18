@@ -1,7 +1,7 @@
 # Developing applications
 
 The [firmware repository](https://github.com/GrakovNe/perinkpheral) owns the SDK and
-shared tools. Read its [host contract](https://github.com/GrakovNe/perinkpheral/blob/main/sdk/host_api.h)
+shared tools. Read its [Perinkpheral OS application contract](https://github.com/GrakovNe/perinkpheral/blob/main/sdk/host_api.h)
 and [application guide](https://github.com/GrakovNe/perinkpheral/releases/latest/download/perinkpheral-app-guide.pdf)
 before changing an application. ABI 3 requires firmware 0.1.30 or later.
 
@@ -32,7 +32,7 @@ An instance is unloaded when it leaves the screen or makes room for background w
 Keep persistent state in the 2 KB store, saving only when it changes; preserve the
 current scene through `app_session_save()` and `app_session_load()`. Timers run only on
 screen. Alarms can run in the background but must be restored after an app update when
-needed. Check the host contract for exact limits and lifecycle semantics.
+needed. Check the Perinkpheral OS application contract for exact limits and lifecycle semantics.
 
 ## Build and verify
 

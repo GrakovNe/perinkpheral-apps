@@ -4,7 +4,7 @@
  *
  * The weather now and for three days, from Open-Meteo: no key, no
  * account, the device asks the service itself. The manifest names the
- * request and the numbers wanted from the answer; the host makes the
+ * request and the numbers wanted from the answer; Perinkpheral OS makes the
  * request at the pace the user chose, whether this application is on the
  * screen or not, and hands the numbers to app_on_picked(). They go into
  * the store, and the picture is drawn from the store: off the screen the
@@ -160,8 +160,8 @@ static int32_t shown_speed(int32_t km_per_hour)
     return shows_fahrenheit() ? (km_per_hour * 621 + 500) / 1000 : km_per_hour;
 }
 
-/* The host's header: on the left the city the weather is for, while its
- * setting is on; the right is the host's own - the date, or the time. */
+/* Perinkpheral OS's header: on the left the city the weather is for, while its
+ * setting is on; the right is Perinkpheral OS's own - the date, or the time. */
 static void show_header(void)
 {
     char city[HOST_HEADER_TEXT_MAX + 1];
@@ -221,7 +221,7 @@ void app_on_picked(int32_t request, int32_t http_status)
 }
 
 /* The place may have changed, and then the forecast in hand is for
- * somewhere else: it is dropped, and the host fetches a new one at once. */
+ * somewhere else: it is dropped, and Perinkpheral OS fetches a new one at once. */
 void app_on_settings(void)
 {
     if (has_forecast && !same_place()) {
@@ -265,7 +265,7 @@ void app_on_button(int32_t event)
 #define DAY_SLASH_GAP     3
 
 /* How wide a line of the details is: the picture, and the value with its
- * unit as the host sets them. */
+ * unit as Perinkpheral OS sets them. */
 static int32_t detail_width(const char *value, const char *unit)
 {
     return ICON_SIDE(DETAIL_ICON_CELL) + DETAIL_ICON_GAP +

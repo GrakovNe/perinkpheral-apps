@@ -38,7 +38,7 @@ No network. No sounds (the device has none).
   - `rounds`, `choice`, "Long break after" / "Длинный перерыв после", options `["2", "3", "4"]`,
     default `"4"` (works).
   Read the configured duration with `app_setting_seconds("work", 25 * 60)`.
-- An icon: a tomato-like round fruit is fine, or an hourglass with a mark - not the host's own
+- An icon: a tomato-like round fruit is fine, or an hourglass with a mark - not Perinkpheral OS's own
   hourglass icon copied.
 
 ## State

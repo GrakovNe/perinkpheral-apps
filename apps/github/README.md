@@ -13,8 +13,8 @@ the store. The requested year includes 365-367 consecutive dates, depending on l
 and inclusive endpoints. No contribution counts or response body are retained.
 
 The grid has 53 Sunday-first columns of 6 px cells with 1 px gaps. Empty days leave paper;
-levels 1-4 use host colours 4, 8, 12 and 16. Month initials use the current language. The last
-returned week occupies the rightmost column. A rare 54-week span crops only the earliest
+levels 1-4 use Perinkpheral OS colours 4, 8, 12 and 16. Month initials use the current
+language. The last returned week occupies the rightmost column. A rare 54-week span crops only the earliest
 partial week from the drawing, keeping the complete year and total in storage. The streak
 requires contributions today and walks backward through consecutive local calendar dates;
 it is zero when today's date is absent or empty. Unknown time also gives zero.

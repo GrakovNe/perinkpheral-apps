@@ -4,13 +4,13 @@
  *
  * What is coming, from any calendar that gives a link to itself - Google,
  * iCloud, Outlook, Nextcloud: the user pastes the calendar's secret
- * address on the device's page, the host fetches it now and again, and
+ * address on the device's page, Perinkpheral OS fetches it now and again, and
  * the application reads it as it comes into the next events (ics.c). No
  * account is bound to anything and nothing passes a server of ours.
  *
- * It reminds, too: some minutes before an event the host says what begins,
- * over whatever has the screen (notification_post). The reminder is an alarm of the
- * host's at a moment worked out from the events in the store, so it comes
+ * It reminds, too: some minutes before an event Perinkpheral OS says what begins,
+ * over whatever has the screen (notification_post). Perinkpheral OS schedules the reminder
+ * at a moment worked out from the events in the store, so it comes
  * although the application is not loaded - and after a restart, which
  * forgets alarms, it is set again.
  */
@@ -118,7 +118,7 @@ static void schedule_reminder(void)
     }
 }
 
-/* The reminder is the host's to show: when it begins, and what it is. */
+/* The reminder is Perinkpheral OS's to show: when it begins, and what it is. */
 static void remind_of(const ics_event_t *event)
 {
     host_notice_t notice = { .icon = HOST_ICON_BELL };
@@ -406,7 +406,7 @@ void app_on_back(void)
 
 /* ---- the picture ---- */
 
-/* When an event is, as short as the host says it: "15:00" today, "Sat
+/* When an event is, as short as Perinkpheral OS says it: "15:00" today, "Sat
  * 15:00" this week, "21 Nov" beyond it; a whole day is its day alone, and
  * one that has begun is "Now". Returns the length. */
 static int32_t say_when(const ics_event_t *event, int64_t now, char *line, int32_t size)
@@ -419,7 +419,7 @@ static int32_t say_when(const ics_event_t *event, int64_t now, char *line, int32
                          size);
 }
 
-/* Why there is nothing to show: the host's word for what the network
+/* Why there is nothing to show: Perinkpheral OS's word for what the network
  * came to, and this application's own for the rest. */
 static void draw_reason(void)
 {
@@ -524,7 +524,7 @@ void app_on_draw(void)
         const ics_event_t *event = &stored.events[shown[row]];
         char when[MOMENT_MAX + 1];
         int32_t when_length = say_when(event, now, when, sizeof when);
-        /* The host's row keeps the moment whole and cuts the name. */
+        /* Perinkpheral OS's row keeps the moment whole and cuts the name. */
         const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
         ui_draw_list_row(&list, row, name, app_text_length(name), when, when_length, HOST_ICON_NONE);
     }

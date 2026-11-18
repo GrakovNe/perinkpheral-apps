@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: MIT
  * Copyright (c) 2026 GrakovNe
  *
- * The weather is the host's icons, drawn at three sizes: 88 pixels for the
+ * The weather is Perinkpheral OS's icons, drawn at three sizes: 88 pixels for the
  * weather now, 44 for the days ahead and 22 for the small print beside the
- * temperature. The host draws each from its finest drawing at that size,
+ * temperature. Perinkpheral OS draws each from its finest drawing at that size,
  * in lines of two pixels, as fine as a line of the text beside it.
  */
 #pragma once
