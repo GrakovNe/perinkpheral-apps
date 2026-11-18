@@ -1,6 +1,6 @@
 # ISS
 
-The station's current position, the solar terminator and up to 90 minutes of observed positions.
+The station's current position, day and night, and up to 90 minutes of observed positions.
 A picked poll runs once a minute. OK also asks for an update. The visible position follows each good
 fix. The track samples at five-minute intervals, and the app checkpoints the readings and track at
 that pace and when the last request status changes. The newest visible fix
@@ -8,18 +8,22 @@ survives temporary unloads in scene memory. Old points expire by age, and the li
 date line and over gaps longer than ten minutes.
 
 The 400×200 equirectangular map leaves room under it for altitude on the left and speed on
-the right. Coordinates are rounded to tenths of a degree, with at least two integer digits
+the right, with a 64-pixel gap between the two readings. Altitude is rounded to whole metres
+from the API's kilometres; speed is in km/h. Saved version 1 readings migrate from kilometres
+to metres and keep their track. Coordinates are rounded to tenths of a degree, with at least two integer digits
 (for example, `04.2°`), in two small inverted badges over
 the map. They stay 12 pixels below its top and 8 pixels from the outer edge: on the left
 for western longitudes, on the right for eastern longitudes and the prime meridian.
 Their size is fixed for the selected font and language, including the hemisphere labels
 (`N`, `S`, `E`, `W` in English; `С.Ш`, `Ю.Ш`, `В.Д`, `З.Д` in Russian).
-The crosshair's dashed axes intersect at the position. Fine dots follow
-the solar terminator, found from changes in the sign of the solar dot product. The calculation
-uses Q14 integer sines in tenths of a degree.
+The crosshair's dashed axes intersect at the position. Night inverts the map; the track, axes
+and marker change colour with their surroundings. Each coordinate badge uses its night palette
+only when more than half its area is at night. The solar dot product uses Q14 integer sines.
+Two boundary searches per row produce the same pixels without evaluating it for every pixel.
 
 `files/land.bin` is a raw, MSB-first 400×200 bitmap, 50 bytes per row, derived from
 [the source bitmap](assets/world-land-400x200.png). Natural Earth land is public domain.
-An ink pixel is retained only where both x and y are even, producing a fine stipple. The host draws
-this 10 KB package file with `gfx_draw_bitmap_file`, keeping it out of WASM memory.
+An ink pixel is retained only where both x and y are even, producing a fine stipple. The app reads
+this 10 KB package file into a bitmap, inverts the night spans and draws the result. The spans
+use another 800 bytes.
 `sine.h` contains rounded `16384 * sin(angle)` values for 0–90 degrees at 0.1-degree steps.

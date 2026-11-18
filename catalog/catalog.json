@@ -4,13 +4,13 @@
     {
       "name": "air",
       "title": "Air quality",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
           "size": 7271,
-          "sha256": "a7fcab6693a022f325229561ece51e58ce1350a71e0feae73a7944af862b03e8"
+          "sha256": "79984123d3356a694fb1df82196bb322b1950473f63f218970eddbdc8d6e58dc"
         },
         {
           "name": "manifest.ru",
@@ -25,7 +25,7 @@
         {
           "name": "manifest.json",
           "size": 2184,
-          "sha256": "a1f1d6938954a89e8e6ac1b38b87a33236261ea8984a3fb18fb88b3a7e0b6c1d"
+          "sha256": "034ecc33ce6ce57f61d96ce83343b5e063d32c1508c06c101dd189aa629a504e"
         }
       ],
       "author": "Perinkpheral",
@@ -293,13 +293,13 @@
     {
       "name": "iss",
       "title": "ISS",
-      "version": "0.1.6",
+      "version": "0.1.7",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 8043,
-          "sha256": "5e29c5a3d8b6bf98c31c4b3e5e9ae1ed150ad7a04c1b921d98aa59679eaedeb2"
+          "size": 9493,
+          "sha256": "0903af23a5cf87dcccfff4a1bbb74ecbb01fe853c567f08845664e24831d955e"
         },
         {
           "name": "land.bin",
@@ -313,13 +313,13 @@
         },
         {
           "name": "strings.ru",
-          "size": 87,
-          "sha256": "3340dfa652018855129233da3fbdc046c56592eb7f0e0c06ff7fb44dabc28342"
+          "size": 85,
+          "sha256": "4e0c44c6474f45b608bb6037438f88e487b25ba21e0b0004b3184b3e49ed714a"
         },
         {
           "name": "manifest.json",
           "size": 760,
-          "sha256": "5a24e0bd5ecfd0f6215b9b6890ee83f69987a9121daa66cf188a9d5d00c8a035"
+          "sha256": "8b2550ce6590692f635a47fb44f57f1b39698d6c810bd683e94cde552e847c35"
         }
       ],
       "author": "Perinkpheral",
