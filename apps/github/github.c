@@ -33,6 +33,7 @@ static state_t saved_state;
 static calendar_picker_t picker;
 static int32_t response_status;
 static bool receiving;
+static bool requested_since_load;
 
 static void save_state(void)
 {
@@ -88,10 +89,13 @@ static void refresh(void)
         state.status = result == HOST_ERR_NO_SPACE ? HOST_FAILED_NO_MEMORY : HOST_FAILED_NOT_READY;
         save_state();
         screen_redraw(HOST_REDRAW_NORMAL);
+    } else {
+        requested_since_load = true;
     }
 }
 void app_on_load(void)
 {
+    requested_since_load = false;
     if (!app_state_load("state", &state, sizeof state, VERSION)) {
         state_v1_t previous;
         state = (state_t){ .version = VERSION };
@@ -122,7 +126,11 @@ void app_on_blur(void)
     app_session_save(&entered, sizeof entered);
 }
 void app_on_installed(void) { schedule(); }
-void app_on_updated(void) { schedule(); refresh(); }
+void app_on_updated(void)
+{
+    schedule();
+    if (!requested_since_load) { refresh(); }
+}
 void app_on_settings(void)
 {
     char login[40];
