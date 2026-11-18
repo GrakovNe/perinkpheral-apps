@@ -46,7 +46,7 @@ No network, no settings needed beyond the speed.
 - A step: for every cell count its 8 neighbours from the current bits into the next; swap. Keep it
   integer and simple; 7500 cells is a few hundred thousand operations - well inside the 400 ms a
   handler should take (measure with `time_uptime_ms` in a first build, then remove the log_write).
-- **Drawing**: never a `gfx_draw_rect` per live cell (thousands of host calls). Build one 400x300 1-bit
+- **Drawing**: never a `gfx_draw_rect` per live cell (thousands of calls to Perinkpheral OS). Build one 400x300 1-bit
   bitmap in the application's memory - 400/8 x 300 = 15000 bytes, a static array - with every
   live cell as a cell-sized square of set bits, and call `gfx_draw_bitmap(0, 0, 400, 300, bits)` once
   in `app_on_draw()` (read its bit order in `sdk/host/gfx.h`: rows top to bottom, the most

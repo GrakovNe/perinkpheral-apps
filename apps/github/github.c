@@ -211,7 +211,7 @@ void app_on_draw(void)
         int32_t year, month, day;
         app_date_from_days(first + column * 7 + 3, &year, &month, &day);
         if (month != prior_month) {
-            /* Two-month ticks leave room for three-letter names in both host fonts. */
+            /* Two-month ticks leave room for three-letter names in both Perinkpheral OS fonts. */
             if (month % 2 == 0 && (column > 0 || day <= 7)) { draw_month(column, month); }
             prior_month = month;
         }

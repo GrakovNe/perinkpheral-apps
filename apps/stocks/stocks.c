@@ -11,7 +11,7 @@
  * TradingView writes it - "AAPL" and "7203.T" are Yahoo's, "MOEX:SBER" the
  * Moscow Exchange's. Each poll of the
  * manifest goes over the list ("each") and takes the items of its own
- * prefix ("prefix"), the one of Yahoo the rest; the host picks the values
+ * prefix ("prefix"), the one of Yahoo the rest; Perinkpheral OS picks the values
  * from every answer and calls app_on_picked() once per ticker. Each answer
  * is written to the file "quotes" as one fixed-size record at the ticker's
  * position in the list, so the application can be unloaded at any time and

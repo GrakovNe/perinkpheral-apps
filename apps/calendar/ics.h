@@ -4,7 +4,7 @@
  *
  * A calendar as servers give it by a link (iCalendar, RFC 5545), read as it
  * comes - a piece at a time, never whole - into the few events that are
- * about to happen. Pure: no host calls, so it is tested on a computer.
+ * about to happen. Pure: no Perinkpheral OS calls, so it is tested on a computer.
  *
  * What it understands: events with a start and an end, whole days, times
  * in UTC, in a zone the file describes and in no zone at all (the

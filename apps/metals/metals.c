@@ -450,7 +450,7 @@ void app_on_draw(void)
     app_draw_text(MARGIN, row, HOST_FONT_SMALL, change);
     row += small;
 
-    /* Local noon keeps the stored calendar date when formatted by the host. */
+    /* Local noon keeps the stored calendar date when formatted by Perinkpheral OS. */
     char date[48];
     int64_t moment = (int64_t)month.days[month.count - 1].date * DAY_SECONDS + 12 * 3600 - time_zone_offset();
     app_time_text(moment, HOST_TIME_LONG_DATE, date, sizeof date);

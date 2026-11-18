@@ -37,7 +37,8 @@ Responses are parsed incrementally.
 
 Not read: rules by position in a set (BYSETPOS), by week number, by hour; such
 an event repeats by its plain frequency. One calendar, the 24 nearest events.
-Text uses the host's selected font and installed glyph packs. Missing glyphs fall
-back to the host's spelling rules; install the appropriate pack for Cyrillic or Greek.
+Text uses the font selected in Perinkpheral OS and installed glyph packs. Missing
+glyphs fall back to Perinkpheral OS's spelling rules; install the appropriate pack
+for Cyrillic or Greek.
 
 `test/test_ics.c` tests the parser on the host computer.

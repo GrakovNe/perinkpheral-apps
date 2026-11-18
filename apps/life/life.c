@@ -2,8 +2,8 @@
 // Copyright (c) 2026 GrakovNe
 /*
  * Conway's Game of Life on a torus. Two packed fields hold generations;
- * drawing expands the current field to one screen bitmap, making one host
- * call for all cells. Three unpacked rows supply each generation without
+ * drawing expands the current field to one screen bitmap, making one
+ * call to Perinkpheral OS for all cells. Three unpacked rows supply each generation without
  * repeatedly looking up individual packed neighbours.
  * The packed field stays in the scene while the instance is temporarily unloaded.
  * OK runs or pauses; DOWN steps (held: ten); UP reseeds (held: patterns).

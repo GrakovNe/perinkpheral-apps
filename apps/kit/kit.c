@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: MIT
  * Copyright (c) 2026 GrakovNe
  *
- * Every part of the host's look an application may ask for, each on a
+ * Every part of Perinkpheral OS's look an application may ask for, each on a
  * page of its own: what a developer copies from. The pages are a list;
  * OK opens one, BACK returns.
  */
@@ -179,7 +179,7 @@ static void draw_rows(app_list_t *list, const int32_t *labels, const int32_t *va
 }
 
 /* Cells: a name, a picture and a value in a box of any size, laid out and
- * sized by the host. Those that stand together are of one size - the size
+ * sized by Perinkpheral OS. Those that stand together are of one size - the size
  * the longest value can have. */
 static void draw_cells(int32_t count)
 {
@@ -204,7 +204,7 @@ static void draw_cells(int32_t count)
     }
 }
 
-/* The chart in its four kinds. Numbers in, a picture out: the host scales
+/* The chart in its four kinds. Numbers in, a picture out: Perinkpheral OS scales
  * the series to the box. */
 static void draw_charts(void)
 {

@@ -16,7 +16,7 @@ day, and its month as a chart. Official public data of the Bank of Russia; no lo
 bank, the source named in words.
 
 ```
-  1/4 Bank of Russia                       [host header]
+  1/4 Bank of Russia                       [Perinkpheral OS header]
 
   Gold
   10 926.51 RUB/g

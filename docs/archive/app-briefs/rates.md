@@ -34,7 +34,7 @@ on working days. Example response (`curl -s https://www.cbr-xml-daily.ru/daily_j
 ```
 `Value` is the price of `Nominal` units in rubles: show the nominal when it is not 1.
 
-The answer is about 15 KB: do **not** ask the host to pick it (`pick` paths are fixed in the
+The answer is about 15 KB: do **not** ask Perinkpheral OS to pick it (`pick` paths are fixed in the
 manifest, and the currencies are the user's). Make it a poll without `pick`; the answer then comes
 in pieces to `app_on_data()`, and the application feeds them to a picker of its own
 (`sdk/lib/json_pick.h`) with paths it builds from the settings: `Valute.USD.Value`,
@@ -63,7 +63,7 @@ sources: read it.
   numbers fits within the 2 KB store limit.
 - A code the bank does not have: its row says "No data" / "Нет данных" instead of a number.
 - An answer that failed: keep showing what is stored; when nothing is stored, the screen is
-  `ui_draw_reason(status)` (Loading, No network, No answer - the host's words).
+  `ui_draw_reason(status)` (Loading, No network, No answer - Perinkpheral OS's words).
 - The change is `value - previous`, signed, with 2 decimals; "0.00" when equal.
 - The names: the bank's `Name` comes in Russian. Do not show it in an English device; show the
   code only. In Russian show the code and the bank's name, cut to fit (`gfx_fit_text`).
@@ -73,7 +73,7 @@ sources: read it.
 
 ## Screen
 
-- Not full screen: the host's header stays. Rows with `ui_draw_list_row(list, i, label, value, icon)`
+- Not full screen: the Perinkpheral OS header stays. Rows with `ui_draw_list_row(list, i, label, value, icon)`
   - label the code (and the name in Russian), value the rate and the change; or draw them by hand
   in the text font like `apps/stocks` - columns aligned right, digits tabular
   (`HOST_FONT_TEXT | HOST_FONT_TABULAR`).

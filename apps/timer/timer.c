@@ -7,7 +7,7 @@
  * timer takes the screen back and says so.
  *
  * It is the sample of an application that works while it is not loaded.
- * Nothing counts down in here: the end is a moment in the store, the host
+ * Nothing counts down in here: the end is a moment in the store, Perinkpheral OS
  * is asked for one alarm at that moment, and whatever the screen shows is
  * worked out from the two whenever the application is drawn.
  */
@@ -131,7 +131,7 @@ void app_on_alarm(int32_t id)
     release_header_status();
     state.ends_at = 0;
     save();
-    /* The host tells it, over whatever has the screen, until it is seen. */
+    /* Perinkpheral OS tells it, over whatever has the screen, until it is seen. */
     host_notice_t time_is_up = { .icon = HOST_ICON_BELL };
     app_text_t    text;
     app_text_start(&text, time_is_up.first, sizeof time_is_up.first);
@@ -228,16 +228,16 @@ void app_on_button(int32_t event)
     screen_redraw(HOST_REDRAW_NORMAL);
 }
 
-/* ---- the picture: the host's parts ----
+/* ---- the picture: Perinkpheral OS's parts ----
  *
  * The minutes are the page. Being set, they stand in the frame with the
  * arrows UP and DOWN have; counting, over a bar of how much is left. The
  * row of buttons along the bottom names what OK and BACK do. That the
- * time is up is the host's to say (notification_post). */
+ * time is up is Perinkpheral OS's to say (notification_post). */
 
 #define FRAME_WIDTH   336
 #define FRAME_PADDING 16
-#define BAR_HEIGHT    14 /* the host's bar */
+#define BAR_HEIGHT    14 /* Perinkpheral OS's bar */
 
 void app_on_draw(void)
 {

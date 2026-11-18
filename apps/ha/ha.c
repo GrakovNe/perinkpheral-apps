@@ -63,7 +63,7 @@ static void save_status(void)
     }
 }
 
-/* The list layout: the host's list of facts, moved with UP and DOWN. */
+/* The list layout: Perinkpheral OS's list of facts, moved with UP and DOWN. */
 static host_list_t list = { .selected = -1 };
 
 /* ---- asking ---- */
@@ -76,7 +76,7 @@ static host_list_t list = { .selected = -1 };
 static bool has_asked;
 
 /* One request: the screen as Home Assistant renders it. The server and the
- * token are the host's to put in - the application never sees the token. */
+ * token are Perinkpheral OS's to put in - the application never sees the token. */
 static void ask(void)
 {
     /* The screen is the integration's, which knows the device by the secret it gave it and
@@ -285,8 +285,8 @@ static bool next_line(int32_t *at, line_t *line)
 
 /* ---- text ----
  *
- * A value may have a degree sign in it, as Home Assistant gives it: the
- * host draws that one, and everything else beyond ASCII as "?". */
+ * A value may have a degree sign in it, as Home Assistant gives it:
+ * Perinkpheral OS draws that one, and everything else beyond ASCII as "?". */
 
 /* Where the degree sign is in a value, or -1. */
 static int32_t degree_at(const char *text)
@@ -301,7 +301,7 @@ static int32_t degree_at(const char *text)
 
 /* ---- pictures, by the names a screen may use ---- */
 
-/* A picture is one of the host's icons, which draws each at any size from
+/* A picture is one of Perinkpheral OS's icons, which draws each at any size from
  * its finest drawing: the weather in fine lines, the things of a home. */
 typedef struct {
     const char *name;
@@ -438,7 +438,7 @@ static void draw_detail(int32_t left, int32_t number, int32_t count, const detai
         /* The picture stands on the text's baseline. */
         draw_picture(detail->picture, left, baseline - DETAIL_PICTURE, DETAIL_PICTURE);
     }
-    /* The value and, after it, its unit: the host's to set. */
+    /* The value and, after it, its unit: Perinkpheral OS's to set. */
     ui_draw_value(left + (has_pictures ? DETAIL_PICTURE + DETAIL_GAP : 0), top, HOST_FONT_TEXT,
              detail->value, app_text_length(detail->value), detail->unit,
              app_text_length(detail->unit));
@@ -466,7 +466,7 @@ static void draw_column(int32_t number, int32_t count, const line_t *line)
 #define ITEMS_MAX 12
 
 typedef struct {
-    char name[48]; /* as wide as the host's cell takes: half as many letters of Cyrillic */
+    char name[48]; /* as wide as Perinkpheral OS's cell takes: half as many letters of Cyrillic */
     char value[48];
     const picture_t *picture;
 } item_t;
@@ -486,7 +486,7 @@ static int32_t read_items(item_t items[ITEMS_MAX])
     return count;
 }
 
-/* An item as a cell of the host's - its name, its picture and its value,
+/* An item as a Perinkpheral OS cell - its name, its picture and its value,
  * laid out and sized by the kit - and the icon in it, or HOST_ICON_NONE. */
 static int32_t cell_of(host_cell_t *cell, int32_t left, int32_t top, int32_t width, int32_t height,
                        const item_t *item)
@@ -518,7 +518,7 @@ static void draw_cells_of(const item_t *items, int32_t count)
     }
 }
 
-/* A list: the host's own, of facts nobody chooses from - a name at the
+/* A list: Perinkpheral OS's own, of facts nobody chooses from - a name at the
  * left edge, its value at the right. UP and DOWN move it when it is longer
  * than the screen. */
 static void draw_list_of(const item_t *items, int32_t count)

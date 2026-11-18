@@ -3,7 +3,7 @@
  * Copyright (c) 2026 GrakovNe
  *
  * Sunrise, sunset and the length of the day where the user is, and the
- * moon as it is now: four cells of the host's. Nothing is asked of the
+ * moon as it is now: four Perinkpheral OS cells. Nothing is asked of the
  * network - all of it is worked out here, from the place and the clock.
  *
  * The sun is NOAA's sunrise equation: the mean anomaly, the equation of
@@ -293,7 +293,7 @@ static bool read_place(place_t *place)
 }
 
 /* The header's left side: the city, while its setting is on. The right is
- * the host's own. */
+ * Perinkpheral OS's own. */
 static void show_header(void)
 {
     char    city[HOST_HEADER_TEXT_MAX + 1];
@@ -397,7 +397,7 @@ void app_on_draw(void)
 
     int32_t     width = gfx_width() / 2, height = gfx_height() / 2;
     host_cell_t cells[CELLS];
-    /* the sky is the host's icons; the moon is drawn here, as it is tonight */
+    /* the sky is Perinkpheral OS's icons; the moon is drawn here, as it is tonight */
     const int32_t  icons[CELLS] = { HOST_ICON_SUNRISE, HOST_ICON_SUNSET, HOST_ICON_SUN, HOST_ICON_NONE };
     const uint8_t *pictures[CELLS] = { 0, 0, 0, moon_picture };
     for (int32_t i = 0; i < CELLS; i++) {

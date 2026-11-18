@@ -402,7 +402,7 @@ static void finish_event(ics_t *ics)
 
 /* ---- lines ---- */
 
-/* SUMMARY's value with its escapes undone, as it came: the host draws what
+/* SUMMARY's value with its escapes undone, as it came: Perinkpheral OS draws what
  * is not ASCII as best it can. Cut between characters, never inside one. */
 static void take_title(ics_t *ics, const char *value)
 {

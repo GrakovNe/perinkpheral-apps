@@ -2,7 +2,7 @@
 /*
  * Four Statuspage summaries, with affected services first. Each row keeps
  * its source and last good answer in the store; a cleared link hides it.
- * The host owns polling and the refresh pace. OK asks all enabled pages.
+ * Perinkpheral OS owns polling and the refresh pace. OK asks all enabled pages.
  */
 #include "app_draw.h"
 #include "app_state.h"
