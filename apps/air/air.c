@@ -25,9 +25,8 @@ enum {
     DETAIL_LEFT = 266,
     DETAIL_TOP = 17, DETAIL_LINE = 46, DETAIL_VALUE_GAP = 13,
     RULE_TOP = MARGIN + HERO_PICTURE + MARGIN,
-    COLUMN_COUNT = 4, COLUMN_NAME_TOP = 130, COLUMN_PICTURE_TOP = 148,
-    COLUMN_PICTURE = 44, COLUMN_VALUE_TOP = 195, COLUMN_UNIT_TOP = 222, COLUMN_BAND_TOP = 242,
-    COLUMN_INSET = 6
+    COLUMN_COUNT = 4, COLUMN_PICTURE = 44, COLUMN_GAP = 12, COLUMN_INSET = 6,
+    LABEL_DESCENDER = 2
 };
 
 typedef struct {
@@ -215,12 +214,11 @@ static int32_t detail_font(void)
 {
     int32_t font = HOST_FONT_TEXT | HOST_FONT_TABULAR;
     int32_t available = gfx_width() - MARGIN - DETAIL_LEFT;
-    const char *unit = app_string(STR_CONCENTRATION);
     const int32_t numbers[] = { state.pm25, state.pm10 };
     for (int32_t row = 0; row < 2; row++) {
         char value[24];
         number_text(value, sizeof value, numbers[row], 1);
-        if (ui_value_width(font, value, app_text_length(value), unit, app_text_length(unit)) > available) {
+        if (app_text_width(font, value) > available) {
             return HOST_FONT_SMALL | HOST_FONT_TABULAR;
         }
     }
@@ -234,8 +232,7 @@ static void draw_detail(int32_t row, int32_t label, int32_t number, int32_t font
     app_draw_text(left, top, HOST_FONT_SMALL, app_string(label));
     char value[24];
     number_text(value, sizeof value, number, 1);
-    const char *unit = app_string(STR_CONCENTRATION);
-    ui_draw_value(left, top + DETAIL_VALUE_GAP, font, value, app_text_length(value), unit, app_text_length(unit));
+    app_draw_text(left, top + DETAIL_VALUE_GAP, font, value);
 }
 
 static void draw_molecule(int32_t left, int32_t top)
@@ -255,7 +252,33 @@ static void draw_molecule(int32_t left, int32_t top)
     }
 }
 
-static void draw_tile(int32_t column, int32_t name, int32_t icon, int32_t value, int32_t band, int32_t unit)
+typedef struct {
+    int32_t name, picture, value, band;
+} tile_layout_t;
+
+static tile_layout_t tile_layout(void)
+{
+    /* Small labels reserve two pixels below their capitals for descenders. */
+    int32_t name_height = gfx_font_cap_height(HOST_FONT_SMALL) + LABEL_DESCENDER;
+    int32_t band_height = name_height;
+    int32_t value_height = gfx_font_cap_height(HOST_FONT_TEXT);
+    int32_t block_height = name_height + COLUMN_PICTURE + value_height + band_height + 3 * COLUMN_GAP;
+    tile_layout_t layout;
+    layout.name = RULE_TOP + 1 + (gfx_height() - RULE_TOP - 1 - block_height) / 2;
+    layout.picture = layout.name + name_height + COLUMN_GAP;
+    layout.value = layout.picture + COLUMN_PICTURE + COLUMN_GAP;
+    layout.band = layout.value + value_height + COLUMN_GAP;
+    return layout;
+}
+
+static void draw_centered_at(int32_t center, int32_t top, int32_t font, const char *text)
+{
+    top -= gfx_font_ascent(font) - gfx_font_cap_height(font);
+    app_draw_centered(center, top, font, text);
+}
+
+static void draw_tile(const tile_layout_t *layout, int32_t column, int32_t name, int32_t icon,
+                      int32_t value, int32_t band)
 {
     int32_t width = gfx_width() / COLUMN_COUNT;
     int32_t center = column * width + width / 2;
@@ -265,11 +288,11 @@ static void draw_tile(int32_t column, int32_t name, int32_t icon, int32_t value,
     int32_t length = gfx_fit_text(HOST_FONT_SMALL, label, app_text_length(label),
                                   available, fitted, sizeof fitted - 1);
     fitted[length > 0 ? length : 0] = '\0';
-    app_draw_centered(center, COLUMN_NAME_TOP, HOST_FONT_SMALL, fitted);
+    draw_centered_at(center, layout->name, HOST_FONT_SMALL, fitted);
     if (icon == HOST_ICON_GAS) {
-        draw_molecule(center - COLUMN_PICTURE / 2, COLUMN_PICTURE_TOP);
+        draw_molecule(center - COLUMN_PICTURE / 2, layout->picture);
     } else {
-        gfx_draw_icon(center - COLUMN_PICTURE / 2, COLUMN_PICTURE_TOP, icon, COLUMN_PICTURE / HOST_ICON_CELLS);
+        gfx_draw_icon(center - COLUMN_PICTURE / 2, layout->picture, icon, COLUMN_PICTURE / HOST_ICON_CELLS);
     }
     char number[24];
     /* Grains and micrograms are counted whole; only the UV index has a decimal worth reading. */
@@ -280,9 +303,8 @@ static void draw_tile(int32_t column, int32_t name, int32_t icon, int32_t value,
     }
     int32_t font = HOST_FONT_TEXT | HOST_FONT_TABULAR;
     if (app_text_width(font, number) > available) { font = HOST_FONT_SMALL | HOST_FONT_TABULAR; }
-    app_draw_centered(center, COLUMN_VALUE_TOP, font, number);
-    app_draw_centered(center, COLUMN_UNIT_TOP, HOST_FONT_SMALL, app_string(unit));
-    app_draw_centered(center, COLUMN_BAND_TOP, HOST_FONT_SMALL, band_word(band));
+    draw_centered_at(center, layout->value, font, number);
+    draw_centered_at(center, layout->band, HOST_FONT_SMALL, band_word(band));
 }
 
 void app_on_draw(void)
@@ -304,13 +326,13 @@ void app_on_draw(void)
     /* WHO UV bands: Low <3, Moderate <6, High <8; Very high includes
      * Extreme (11+). https://www.who.int/news-room/questions-and-answers/item/radiation-the-ultraviolet-(uv)-index */
     int32_t uv_band = state.uv < 30 ? 0 : state.uv < 60 ? 1 : state.uv < 80 ? 2 : 3;
-    draw_tile(0, STR_UV, HOST_ICON_SUN, state.uv, uv_band, STR_INDEX);
+    tile_layout_t layout = tile_layout();
+    draw_tile(&layout, 0, STR_UV, HOST_ICON_SUN, state.uv, uv_band);
     int32_t selected[AIR_TILES];
     int32_t count = air_worst(state.irritants, selected);
     for (int32_t tile = 0; tile < count; tile++) {
         int32_t irritant = selected[tile];
-        draw_tile(tile + 1, IRRITANTS[irritant].name, IRRITANTS[irritant].icon,
-                  state.irritants[irritant], air_band(irritant, state.irritants[irritant]),
-                  irritant >= AIR_ALDER ? STR_GRAINS : STR_CONCENTRATION);
+        draw_tile(&layout, tile + 1, IRRITANTS[irritant].name, IRRITANTS[irritant].icon,
+                  state.irritants[irritant], air_band(irritant, state.irritants[irritant]));
     }
 }
