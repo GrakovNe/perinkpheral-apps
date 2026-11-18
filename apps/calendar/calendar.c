@@ -439,14 +439,38 @@ static void draw_reason(void)
 #define MOMENT_MAX  47 /* "Завтра 15:04" is two bytes a letter */
 #define TITLE_LINES 4
 
-/* One event, whole: when it is, and its name over as many lines as it takes. */
+static bool same_local_day(int64_t first, int64_t second)
+{
+    host_local_time_t start, end;
+    return time_local_at(first, &start) == HOST_OK && time_local_at(second, &end) == HOST_OK &&
+           start.year == end.year && start.month == end.month && start.day == end.day;
+}
+
+/* The event leads; the dates below include overnight and multi-day ranges. */
 static void draw_event(const ics_event_t *event)
 {
     char       when[2 * MOMENT_MAX + 8], moment[MOMENT_MAX + 1];
     app_text_t line;
     int32_t    width = gfx_width() - 2 * HOST_UI_MARGIN;
 
-    int32_t top = ui_draw_title(moment, app_time_text(event->start, HOST_TIME_DATE, moment, sizeof moment));
+    const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
+    int32_t top = HOST_UI_MARGIN;
+    int32_t lines = ui_draw_text_lines(HOST_UI_MARGIN, top, HOST_UI_TEXT, name,
+                                       app_text_length(name), width, TITLE_LINES);
+    top += lines * ui_text_height(HOST_UI_TEXT) + HOST_UI_MARGIN;
+
+    app_text_start(&line, when, sizeof when);
+    app_time_text(event->start, HOST_TIME_DATE, moment, sizeof moment);
+    app_text_add(&line, moment);
+    /* iCalendar's all-day DTEND is the first day outside the event. */
+    int64_t last = event->is_all_day && event->end > event->start ? event->end - 1 : event->end;
+    if (!same_local_day(event->start, last)) {
+        app_text_add(&line, " - ");
+        app_time_text(last, HOST_TIME_DATE, moment, sizeof moment);
+        app_text_add(&line, moment);
+    }
+    ui_draw_text(HOST_UI_MARGIN, top, HOST_UI_CAPTION, when, app_text_length(when), width);
+    top += ui_text_height(HOST_UI_CAPTION) + HOST_UI_MARGIN / 2;
 
     app_text_start(&line, when, sizeof when);
     if (event->is_all_day) {
@@ -458,11 +482,8 @@ static void draw_event(const ics_event_t *event)
         app_time_text(event->end, HOST_TIME_CLOCK, moment, sizeof moment);
         app_text_add(&line, moment);
     }
-    ui_draw_text(HOST_UI_MARGIN, top, HOST_UI_TITLE, when, app_text_length(when), width);
-    top += ui_text_height(HOST_UI_TITLE) + HOST_UI_MARGIN / 2;
-
-    const char *name = event->title[0] != '\0' ? event->title : app_string(STR_EVENT);
-    ui_draw_text_lines(HOST_UI_MARGIN, top, HOST_UI_TEXT, name, app_text_length(name), width, TITLE_LINES);
+    ui_draw_text(HOST_UI_MARGIN, top, lines <= 2 ? HOST_UI_TITLE : HOST_UI_TEXT,
+                  when, app_text_length(when), width);
     app_draw_actions(NULL, app_string(STR_BACK));
 }
 

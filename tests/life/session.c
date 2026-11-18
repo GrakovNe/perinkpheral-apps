@@ -55,22 +55,20 @@ int main(void)
     app_on_button(BTN_DOWN_PRESSED);
     app_on_button(BTN_OK_PRESSED);
     assert(running && generation == 1 && timer_ms == 600 && cell == 4);
-    uint32_t expected = field_hash();
+    uint8_t expected[FIELD_BYTES];
+    memcpy(expected, fields[current], sizeof expected);
     uint32_t expected_random = random_state;
     app_on_blur();
 
     /* Reconstruct a fresh instance's globals without touching the scene-owned bytes. */
     clear_fields();
-    for (int32_t index = 0; index < HASH_HISTORY; index++) { hashes[index] = 0; }
-    hash_count = hash_next = 0;
     cell = columns = rows = 0;
     random_state = 0;
     app_on_focus();
     assert(running && generation == 1 && timer_ms == 600 && cell == 4);
-    assert(field_hash() == expected && random_state == expected_random);
-    assert(hash_count == 2 && hash_next == 2 && hashes[1] == expected);
+    assert(memcmp(fields[current], expected, sizeof expected) == 0 && random_state == expected_random);
     app_on_timer(STEP_TIMER);
-    assert(generation == 2 && field_hash() != expected);
+    assert(generation == 2 && memcmp(fields[current], expected, sizeof expected) != 0);
 
     scene_length = 0;
     app_on_focus();

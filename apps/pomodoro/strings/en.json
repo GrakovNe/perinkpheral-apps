@@ -8,6 +8,7 @@
   "paused": "Paused",
   "pause": "Pause",
   "start": "Start",
+  "stop": "Stop",
   "round": "Round {0} of {1}",
   "of": "{0} of {1}"
 }

@@ -45,6 +45,7 @@ export WASI_SDK_PATH=/path/to/wasi-sdk
 ../perinkpheral/tools/perinkpheral sim apps/<name>
 tests/check-logic.sh
 tests/life/check-session.sh
+tests/stopwatch/check-resume.sh
 ../perinkpheral/tools/perinkpheral sim-test tests
 ./build.sh
 ```

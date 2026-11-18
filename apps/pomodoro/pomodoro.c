@@ -7,7 +7,7 @@
  * Only transitions write the store. Phase lengths and the displayed round
  * goal are captured when a phase begins, so settings do not move a running
  * deadline. A restart resets the cycle, including a paused phase.
- * OK starts or pauses, DOWN skips, a long OK resets to the first work.
+ * OK starts or pauses, UP stops, DOWN skips, a long OK resets to the first work.
  */
 #include "app_draw.h"
 #include "app_state.h"
@@ -174,6 +174,11 @@ void app_on_settings(void)
 void app_on_button(int32_t event)
 {
     switch (event) {
+    case BTN_UP_PRESSED:
+        if (!state.ends_at && !state.paused_left) { return; }
+        /* Stop also discards the paused remainder, so the next start begins
+         * a new work session with the user's current duration settings. */
+        reset_state(); save(); schedule(); break;
     case BTN_OK_LONG_PRESSED:
         reset_state(); save(); schedule(); break;
     case BTN_DOWN_PRESSED:
@@ -232,4 +237,10 @@ void app_on_draw(void)
     int32_t remaining_minutes = (left + 59) / 60;
     ui_draw_bar(32, 183, gfx_width() - 64, total_minutes - remaining_minutes, total_minutes);
     app_draw_actions(app_string(state.ends_at ? STR_PAUSE : STR_START), 0);
+    if (state.ends_at || state.paused_left) {
+        const char *stop = app_string(STR_STOP);
+        int32_t top = gfx_height() - HOST_UI_ACTIONS_HEIGHT / 2 +
+                      gfx_font_cap_height(HOST_FONT_TEXT) / 2 - gfx_font_ascent(HOST_FONT_TEXT);
+        ui_draw_button(HOST_UI_MARGIN, top, "UP", 2, stop, app_text_length(stop), false);
+    }
 }

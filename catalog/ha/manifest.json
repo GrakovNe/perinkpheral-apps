@@ -2,6 +2,7 @@
   "name": "ha",
   "version": "0.3.15",
   "title": "HA Companion",
+  "author": "Perinkpheral",
   "description": "Home Assistant dashboard.",
   "abi": 3,
   "settings": [

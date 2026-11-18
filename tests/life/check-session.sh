@@ -15,3 +15,7 @@ ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     -ffunction-sections -fdata-sections "$strip" -I"$build" -I"$sdk/sdk" -I"$sdk/sdk/lib" \
     tests/life/session.c -o "$build/test_life_session"
 "$build/test_life_session"
+${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+    -ffunction-sections -fdata-sections "$strip" -I"$build" -I"$sdk/sdk" -I"$sdk/sdk/lib" \
+    tests/life/evolution.c -o "$build/test_life_evolution"
+"$build/test_life_evolution"

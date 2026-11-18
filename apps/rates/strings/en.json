@@ -1,5 +1,7 @@
 {
   "no_data": "No data",
   "currency_name": "",
-  "columns": "RUB / change"
+  "auto": "Auto",
+  "period": "30 days",
+  "no_history": "No history yet"
 }

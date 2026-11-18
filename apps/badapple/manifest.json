@@ -1,8 +1,9 @@
 {
   "name": "badapple",
   "title": "Bad Apple",
+  "author": "Perinkpheral",
   "description": "The Bad Apple!",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "abi": 3,
   "fullscreen": true,
   "icon": [

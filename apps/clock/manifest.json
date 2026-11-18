@@ -1,6 +1,7 @@
 {
   "name": "clock",
   "title": "Clock",
+  "author": "Perinkpheral",
   "description": "Large clock with the date.",
   "version": "0.1.8",
   "abi": 3,

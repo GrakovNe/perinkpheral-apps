@@ -1,75 +1,71 @@
 # HA Companion
 
-**The easy way** is the integration for Home Assistant,
-https://github.com/GrakovNe/perinkpheral-hacs: screens are put together in its forms and it
-sets this application up by itself - the address, a secret of its own, the Sensor left
-empty. What follows is the other way, a sensor written by hand.
+A Home Assistant dashboard for perINKpheral. The
+[Home Assistant integration](https://github.com/GrakovNe/perinkpheral-hacs)
+chooses the layout and entities; this application draws their values on the display.
 
-A screen for Home Assistant: what it shows is described in Home Assistant,
-how it looks is drawn on the device.
+## Set up
 
-## In Home Assistant
+1. Install **HA Companion** from the application catalog on the device's page.
+2. Install the perINKpheral integration through HACS and restart Home Assistant.
+3. In Home Assistant, open **Settings → Devices & services → Add integration →
+   perINKpheral**. Enter the display address and a Home Assistant URL reachable
+   from the display.
+4. Choose the layout and entities in the integration options.
+5. Open HA Companion on the display.
 
-One template sensor with an attribute `screen` - a line for every place on
-the screen, its parts divided by `|`:
+The integration writes the server address and its own pairing secret to the
+application. These fields are hidden on the device's page; no long-lived Home
+Assistant access token or template sensor is required. The application's visible
+setting is the refresh interval. Opening it or pressing OK refreshes immediately.
 
-```yaml
-template:
-  - sensor:
-      - name: perinkpheral
-        state: ok
-        attributes:
-          screen: |
-            hero|{{ state_attr('weather.home','temperature') | round(0, default='--') }}°|{{ states('weather.home') }}
-            detail|{{ state_attr('weather.home','humidity') }}|%|drop
-            detail|{{ state_attr('weather.home','pressure') | round(0, default='--') }}|hPa|gauge
-            column|Room|thermometer|{{ states('sensor.room_temperature') | round(1, default='--') }}°
-            column|Fridge|thermometer|{{ states('sensor.fridge_temperature') }}°
-            column|CO2|co2|{{ states('sensor.co2') }}
+## Screen format
+
+The integration serves the rendered screen at `/api/perinkpheral/screen`.
+The application sends the pairing secret in `Authorization: Bearer <secret>`.
+This is the integration's endpoint, not Home Assistant's template-sensor API.
+
+Each line describes a place on the screen, with parts separated by `|`:
+
+```text
+hero|21°|cloudy
+detail|54|%|drop
+detail|1013|hPa|gauge
+column|Room|thermometer|22.5°
+column|Fridge|thermometer|4°
+column|CO2|co2|650
 ```
-
-A `round` without `default` fails when its entity is unavailable, and one
-failed value leaves the whole screen empty.
 
 | Place | Parts | What it is |
 |---|---|---|
-| `hero` | value, picture | the one thing the screen is for: two characters are the largest |
+| `hero` | value, picture | the main value; two characters use the largest size |
 | `detail` | value, unit, picture | up to two, beside the hero |
-| `column` | name, picture, value | up to four, in a row under the rule |
+| `column` | name, picture, value | up to four, below the rule |
 
 ## Layouts
 
-The table above is the layout a screen has when it names none. Three more are chosen by a
-first line `layout|<name>`, and then every line is one shape, `item|name|picture|value`,
-the items falling into the layout's places in their order:
+The default layout uses the places above. Other layouts begin with
+`layout|<name>` and use `item|name|picture|value` lines:
 
 | Layout | What it is |
 |---|---|
-| `tiles` | up to four items: one is the whole screen, two are halves, three and four are quarters; one size of value for all |
-| `single` | the first item, as large as it goes |
-| `list` | up to twelve rows, a name and its value; UP and DOWN move a list longer than the screen |
+| `tiles` | up to four items; one fills the screen, two use halves, three or four use quarters |
+| `single` | the first item, as large as it fits |
+| `list` | up to twelve rows; UP and DOWN scroll |
 
-```
+```text
 layout|tiles
-item|Living room|thermometer|{{ states('sensor.room_temperature') | round(1, default='--') }}°
-item|CO2|co2|{{ states('sensor.co2') }}
-item|Input|plug|{{ states('sensor.input_voltage') | round(0, default='--') }}V
-item|Network|network|{{ states('sensor.network_speed') | round(1, default='--') }}
+item|Living room|thermometer|22.5°
+item|CO2|co2|650
+item|Input|plug|5V
+item|Network|network|100
 ```
 
-A picture may be left empty (`item|Door||Closed`).
-
-Pictures: the states of a weather entity as they are (`sunny`, `cloudy`,
-`rainy`, `snowy`, `lightning`, `partlycloudy`, `clear-night`, ...), and
-`drop`, `co2`, `gauge`, `thermometer`, `battery`, `bulb`, `door`, `home`,
+A picture may be empty (`item|Door||Closed`). Pictures include weather states
+(`sunny`, `cloudy`, `rainy`, `snowy`, `lightning`, `partlycloudy`, `clear-night`),
+and `drop`, `co2`, `gauge`, `thermometer`, `battery`, `bulb`, `door`, `home`,
 `moon`, `plug`, `bolt`, `chip`, `network`, `umbrella`, `wind`, `bell`,
 `clock`, `check`, `warning`, `info`, `play`.
 
-Text is ASCII; `°` is drawn. The whole of it is at most 512 bytes.
-
-## On the device
-
-Settings of the application, on the device's page: the server's address,
-a long-lived access token (Home Assistant, your profile, Security), the
-sensor's name and how often to refresh. Opening the application or OK on
-the device refreshes now.
+Text is UTF-8. Character coverage depends on the selected font and installed glyph
+packs. The complete response is limited to 512 bytes.
