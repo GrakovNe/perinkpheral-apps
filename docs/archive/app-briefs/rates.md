@@ -4,13 +4,13 @@ Archived design brief for an application that has shipped. This records the orig
 proposal, not current behavior or outstanding work. See the [archive index](README.md)
 and [contribution guide](../../../CONTRIBUTING.md).
 
-The shared conventions are in [CONTRIBUTING.md](../../../CONTRIBUTING.md). Model to copy: `apps/stocks` (a list setting, a list on the screen,
+Reference implementation: `apps/stocks` (a list setting, a list on the screen,
 numbers with decimals, a request read in pieces).
 
 ## What it is
 
 The official exchange rates of the Central Bank of Russia for the currencies the user chose: the
-rate in rubles and how it changed since the previous day. One screen, a row a currency.
+rate in rubles and how it changed since the previous day. One screen, with one row per currency.
 
 ```
  USD   Доллар США             92.5432   +0.32
@@ -23,7 +23,7 @@ rate in rubles and how it changed since the previous day. One screen, a row a cu
 ## The data
 
 `GET https://www.cbr-xml-daily.ru/daily_json.js` - JSON, no key, no account, updated once a day
-on working days. Look at it first (`curl -s https://www.cbr-xml-daily.ru/daily_json.js | head -c 1500`):
+on working days. Example response (`curl -s https://www.cbr-xml-daily.ru/daily_json.js | head -c 1500`):
 
 ```json
 { "Date": "2026-11-17T11:30:00+03:00", "PreviousDate": "...",
@@ -51,7 +51,7 @@ sources: read it.
   - `codes`, `list`, "Currencies" / "Валюты", `default` `["USD", "EUR", "CNY"]`. Items are
     three-letter codes as the bank writes them.
   - `every`, `choice`, "Refresh" / "Обновление", options `["1 h", "6 h", "1 d"]`, default `"6 h"`
-    (the bank publishes once a day: more often is waste).
+    (the bank publishes once a day: more frequent polling is unnecessary).
 - An icon: something that reads as money or exchange, 11x11, drawn in the manner of the others.
 
 ## Behaviour
@@ -60,7 +60,7 @@ sources: read it.
   help of `codes`: "Up to 8.") its code, nominal, value and previous value as fixed-point
   integers with 4 decimals (`app_fixed_parse(text, 4, &value)`), and the date. One struct,
   `app_state_save`, written only when an answer came whole and differs. 8 currencies x a few
-  numbers is far under the 2 KB.
+  numbers fits within the 2 KB store limit.
 - A code the bank does not have: its row says "No data" / "Нет данных" instead of a number.
 - An answer that failed: keep showing what is stored; when nothing is stored, the screen is
   `ui_draw_reason(status)` (Loading, No network, No answer - the host's words).
@@ -80,7 +80,7 @@ sources: read it.
 - More currencies than fit: UP and DOWN scroll (`app_list_button`, a list without a selection),
   a long press a page.
 - OK: ask now (`poll_run(0)`), the picture redrawn when the answer comes (`HOST_REDRAW_SOON`).
-- Redraw from data with `HOST_REDRAW_NORMAL` - once a day changes nothing worth hurrying for.
+- Redraw from data with `HOST_REDRAW_NORMAL` - daily rate updates use the normal refresh policy.
 
 ## Test
 

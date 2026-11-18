@@ -4,14 +4,14 @@ Archived design brief for an application that has shipped. This records the orig
 proposal, not current behavior or outstanding work. See the [archive index](README.md)
 and [contribution guide](../../../CONTRIBUTING.md).
 
-The shared conventions are in [CONTRIBUTING.md](../../../CONTRIBUTING.md). Models to copy: `apps/badapple` (a row of pictures with
+Reference implementations: `apps/badapple` (a row of pictures with
 `HOST_REDRAW_NO_BLINK`, one bitmap drawn per frame) and `apps/kit` for the buttons.
 
 ## What it is
 
 The cellular automaton of John Conway on the whole screen: a field of cells, each alive or dead,
 every generation a cell with 3 live neighbours is born and one with 2 or 3 survives; the rest die.
-It is a toy and a test of how fast the panel can go: about 1.5 pictures a second.
+The proposed application is an interactive demo and panel-refresh benchmark, targeting about 1.5 frames per second.
 
 ```
  ┌──────────────────────────────────────────────┐
@@ -66,9 +66,9 @@ No network, no settings needed beyond the speed.
   pictures left on the panel.
 - **DOWN**: one generation (when paused). **Long DOWN**: ten.
 - **UP**: a new random field. **Long UP**: a field with a few classic patterns placed - a glider
-  gun, some gliders, a pulsar - if there is room in the code (keep each as a short list of
+  gun, some gliders, a pulsar - if the module fits the code limit (keep each as a short list of
   coordinates).
-- **Stop by itself** - the device is not meant to blink on a shelf for hours: pause after 500
+- **Stop by itself** - to limit continuous refreshing, pause after 500
   generations, or when the field is empty, or when it repeats itself (keep a cheap hash of the
   last few generations: the same hash twice in the last 3 is a still life or a blinker). Paused by
   itself, it says why in the status line ("Still" / "Покой", "Empty" / "Пусто", "500").

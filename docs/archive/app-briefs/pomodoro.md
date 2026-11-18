@@ -1,13 +1,11 @@
-# Initial brief: `pomodoro` - work and rest in turns
+# Initial brief: `pomodoro` - alternating work sessions and breaks
 
 Archived design brief for an application that has shipped. This records the original
 proposal, not current behavior or outstanding work. See the [archive index](README.md)
 and [contribution guide](../../../CONTRIBUTING.md).
 
-The shared conventions are in [CONTRIBUTING.md](../../../CONTRIBUTING.md). Model to copy: `apps/timer` - read it whole: it is the same
-machinery (an alarm at the end, a repeating alarm for the minutes, a notice when it is over, the
-minutes in the header while the user is elsewhere, the countdown kept on uptime and the run of
-the device).
+Use `apps/timer` as the reference for completion alarms, minute updates, notices,
+header status and a countdown based on uptime and the boot identifier.
 
 ## What it is
 
@@ -39,7 +37,7 @@ No network. No sounds (the device has none).
     default `"15 min"`.
   - `rounds`, `choice`, "Long break after" / "Длинный перерыв после", options `["2", "3", "4"]`,
     default `"4"` (works).
-  Read a pace with `app_setting_seconds("work", 25 * 60)`.
+  Read the configured duration with `app_setting_seconds("work", 25 * 60)`.
 - An icon: a tomato-like round fruit is fine, or an hourglass with a mark - not the host's own
   hourglass icon copied.
 
@@ -63,7 +61,7 @@ Write it when it changes (start, pause, phase end, skip, reset) - not every minu
   `header_set_status(HOST_HEADER_RIGHT, icon, "18 min")`. Paused: both alarms cancelled
   (`alarm_set(id, 0)`), the header says "Paused" / "Пауза", the left time kept.
 - **DOWN** skips to the next phase (a work skipped counts as done: the round moves on).
-- **Long OK** resets to the first work of the cycle, not running; the header given back
+- **Long OK** resets to the first work of the cycle, not running; clear the application's header status
   (`header_set_status` with an empty text).
 - **UP** does nothing (or the same as DOWN backwards - not needed).
 - **The end of a phase** (`app_on_alarm(END_ALARM)`, on or off the screen): the next phase begins
@@ -86,8 +84,8 @@ Write it when it changes (start, pause, phase end, skip, reset) - not every minu
   and the unit after it in the text font).
 - A bar of how much of the phase is gone: `ui_draw_bar(x, y, w, gone, length)`.
 - Along the bottom what OK does - "Start" or "Pause" - with `app_draw_actions(word, NULL)`.
-  DOWN to skip and a long OK to reset are not said on the screen: Settings' Buttons page and the
-  guide say what holding a button does, and these are second-order.
+  DOWN to skip and long OK to reset are secondary actions and are not labelled on
+  this screen.
 
 ## Test
 

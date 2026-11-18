@@ -4,7 +4,7 @@ Archived design brief for an application that has shipped. This records the orig
 proposal, not current behavior or outstanding work. See the [archive index](README.md)
 and [contribution guide](../../../CONTRIBUTING.md).
 
-The shared conventions are in [CONTRIBUTING.md](../../../CONTRIBUTING.md). The composition follows `apps/ha/ha.c`: a hero with a large
+The composition follows `apps/ha/ha.c`: a hero with a large
 picture, two details beside it, and four columns under the rule. ABI 3, version 0.1.0.
 
 ## Data and settings

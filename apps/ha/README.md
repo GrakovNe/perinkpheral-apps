@@ -67,4 +67,5 @@ and `drop`, `co2`, `gauge`, `thermometer`, `battery`, `bulb`, `door`, `home`,
 `moon`, `plug`, `bolt`, `chip`, `network`, `umbrella`, `wind`, `bell`,
 `clock`, `check`, `warning`, `info`, `play`.
 
-Text is ASCII; `°` is supported. The response is at most 512 bytes.
+Text is UTF-8. Character coverage depends on the selected font and installed glyph
+packs. The complete response is limited to 512 bytes.

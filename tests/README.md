@@ -28,7 +28,6 @@ changed PNG. Then repeat without `--update`; never regenerate baselines merely t
 silence a mismatch. English/Russian and Departure/Jersey variants cover the recent
 applications. The normal simulator runner needs permission to listen on localhost.
 
-The original offline-only screenshot note has been superseded: normal `sim-test tests`
-runs are part of CI. Passing simulator checks do not establish panel timing, real
+CI runs `sim-test tests` with offline fixtures. Passing simulator checks do not establish panel timing, real
 button behavior, network endurance or battery life. Those belong to the
 [firmware's hardware qualification](https://github.com/GrakovNe/perinkpheral/blob/main/docs/testing/stability.md).
