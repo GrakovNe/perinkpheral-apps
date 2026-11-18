@@ -211,7 +211,9 @@ static void measure_init(measure_t *measure, int32_t number, int32_t unit, int32
 
 static void draw_measure(int32_t left, const measure_t *measure)
 {
-    app_draw_centered(left + measure->width / 2, TELEMETRY_TOP, HOST_FONT_SMALL, measure->label);
+    int32_t digit_width = ui_value_width(HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
+                                         app_text_length(measure->value), "", 0);
+    app_draw_centered(left + digit_width / 2, TELEMETRY_TOP, HOST_FONT_SMALL, measure->label);
     ui_draw_value(left, VALUE_TOP, HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
                   app_text_length(measure->value), measure->unit, app_text_length(measure->unit));
 }

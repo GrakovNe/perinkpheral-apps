@@ -14,7 +14,6 @@ uses Q14 integer sines in tenths of a degree.
 
 `files/land.bin` is a raw, MSB-first 400×200 bitmap, 50 bytes per row, derived from
 [the source bitmap](assets/world-land-400x200.png). Natural Earth land is public domain.
-An ink pixel is retained only where both x and y are even, except where
-(x/2 + 11 × y/2) is a multiple of 53, producing a fine stipple. The host draws
+An ink pixel is retained only where both x and y are even, producing a fine stipple. The host draws
 this 10 KB package file with `gfx_draw_bitmap_file`, keeping it out of WASM memory.
 `sine.h` contains rounded `16384 * sin(angle)` values for 0–90 degrees at 0.1-degree steps.
