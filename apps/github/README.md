@@ -20,5 +20,5 @@ requires contributions today and walks backward through consecutive local calend
 it is zero when today's date is absent or empty. Unknown time also gives zero.
 
 `tests/github/calendar.json` is a synthetic, realistic 30 KB GraphQL response containing
-366 days. `tests/check-new-apps.sh` checks split responses down to one byte, packed levels,
+366 days. `tests/check-logic.sh` checks split responses down to one byte, packed levels,
 dates, streaks and invalid or truncated data with sanitizers.

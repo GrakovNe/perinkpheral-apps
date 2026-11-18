@@ -71,7 +71,7 @@ jobs:
         env:
           PERINKPHERAL: ${{ github.workspace }}/perinkpheral
         run: |
-          tests/check-new-apps.sh
+          tests/check-logic.sh
           tests/life/check-session.sh
       - name: The applications in the simulator
         run: perinkpheral/tools/perinkpheral sim-test tests

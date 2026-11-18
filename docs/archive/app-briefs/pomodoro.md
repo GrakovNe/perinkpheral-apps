@@ -1,6 +1,10 @@
-# Task: `pomodoro` - work and rest in turns
+# Initial brief: `pomodoro` - work and rest in turns
 
-Read `tasks/README.md` first. Model to copy: `apps/timer` - read it whole: it is the same
+Archived design brief for an application that has shipped. This records the original
+proposal, not current behavior or outstanding work. See the [archive index](README.md)
+and [contribution guide](../../../CONTRIBUTING.md).
+
+The shared conventions are in [CONTRIBUTING.md](../../../CONTRIBUTING.md). Model to copy: `apps/timer` - read it whole: it is the same
 machinery (an alarm at the end, a repeating alarm for the minutes, a notice when it is over, the
 minutes in the header while the user is elsewhere, the countdown kept on uptime and the run of
 the device).

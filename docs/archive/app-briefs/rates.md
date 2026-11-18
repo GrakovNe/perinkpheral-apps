@@ -1,6 +1,10 @@
-# Task: `rates` - exchange rates of the Bank of Russia
+# Initial brief: `rates` - exchange rates of the Bank of Russia
 
-Read `tasks/README.md` first. Model to copy: `apps/stocks` (a list setting, a list on the screen,
+Archived design brief for an application that has shipped. This records the original
+proposal, not current behavior or outstanding work. See the [archive index](README.md)
+and [contribution guide](../../../CONTRIBUTING.md).
+
+The shared conventions are in [CONTRIBUTING.md](../../../CONTRIBUTING.md). Model to copy: `apps/stocks` (a list setting, a list on the screen,
 numbers with decimals, a request read in pieces).
 
 ## What it is

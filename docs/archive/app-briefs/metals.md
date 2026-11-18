@@ -1,7 +1,10 @@
-# Task: `metals` - Bank of Russia metals
+# Initial brief: `metals` - Bank of Russia metals
 
-Read `tasks/README.md` first (it is on the branch `qwen-apps`; its rules hold here too - the
-parts that matter are copied below). Models to copy: `apps/stocks` (a request of the
+Archived design brief for an application that has shipped. This records the original
+proposal, not current behavior or outstanding work. See the [archive index](README.md)
+and [contribution guide](../../../CONTRIBUTING.md).
+
+The shared conventions are in [CONTRIBUTING.md](../../../CONTRIBUTING.md). Models to copy: `apps/stocks` (a request of the
 application's own read in pieces, numbers with decimals, a chart, a certificate authority of its
 own in `"certificates"`, and one item per screen with UP / DOWN navigation).
 
@@ -29,7 +32,7 @@ bank, the source named in words.
 `GET https://www.cbr.ru/scripts/xml_metall.asp?date_req1=DD/MM/YYYY&date_req2=DD/MM/YYYY` -
 XML, no key. `www.cbr.ru` is certified by the Russian Trusted Root CA only: the device does not
 trust it unless the package brings that authority. Real answers are in
-`tasks/metals-samples/` (`month.xml` - a month, `days.xml` - three days); your sandbox has no
+`tests/fixtures/metals/` (`month.xml` - a month, `days.xml` - three days); your sandbox has no
 network, use them.
 
 ```xml
@@ -105,7 +108,7 @@ moment (kept in the session, not written to the store). A changed setting select
 `metal` to `Gold`. A third sets the same first metal with the request failing and no saved
 month: `wait 3`, `shot failed`, `press 3`, `shot failed-next`.
 
-## Rules that bind (from tasks/README.md)
+## Rules that bind (original shared conventions)
 
 No floating point, no C library (use `sdk/lib`), draw only in `app_on_draw`, state in the store,
 the session for where the user is, strings in `strings/en.json` and `strings/ru.json` with the

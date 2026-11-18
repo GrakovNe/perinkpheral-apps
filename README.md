@@ -4,7 +4,7 @@
 
 Official applications and the static catalog for [perINKpheral](https://perinkpheral.dev).
 
-[Installation](https://perinkpheral.dev/start#apps) -
+[Installation](https://perinkpheral.dev/setup#apps) -
 [Developer documentation](https://perinkpheral.dev/sdk) -
 [Catalog files](https://github.com/GrakovNe/perinkpheral-apps/tree/main/catalog).
 Application guide (PDF):
@@ -31,7 +31,7 @@ CI builds and tests every push. Each successful push to `main` releases a catalo
   `iss`, `kit`, `life`, `metals`, `pomodoro`, `rates`, `status`, `stocks`, `stopwatch`, `sun`,
   `timer`, `weather`.
 - `catalog/` - committed application packages and `catalog.json`.
-- `tests/` - simulator scenarios, network mocks and reference images.
+- [tests/](tests/README.md) - host checks, simulator scenarios, network fixtures and reference images.
 - `glyphs/` - glyph packs copied into the catalog by `build.sh`.
 
 ## Application authors
@@ -40,6 +40,15 @@ The catalog is served at
 `https://raw.githubusercontent.com/GrakovNe/perinkpheral-apps/HEAD/catalog`.
 `build.sh` rebuilds it from `apps/`. Every application requires a test in `tests/`.
 The application guide linked above covers the SDK and package format.
+[CONTRIBUTING.md](CONTRIBUTING.md) describes source layout, validation and catalog delivery.
+Original briefs for shipped applications are retained in [the design archive](docs/archive/app-briefs/README.md).
+
+## Related repositories
+
+- [Firmware, SDK and tools](https://github.com/GrakovNe/perinkpheral).
+- [CLion plugin](https://github.com/GrakovNe/perinkpheral-clion-plugin).
+- [Home Assistant integration](https://github.com/GrakovNe/perinkpheral-hacs), used with [HA Companion](apps/ha/README.md).
+- [Portal source](https://github.com/GrakovNe/perinkpheral-dev-portal), including the installation guide.
 
 ## License
 

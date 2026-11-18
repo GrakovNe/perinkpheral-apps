@@ -1,6 +1,10 @@
-# Task: `air` - air quality
+# Initial brief: `air` - air quality
 
-Read `tasks/README.md` first. The composition follows `apps/ha/ha.c`: a hero with a large
+Archived design brief for an application that has shipped. This records the original
+proposal, not current behavior or outstanding work. See the [archive index](README.md)
+and [contribution guide](../../../CONTRIBUTING.md).
+
+The shared conventions are in [CONTRIBUTING.md](../../../CONTRIBUTING.md). The composition follows `apps/ha/ha.c`: a hero with a large
 picture, two details beside it, and four columns under the rule. ABI 3, version 0.1.0.
 
 ## Data and settings
@@ -77,7 +81,7 @@ included in Very high, and never participates in the selection.
 
 `tests/air`, `air-us`, `air-ru`, `air-error`, `air-unset` carry complete current-response mocks.
 The European examples exercise seasonal pollen and different hero bands; US has no pollen.
-The two November samples in `tasks/samples/` include all sixteen fields with realistic values.
+The two November samples in `tests/fixtures/` include all sixteen fields with realistic values.
 Run `../perinkpheral/tools/perinkpheral sim-test tests --update`, inspect the five Air pictures,
 and then compare them without `--update`.
 

@@ -1,6 +1,10 @@
-# Task: `life` - Conway's Game of Life
+# Initial brief: `life` - Conway's Game of Life
 
-Read `tasks/README.md` first. Models to copy: `apps/badapple` (a row of pictures with
+Archived design brief for an application that has shipped. This records the original
+proposal, not current behavior or outstanding work. See the [archive index](README.md)
+and [contribution guide](../../../CONTRIBUTING.md).
+
+The shared conventions are in [CONTRIBUTING.md](../../../CONTRIBUTING.md). Models to copy: `apps/badapple` (a row of pictures with
 `HOST_REDRAW_NO_BLINK`, one bitmap drawn per frame) and `apps/kit` for the buttons.
 
 ## What it is

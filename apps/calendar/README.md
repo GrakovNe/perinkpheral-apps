@@ -9,7 +9,7 @@ of an event some minutes before it, whatever is on the screen then.
 
 Every calendar service has an address under which a calendar can be read by
 whoever knows it. Copy it and paste it into **Calendar address** on the device's
-page (Apps, the gear on Calendar):
+page (Installed apps, the gear on Calendar):
 
 - **Google Calendar**: Settings, the calendar, "Secret address in iCal format".
 - **iCloud**: share the calendar as a public calendar and copy its link.
@@ -40,7 +40,7 @@ years of meetings, is read in about ten seconds.
 
 Not read: rules by position in a set (BYSETPOS), by week number, by hour; such
 an event repeats by its plain frequency. One calendar, the 24 nearest events.
-The fonts of the device are ASCII: Russian is shown in Latin letters, other
-scripts as "?".
+Text uses the host's selected font and installed glyph packs. Missing glyphs fall
+back to the host's spelling rules; install the appropriate pack for Cyrillic or Greek.
 
 `test/test_ics.c` tries the reader on a computer.

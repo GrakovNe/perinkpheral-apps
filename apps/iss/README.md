@@ -13,7 +13,7 @@ the solar terminator, found from changes in the sign of the solar dot product. T
 uses Q14 integer sines in tenths of a degree.
 
 `files/land.bin` is a raw, MSB-first 400×200 bitmap, 50 bytes per row, derived from
-`tasks/samples/world-land-400x200.png`. Natural Earth land is public domain. An ink pixel
+[the source bitmap](assets/world-land-400x200.png). Natural Earth land is public domain. An ink pixel
 is retained only where both x and y are even, producing a fine stipple. The host draws
 this 10 KB package file with `gfx_draw_bitmap_file`, keeping it out of WASM memory.
 `sine.h` contains rounded `16384 * sin(angle)` values for 0–90 degrees at 0.1-degree steps.
