@@ -164,5 +164,5 @@ void calendar_picker_feed(calendar_picker_t *picker, const uint8_t *bytes, int32
 bool calendar_picker_finish(calendar_picker_t *picker)
 {
     return json_pick_finish(&picker->validation) && !picker->broken && !picker->depth &&
-        picker->total_fields == 1 && picker->calendar.count >= 365 && picker->calendar.count <= 367 && picker->login[0];
+        picker->total_fields == 1 && picker->calendar.count > 0 && picker->calendar.count <= CALENDAR_DAYS && picker->login[0];
 }

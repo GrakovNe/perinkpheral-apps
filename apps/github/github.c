@@ -12,12 +12,22 @@
 #include "host_api.h"
 #include "strings.h"
 
-enum { VERSION = 1, REFRESH_SECONDS = 6 * 3600, CELL = 6, STEP = 7, GRID_LEFT = 15, GRID_TOP = 157 };
+enum { VERSION = 2, REFRESH_SECONDS = 6 * 3600, CELL = 6, STEP = 7, GRID_LEFT = 15, GRID_TOP = 157 };
+enum { LEGACY_VERSION = 1, LEGACY_CALENDAR_DAYS = 371, LEGACY_CALENDAR_BYTES = 140 };
 typedef struct {
     int32_t version, has_data, status;
     uint32_t login_hash;
     contribution_calendar_t calendar;
 } state_t;
+typedef struct {
+    int32_t version, has_data, status;
+    uint32_t login_hash;
+    struct {
+        int32_t first_day, count, total;
+        uint8_t levels[LEGACY_CALENDAR_BYTES];
+    } calendar;
+} state_v1_t;
+_Static_assert(sizeof(state_v1_t) == 168, "Version 1 snapshot layout stays readable");
 static state_t state;
 static state_t saved_state;
 static calendar_picker_t picker;
@@ -82,7 +92,23 @@ static void refresh(void)
 }
 void app_on_load(void)
 {
-    if (!app_state_load("state", &state, sizeof state, VERSION)) { state = (state_t){ .version = VERSION }; }
+    if (!app_state_load("state", &state, sizeof state, VERSION)) {
+        state_v1_t previous;
+        state = (state_t){ .version = VERSION };
+        if (app_state_load("state", &previous, sizeof previous, LEGACY_VERSION) &&
+            previous.calendar.count >= 0 && previous.calendar.count <= LEGACY_CALENDAR_DAYS) {
+            state.has_data = previous.has_data;
+            state.status = previous.status;
+            state.login_hash = previous.login_hash;
+            state.calendar.first_day = previous.calendar.first_day;
+            state.calendar.count = previous.calendar.count;
+            state.calendar.total = previous.calendar.total;
+            for (int32_t byte = 0; byte < (int32_t)sizeof previous.calendar.levels; byte++) {
+                state.calendar.levels[byte] = previous.calendar.levels[byte];
+            }
+            app_state_save("state", &state, sizeof state);
+        }
+    }
     saved_state = state;
 }
 void app_on_focus(void)

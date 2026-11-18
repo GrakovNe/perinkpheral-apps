@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include "json_pick.h"
 
-enum { CALENDAR_DAYS = 371, CALENDAR_BYTES = (CALENDAR_DAYS * 3 + 7) / 8 };
+/* A year can intersect 54 calendar weeks, including its partial edges. */
+enum { CALENDAR_DAYS = 54 * 7, CALENDAR_BYTES = (CALENDAR_DAYS * 3 + 7) / 8 };
 typedef struct {
     int32_t first_day, count, total;
     uint8_t levels[CALENDAR_BYTES];
