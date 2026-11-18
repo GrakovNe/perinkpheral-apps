@@ -13,9 +13,9 @@
 #include "strings.h"
 
 enum {
-    VERSION = 1, SECONDS_PER_MINUTE = 60, MINUTES_PER_HOUR = 60,
+    VERSION = 1, SECONDS_PER_MINUTE = 60,
     TRACK_SAMPLE_MINUTES = 5, AXIS_DASH = 4, AXIS_PERIOD = 9, TERMINATOR_SPACING = 5,
-    TRACK_DOT_SPACING = 6, MARKER_RADIUS = 9, TELEMETRY_TOP = 204, VALUE_TOP = 218, FRESHNESS_TOP = 242
+    TRACK_DOT_SPACING = 6, MARKER_RADIUS = 9, TELEMETRY_TOP = 212, VALUE_TOP = 228
 };
 typedef struct {
     int32_t version, has_data, status, latitude, longitude, altitude, velocity;
@@ -182,68 +182,38 @@ static void draw_station(void)
     gfx_draw_rect(x - 1, y + 5, 3, MARKER_RADIUS - 4, HOST_RECT_FILLED);
 }
 
-static void coordinate(app_text_t *text, int32_t value, int32_t positive, int32_t negative)
+static void coordinate(char line[24], int32_t value, int32_t positive, int32_t negative)
 {
-    app_text_add_fixed(text, value < 0 ? -value : value, 2, 0);
-    app_text_add(text, APP_TEXT_DEGREE " ");
-    app_text_add(text, app_string(value < 0 ? negative : positive));
-}
-static void draw_coordinate(int32_t center, int32_t top, int32_t value, int32_t positive, int32_t negative)
-{
-    char line[24];
     app_text_t text;
-    app_text_start(&text, line, sizeof line);
-    coordinate(&text, value, positive, negative);
-    app_draw_centered(center, top, HOST_FONT_SMALL, line);
+    app_text_start(&text, line, 24);
+    app_text_add_fixed(&text, value < 0 ? -value : value, 2, 0);
+    app_text_add(&text, APP_TEXT_DEGREE " ");
+    app_text_add(&text, app_string(value < 0 ? negative : positive));
 }
 
-static void draw_measure(int32_t center, int32_t label, int32_t number, int32_t unit, bool group_digits)
-{
+typedef struct {
     char value[16];
-    app_text_t text;
-    app_text_start(&text, value, sizeof value);
-    if (group_digits && number >= 1000) {
-        app_text_add_number(&text, number / 1000);
-        app_text_add(&text, " ");
-        app_text_add_padded(&text, number % 1000, 3);
-    } else {
-        app_text_add_number(&text, number);
-    }
+    const char *unit, *label;
+    int32_t width;
+} measure_t;
 
-    app_draw_centered(center, TELEMETRY_TOP, HOST_FONT_SMALL, app_string(label));
-    const char *suffix = app_string(unit);
-    int32_t length = app_text_length(value), unit_length = app_text_length(suffix);
-    int32_t font = HOST_FONT_TEXT | HOST_FONT_TABULAR;
-    int32_t width = ui_value_width(font, value, length, suffix, unit_length);
-    ui_draw_value(center - width / 2, VALUE_TOP, font, value, length, suffix, unit_length);
+static void measure_init(measure_t *measure, int32_t number, int32_t unit, int32_t label)
+{
+    app_text_t text;
+    app_text_start(&text, measure->value, sizeof measure->value);
+    app_text_add_number(&text, number);
+    measure->unit = app_string(unit);
+    measure->label = app_string(label);
+    measure->width = ui_value_width(HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
+                                    app_text_length(measure->value), measure->unit,
+                                    app_text_length(measure->unit));
 }
 
-static void draw_freshness(void)
+static void draw_measure(int32_t left, const measure_t *measure)
 {
-    int64_t now = time_now();
-    int64_t age = now - ((int64_t)state.minute * SECONDS_PER_MINUTE + state.second);
-    bool failed = state.status < 200 || state.status >= 300;
-    char line[64];
-    app_text_t text;
-    app_text_start(&text, line, sizeof line);
-    app_text_add(&text, app_string(failed ? STR_UPDATE_FAILED : STR_UPDATED));
-    if (now > 0) {
-        int32_t minutes = age > 0 ? (int32_t)(age / SECONDS_PER_MINUTE) : 0;
-        app_text_add(&text, failed ? " · " : " ");
-        if (minutes >= MINUTES_PER_HOUR) {
-            app_text_add_number(&text, minutes / MINUTES_PER_HOUR);
-            app_text_add(&text, " ");
-            app_text_add(&text, app_string(STR_HOUR));
-        } else {
-            if (minutes == 0) { app_text_add(&text, "<"); }
-            app_text_add_number(&text, minutes > 0 ? minutes : 1);
-            app_text_add(&text, " ");
-            app_text_add(&text, app_string(STR_MINUTE));
-        }
-    } else if (!failed) {
-        return;
-    }
-    app_draw_centered(MAP_WIDTH / 2, FRESHNESS_TOP, HOST_FONT_SMALL, line);
+    app_draw_centered(left + measure->width / 2, TELEMETRY_TOP, HOST_FONT_SMALL, measure->label);
+    ui_draw_value(left, VALUE_TOP, HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
+                  app_text_length(measure->value), measure->unit, app_text_length(measure->unit));
 }
 
 void app_on_draw(void)
@@ -253,9 +223,20 @@ void app_on_draw(void)
     draw_terminator();
     draw_track();
     draw_station();
-    draw_coordinate(53, TELEMETRY_TOP + 5, state.latitude, STR_NORTH, STR_SOUTH);
-    draw_coordinate(53, VALUE_TOP + 6, state.longitude, STR_EAST, STR_WEST);
-    draw_measure(172, STR_ALTITUDE, state.altitude, STR_KM, false);
-    draw_measure(315, STR_VELOCITY, state.velocity, STR_KMH, true);
-    draw_freshness();
+    char latitude[24], longitude[24];
+    coordinate(latitude, state.latitude, STR_NORTH, STR_SOUTH);
+    coordinate(longitude, state.longitude, STR_EAST, STR_WEST);
+    int32_t latitude_width = app_text_width(HOST_FONT_SMALL, latitude);
+    int32_t longitude_width = app_text_width(HOST_FONT_SMALL, longitude);
+    int32_t coordinates_width = latitude_width > longitude_width ? latitude_width : longitude_width;
+
+    measure_t altitude, speed;
+    measure_init(&altitude, state.altitude, STR_KM, STR_ALTITUDE);
+    measure_init(&speed, state.velocity, STR_KMH, STR_VELOCITY);
+    int32_t free_width = MAP_WIDTH - coordinates_width - altitude.width - speed.width;
+    int32_t right = free_width / 6 + coordinates_width;
+    app_draw_right(right, TELEMETRY_TOP + 3, HOST_FONT_SMALL, latitude);
+    app_draw_right(right, VALUE_TOP + 3, HOST_FONT_SMALL, longitude);
+    draw_measure(right + free_width / 3, &altitude);
+    draw_measure(MAP_WIDTH - free_width / 6 - speed.width, &speed);
 }

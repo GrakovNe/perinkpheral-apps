@@ -6,9 +6,5 @@
   "km": "km",
   "kmh": "km/h",
   "altitude": "Altitude",
-  "velocity": "Speed",
-  "updated": "Updated",
-  "update_failed": "Update failed",
-  "minute": "min ago",
-  "hour": "h ago"
+  "velocity": "Speed"
 }
