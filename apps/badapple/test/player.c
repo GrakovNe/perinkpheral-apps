@@ -55,6 +55,25 @@ int32_t gfx_draw_text(int32_t x, int32_t y, int32_t font, const char *text, int3
 int main(int argc, char **argv)
 {
     assert(argc == 3);
+    frame_bytes[0] = 0xd3;
+    frame_bytes[1] = 0xa6;
+    frame_bytes[2] = 0x5c;
+    frame_bits = 24;
+    for (int32_t offset = 0; offset < BITS_PER_BYTE; ++offset) {
+        for (int32_t count = 0; count <= 16; ++count) {
+            next_bit = offset;
+            uint32_t expected = (0xd3a65cu >> (24 - offset - count)) & ((1u << count) - 1);
+            assert(read_bits(count) == (int32_t)expected && next_bit == offset + count);
+        }
+    }
+    next_bit = frame_bits - 1;
+    assert(read_bits(2) == -1 && next_bit == frame_bits - 1);
+    next_bit = frame_bits;
+    assert(read_bits(0) == 0 && read_bits(1) == -1);
+    frame_bytes[0] = 0;
+    frame_bits = BITS_PER_BYTE;
+    next_bit = 0;
+    assert(read_run(0) == -1);
     FILE *input = fopen(argv[1], "rb");
     assert(input);
     video_size = fread(video, 1, sizeof video, input);

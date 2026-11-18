@@ -35,7 +35,6 @@ static bool has_video, is_over, read_failed;
 static int32_t draws, draw_ms_total, draw_ms_worst;
 static uint8_t frame_bytes[FRAME_BYTES_MAX];
 static int32_t frame_bits, next_bit;
-static uint8_t pixels[VIDEO_BYTES];
 static uint8_t bitmap[OUTPUT_BYTES];
 
 static uint32_t little_endian(const uint8_t *bytes)
@@ -79,6 +78,20 @@ static int32_t read_bit(void)
     return bit;
 }
 
+static int32_t read_bits(int32_t count)
+{
+    if (count > frame_bits - next_bit) return -1;
+    if (count == 0) return 0;
+    int32_t first_byte = next_bit / BITS_PER_BYTE;
+    int32_t covered = next_bit % BITS_PER_BYTE + count;
+    uint32_t number = frame_bytes[first_byte];
+    if (covered > BITS_PER_BYTE) number = number << BITS_PER_BYTE | frame_bytes[first_byte + 1];
+    if (covered > 2 * BITS_PER_BYTE) number = number << BITS_PER_BYTE | frame_bytes[first_byte + 2];
+    next_bit += count;
+    int32_t trailing = (BITS_PER_BYTE - covered % BITS_PER_BYTE) % BITS_PER_BYTE;
+    return (int32_t)((number >> trailing) & ((1u << count) - 1));
+}
+
 /* Positive Exp-Golomb runs, with the order stored once per frame. */
 static int32_t read_run(int32_t order)
 {
@@ -87,29 +100,25 @@ static int32_t read_run(int32_t order)
     while ((bit = read_bit()) == 0)
         if (++more_bits > 16) return -1;
     if (bit < 0) return -1;
-    uint32_t number = 1;
-    for (int32_t index = 0; index < more_bits; ++index) {
-        bit = read_bit();
-        if (bit < 0) return -1;
-        number = number << 1 | (uint32_t)bit;
-    }
-    return (int32_t)number - (1 << order) + 1;
+    int32_t remainder = read_bits(more_bits);
+    if (remainder < 0) return -1;
+    return (1 << more_bits) + remainder - (1 << order) + 1;
 }
 
 static void ink_run(int32_t first, int32_t count)
 {
     while (count && first % BITS_PER_BYTE) {
-        pixels[first / BITS_PER_BYTE] |= (uint8_t)(0x80 >> (first % BITS_PER_BYTE));
+        bitmap[first / BITS_PER_BYTE] |= (uint8_t)(0x80 >> (first % BITS_PER_BYTE));
         ++first;
         --count;
     }
     while (count >= BITS_PER_BYTE) {
-        pixels[first / BITS_PER_BYTE] = 0xff;
+        bitmap[first / BITS_PER_BYTE] = 0xff;
         first += BITS_PER_BYTE;
         count -= BITS_PER_BYTE;
     }
     while (count--) {
-        pixels[first / BITS_PER_BYTE] |= (uint8_t)(0x80 >> (first % BITS_PER_BYTE));
+        bitmap[first / BITS_PER_BYTE] |= (uint8_t)(0x80 >> (first % BITS_PER_BYTE));
         ++first;
     }
 }
@@ -124,7 +133,7 @@ static uint32_t double_pixels(uint32_t byte)
 
 static bool unpack_frame(void)
 {
-    for (int32_t index = 0; index < VIDEO_BYTES; ++index) pixels[index] = 0;
+    for (int32_t index = 0; index < VIDEO_BYTES; ++index) bitmap[index] = 0;
     int32_t order = 0;
     for (int32_t index = 0; index < 3; ++index) {
         int32_t bit = read_bit();
@@ -141,11 +150,12 @@ static bool unpack_frame(void)
         ink ^= 1;
     }
     for (int32_t index = VIDEO_ROW_BYTES; index < VIDEO_BYTES; ++index)
-        pixels[index] ^= pixels[index - VIDEO_ROW_BYTES];
-    for (int32_t row = 0; row < VIDEO_HEIGHT; ++row) {
+        bitmap[index] ^= bitmap[index - VIDEO_ROW_BYTES];
+    /* Expand backwards in the same buffer so unread source bytes survive. */
+    for (int32_t row = VIDEO_HEIGHT - 1; row >= 0; --row) {
         int32_t output = row * OUTPUT_SCALE * OUTPUT_ROW_BYTES;
-        for (int32_t column = 0; column < VIDEO_ROW_BYTES; ++column) {
-            uint32_t doubled = double_pixels(pixels[row * VIDEO_ROW_BYTES + column]);
+        for (int32_t column = VIDEO_ROW_BYTES - 1; column >= 0; --column) {
+            uint32_t doubled = double_pixels(bitmap[row * VIDEO_ROW_BYTES + column]);
             bitmap[output + column * 2] = bitmap[output + OUTPUT_ROW_BYTES + column * 2] = (uint8_t)(doubled >> 8);
             bitmap[output + column * 2 + 1] = bitmap[output + OUTPUT_ROW_BYTES + column * 2 + 1] = (uint8_t)doubled;
         }

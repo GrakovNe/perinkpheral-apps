@@ -66,6 +66,7 @@ void app_on_timer(int32_t id)
 void app_on_intent(int32_t intent)
 {
     if (intent == HOST_INTENT_TIME_CHANGED) {
+        schedule_next_frame();
         screen_redraw(HOST_REDRAW_SOON);
     }
 }
