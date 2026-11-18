@@ -15,7 +15,10 @@
 enum {
     VERSION = 1, SECONDS_PER_MINUTE = 60,
     TRACK_SAMPLE_MINUTES = 5, AXIS_DASH = 4, AXIS_PERIOD = 9, TERMINATOR_SPACING = 5,
-    TRACK_DOT_SPACING = 6, MARKER_RADIUS = 9, TELEMETRY_TOP = 212, VALUE_TOP = 228
+    TRACK_DOT_SPACING = 6, MARKER_RADIUS = 9, TELEMETRY_TOP = 212, VALUE_TOP = 228,
+    BADGE_EDGE = 8, BADGE_TOP = 12, BADGE_PADDING_X = 5, BADGE_PADDING_Y = 3, BADGE_GAP = 3,
+    BADGE_COUNT = 2, DIRECTION_COUNT = 4, MAX_LONGITUDE_HUNDREDTHS = 18000,
+    HUNDREDTHS_PER_TENTH = 10
 };
 typedef struct {
     int32_t version, has_data, status, latitude, longitude, altitude, velocity;
@@ -185,15 +188,45 @@ static void coordinate(char line[24], int32_t value, int32_t positive, int32_t n
 {
     app_text_t text;
     app_text_start(&text, line, 24);
-    app_text_add_fixed(&text, value < 0 ? -value : value, 2, 0);
+    int32_t absolute = value < 0 ? -value : value;
+    app_text_add_fixed(&text, (absolute + HUNDREDTHS_PER_TENTH / 2) / HUNDREDTHS_PER_TENTH, 1, 0);
     app_text_add(&text, APP_TEXT_DEGREE " ");
     app_text_add(&text, app_string(value < 0 ? negative : positive));
+}
+
+static void draw_coordinate_badges(void)
+{
+    const int32_t font = HOST_FONT_SMALL | HOST_FONT_TABULAR;
+    char latitude[24], longitude[24], maximum[24];
+    coordinate(latitude, state.latitude, STR_NORTH, STR_SOUTH);
+    coordinate(longitude, state.longitude, STR_EAST, STR_WEST);
+    int32_t width = 0;
+    const int32_t directions[DIRECTION_COUNT] = { STR_NORTH, STR_SOUTH, STR_EAST, STR_WEST };
+    for (int32_t index = 0; index < DIRECTION_COUNT; index++) {
+        coordinate(maximum, MAX_LONGITUDE_HUNDREDTHS, directions[index], directions[index]);
+        int32_t measured = app_text_width(font, maximum);
+        if (measured > width) { width = measured; }
+    }
+    width += 2 * BADGE_PADDING_X;
+    int32_t left = state.longitude < 0 ? BADGE_EDGE : MAP_WIDTH - BADGE_EDGE - width;
+    int32_t capitals = gfx_font_cap_height(font);
+    int32_t height = capitals + 2 * BADGE_PADDING_Y;
+    const char *lines[BADGE_COUNT] = { latitude, longitude };
+    for (int32_t row = 0; row < BADGE_COUNT; row++) {
+        int32_t top = BADGE_TOP + row * (height + BADGE_GAP);
+        gfx_set_color(HOST_INK);
+        gfx_draw_rect(left, top, width, height, HOST_RECT_FILLED);
+        gfx_set_color(HOST_PAPER);
+        app_draw_centered(left + width / 2,
+                          top + BADGE_PADDING_Y + capitals - gfx_font_ascent(font),
+                          font, lines[row]);
+    }
+    gfx_set_color(HOST_INK);
 }
 
 typedef struct {
     char value[16];
     const char *unit, *label;
-    int32_t width;
 } measure_t;
 
 static void measure_init(measure_t *measure, int32_t number, int32_t unit, int32_t label)
@@ -203,15 +236,13 @@ static void measure_init(measure_t *measure, int32_t number, int32_t unit, int32
     app_text_add_number(&text, number);
     measure->unit = app_string(unit);
     measure->label = app_string(label);
-    measure->width = ui_value_width(HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
-                                    app_text_length(measure->value), measure->unit,
-                                    app_text_length(measure->unit));
 }
 
-static void draw_measure(int32_t left, const measure_t *measure)
+static void draw_measure(int32_t center, const measure_t *measure)
 {
     int32_t digit_width = ui_value_width(HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
                                          app_text_length(measure->value), "", 0);
+    int32_t left = center - digit_width / 2;
     int32_t label_inset = gfx_font_ascent(HOST_FONT_SMALL) - gfx_font_cap_height(HOST_FONT_SMALL);
     int32_t line_spacing = VALUE_TOP - TELEMETRY_TOP;
     int32_t block_height = line_spacing + gfx_font_ascent(HOST_FONT_TEXT) - label_inset;
@@ -228,20 +259,10 @@ void app_on_draw(void)
     draw_terminator();
     draw_track();
     draw_station();
-    char latitude[24], longitude[24];
-    coordinate(latitude, state.latitude, STR_NORTH, STR_SOUTH);
-    coordinate(longitude, state.longitude, STR_EAST, STR_WEST);
-    int32_t latitude_width = app_text_width(HOST_FONT_SMALL, latitude);
-    int32_t longitude_width = app_text_width(HOST_FONT_SMALL, longitude);
-    int32_t coordinates_width = latitude_width > longitude_width ? latitude_width : longitude_width;
-
+    draw_coordinate_badges();
     measure_t altitude, speed;
     measure_init(&altitude, state.altitude, STR_KM, STR_ALTITUDE);
     measure_init(&speed, state.velocity, STR_KMH, STR_VELOCITY);
-    int32_t free_width = MAP_WIDTH - coordinates_width - altitude.width - speed.width;
-    int32_t right = free_width / 6 + coordinates_width;
-    app_draw_right(right, TELEMETRY_TOP + 3, HOST_FONT_SMALL, latitude);
-    app_draw_right(right, VALUE_TOP + 3, HOST_FONT_SMALL, longitude);
-    draw_measure(right + free_width / 3, &speed);
-    draw_measure(MAP_WIDTH - free_width / 6 - altitude.width, &altitude);
+    draw_measure(MAP_WIDTH / 4, &altitude);
+    draw_measure(3 * MAP_WIDTH / 4, &speed);
 }

@@ -287,13 +287,13 @@
     {
       "name": "iss",
       "title": "ISS",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 7933,
-          "sha256": "3fcb98e31bcd2714c863db6e24fa3d9d0a1f2a1c9542320976b5781f1f27dccc"
+          "size": 7971,
+          "sha256": "b1812f7ea821934c6ff3f523ff4703fc077d464d783cfc315bc621ed361a6288"
         },
         {
           "name": "land.bin",
@@ -307,13 +307,13 @@
         },
         {
           "name": "strings.ru",
-          "size": 91,
-          "sha256": "85f32963fd1e04c039c5f059c025e45523d915258a54f5a05dd4aa7e6cf0baa8"
+          "size": 75,
+          "sha256": "b1a9eb79ee52afb02c8a9dcb1f1e73c0034421a878ef93ce6d80804aa2259807"
         },
         {
           "name": "manifest.json",
           "size": 732,
-          "sha256": "4bc6bc49cbf242b7ebd40e7b75b582a399a42b0dd633be1bffe79b4e01e3ceb4"
+          "sha256": "e61f69f09c9ae5ac502aee285b57ae8b7f6599022f35abf454def31c5acd0cdd"
         }
       ],
       "firmware": "0.1.34",
