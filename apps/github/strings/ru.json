@@ -6,7 +6,7 @@
   "more": "Больше",
   "manifest": {
     "title": "Активность GitHub",
-    "description": "Календарь вкладов GitHub и текущая серия.",
+    "description": "Календарь активности",
     "settings": {
       "login": {
         "title": "Логин"

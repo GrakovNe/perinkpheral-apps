@@ -68,6 +68,7 @@ typedef struct {
 
     /* Where in the file. */
     bool    in_event, in_zone, in_daylight, in_standard;
+    bool    complete; /* END:VCALENDAR outside an unfinished component */
     int32_t nested; /* an alarm inside an event has lines of its own */
 
     ics_zone_t zones[ICS_ZONES_MAX];

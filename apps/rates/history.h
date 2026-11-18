@@ -26,6 +26,7 @@ typedef struct {
     char quote;
 } history_parser_t;
 
+bool history_valid_id(const char *id);
 void history_start(history_parser_t *parser);
 bool history_feed(history_parser_t *parser, const uint8_t *data, size_t length);
 bool history_finish(history_parser_t *parser);

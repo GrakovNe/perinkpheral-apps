@@ -15,6 +15,13 @@ ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     "$sdk/sdk/lib/app_values.c" "$sdk/sdk/lib/app_fixed.c" "$sdk/sdk/lib/app_text.c" \
     -o "$build/github"
 "$build/github"
+"$sdk/tools/perinkpheral" headers apps/github "$build/github-headers"
+strip=-Wl,--gc-sections
+if [ "$(uname -s)" = Darwin ]; then strip=-Wl,-dead_strip; fi
+${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+    -ffunction-sections -fdata-sections "$strip" -I"$build/github-headers" \
+    -I"$sdk/sdk" -I"$sdk/sdk/lib" tests/github/state.c -o "$build/github-state"
+"$build/github-state"
 ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     tests/iss/orbit.c apps/iss/orbit.c -o "$build/iss"
 "$build/iss"
@@ -33,3 +40,5 @@ ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     -I"$build" -I"$sdk/sdk" -I"$sdk/sdk/lib" \
     tests/iss/track.c apps/iss/orbit.c -o "$build/iss-track"
 "$build/iss-track"
+
+sh tests/network/check.sh

@@ -673,7 +673,10 @@ static void take_line(ics_t *ics)
     *value++ = '\0';
     const char *parameter_text = has_parameters ? parameters + 1 : "";
 
-    if (ics->in_event) {
+    if (!ics->in_event && !ics->in_zone && app_text_equal(line, "END") &&
+        app_text_equal(value, "VCALENDAR")) {
+        ics->complete = true;
+    } else if (ics->in_event) {
         event_line(ics, line, parameter_text, value);
     } else if (ics->in_zone) {
         zone_line(ics, line, value);
