@@ -291,18 +291,21 @@ static bool record_for(int32_t item, quote_t *record, int32_t *had_data)
     return true;
 }
 
-/* Skip identical polls: a closed market need not rewrite the quote file. */
+static bool same_quote(const quote_t *first, const quote_t *second)
+{
+    const uint8_t *left = (const uint8_t *)first, *right = (const uint8_t *)second;
+    for (int32_t byte = 0; byte < (int32_t)sizeof *first; byte++) {
+        if (left[byte] != right[byte]) { return false; }
+    }
+    return true;
+}
+
+/* Stored and visible quotes may differ after a failed write. Compare each
+ * separately so a return to the stored price still updates the screen. */
 static void keep_quote(int32_t item, const quote_t *record, const quote_t *before, int32_t had_data)
 {
-    const uint8_t *fresh = (const uint8_t *)record, *previous = (const uint8_t *)before;
-    bool changed = false;
-    for (int32_t byte = 0; byte < (int32_t)sizeof *record; byte++) {
-        if (fresh[byte] != previous[byte]) { changed = true; break; }
-    }
-    if (!changed) { return; }
-    write_quote(item, record);
-    if (item == loaded) {
-        /* Fresh data still belongs on screen when storage is full. The next poll retries. */
+    if (!same_quote(record, before)) { write_quote(item, record); }
+    if (item == loaded && !same_quote(record, &quote)) {
         quote = *record;
         screen_redraw(had_data ? HOST_REDRAW_NORMAL : HOST_REDRAW_SOON);
     }
