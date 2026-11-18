@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 /*
- * Equirectangular map with a dotted solar terminator and sampled ground track.
+ * Equirectangular map with inverted night regions and sampled ground track.
  * Keep each live fix in memory and checkpoint the track at five-minute intervals.
  */
 #include "app_draw.h"
@@ -12,8 +12,9 @@
 #include "strings.h"
 
 enum {
-    VERSION = 1, SECONDS_PER_MINUTE = 60,
-    TRACK_SAMPLE_MINUTES = 5, AXIS_DASH = 4, AXIS_PERIOD = 9, TERMINATOR_SPACING = 5,
+    VERSION = 2, SECONDS_PER_MINUTE = 60,
+    ALTITUDE_DECIMALS = 3, MAX_ALTITUDE_METERS = 2000000,
+    TRACK_SAMPLE_MINUTES = 5, AXIS_DASH = 4, AXIS_PERIOD = 9, TELEMETRY_GAP = 64,
     TRACK_DOT_SPACING = 6, MARKER_RADIUS = 9, TELEMETRY_TOP = 212, VALUE_TOP = 228,
     BADGE_EDGE = 8, BADGE_TOP = 12, BADGE_PADDING_X = 5, BADGE_PADDING_Y = 3, BADGE_GAP = 3,
     BADGE_COUNT = 2, DIRECTION_COUNT = 4, MAX_LONGITUDE_HUNDREDTHS = 18000,
@@ -26,14 +27,26 @@ typedef struct {
     orbit_track_t track;
 } state_t;
 static state_t state;
+static orbit_shade_t shade;
 static int32_t saved_minute, saved_status;
 _Static_assert(sizeof(state_t) <= HOST_SCENE_STATE_MAX, "ISS snapshot fits scene storage");
 _Static_assert(sizeof(state_t) <= HOST_KV_VALUE_MAX, "ISS snapshot fits one store value");
+static bool restore_state(state_t *saved)
+{
+    if (saved->track.count < 0 || saved->track.count > TRACK_POINTS ||
+        saved->track.next < 0 || saved->track.next >= TRACK_POINTS) { return false; }
+    if (saved->version == 1) {
+        if (saved->altitude < 0 || saved->altitude >= MAX_ALTITUDE_METERS / 1000) { return false; }
+        saved->altitude *= 1000;
+        saved->version = VERSION;
+    }
+    return saved->version == VERSION && saved->altitude >= 0 && saved->altitude < MAX_ALTITUDE_METERS;
+}
+
 void app_on_load(void)
 {
-    if (!app_state_load("state", &state, sizeof state, VERSION) ||
-        state.track.count < 0 || state.track.count > TRACK_POINTS ||
-        state.track.next < 0 || state.track.next >= TRACK_POINTS) {
+    if ((!app_state_load("state", &state, sizeof state, VERSION) &&
+         !app_state_load("state", &state, sizeof state, 1)) || !restore_state(&state)) {
         state = (state_t){ .version = VERSION };
     }
     saved_minute = state.minute;
@@ -43,7 +56,7 @@ void app_on_load(void)
 void app_on_focus(void)
 {
     state_t live;
-    if (scene_state_get(&live, sizeof live) == sizeof live && live.version == VERSION &&
+    if (scene_state_get(&live, sizeof live) == sizeof live && restore_state(&live) &&
         (live.minute > state.minute || (live.minute == state.minute && live.second > state.second))) {
         live.status = state.status;
         state = live;
@@ -69,7 +82,8 @@ void app_on_picked(int32_t request, int32_t http_status)
     bool valid = success &&
         app_value_number(0, 2, &fresh.latitude) && fresh.latitude >= -9000 && fresh.latitude <= 9000 &&
         app_value_number(1, 2, &fresh.longitude) && fresh.longitude >= -18000 && fresh.longitude <= 18000 &&
-        app_value_number(2, 0, &fresh.altitude) && fresh.altitude >= 0 && fresh.altitude < 2000 &&
+        app_value_number(2, ALTITUDE_DECIMALS, &fresh.altitude) &&
+        fresh.altitude >= 0 && fresh.altitude < MAX_ALTITUDE_METERS &&
         app_value_number(3, 0, &fresh.velocity) && fresh.velocity >= 0 && fresh.velocity < 100000 &&
         app_value_number(4, 2, &fresh.solar_latitude) && fresh.solar_latitude >= -9000 && fresh.solar_latitude <= 9000 &&
         app_value_number(5, 2, &fresh.solar_longitude) && fresh.solar_longitude >= -36000 && fresh.solar_longitude <= 36000 &&
@@ -94,43 +108,26 @@ void app_on_picked(int32_t request, int32_t http_status)
     screen_redraw(HOST_REDRAW_NORMAL);
 }
 
-static void dot(int32_t x, int32_t y)
+static bool night_at(int32_t x, int32_t y)
 {
-    gfx_draw_rect(x, y, 1, 1, HOST_RECT_FILLED);
+    return orbit_shade_at(&shade, x, y);
 }
 
-static void draw_terminator(void)
+static void draw_world(void)
 {
-    bool previous_row[(MAP_WIDTH - 1) / TERMINATOR_SPACING + 1];
-    for (int32_t y = 0; y < MAP_HEIGHT; y += TERMINATOR_SPACING) {
-        int32_t latitude = 9000 - y * 18000 / MAP_HEIGHT;
-        bool previous = false;
-        for (int32_t x = 0; x < MAP_WIDTH; x += TERMINATOR_SPACING) {
-            int32_t longitude = x * 36000 / MAP_WIDTH - 18000;
-            int32_t column = x / TERMINATOR_SPACING;
-            bool night = orbit_night(latitude, longitude, state.solar_latitude, state.solar_longitude);
-            int32_t point_x = x, point_y = y;
-            if (x > 0 && night != previous) {
-                point_x -= TERMINATOR_SPACING / 2;
-            } else if (y > 0 && night != previous_row[column]) {
-                point_y -= TERMINATOR_SPACING / 2;
-            }
-            if (point_x != x || point_y != y) {
-                gfx_set_color(HOST_PAPER);
-                gfx_draw_rect(point_x - 1, point_y - 1, 3, 3, HOST_RECT_FILLED);
-                gfx_set_color(HOST_INK);
-                dot(point_x, point_y);
-            }
-            previous_row[column] = previous = night;
-        }
-    }
+    static uint8_t pixels[MAP_WIDTH * MAP_HEIGHT / 8];
+    if (file_read("land.bin", 8, 0, pixels, sizeof pixels) != sizeof pixels) { return; }
+    orbit_shade_invert(&shade, pixels);
+    gfx_set_color(HOST_INK);
+    gfx_draw_bitmap(0, 0, MAP_WIDTH, MAP_HEIGHT, pixels);
 }
 
 static void track_dot(int32_t x, int32_t y)
 {
-    gfx_set_color(HOST_PAPER);
+    bool night = night_at(x, y);
+    gfx_set_color(night ? HOST_INK : HOST_PAPER);
     gfx_draw_rect(x - 1, y - 1, 4, 4, HOST_RECT_FILLED);
-    gfx_set_color(HOST_INK);
+    gfx_set_color(night ? HOST_PAPER : HOST_INK);
     gfx_draw_rect(x, y, 2, 2, HOST_RECT_FILLED);
 }
 
@@ -163,11 +160,13 @@ static void draw_station(void)
     int32_t x = orbit_x(state.longitude), y = orbit_y(state.latitude);
     for (int32_t dash = 0; dash < MAP_WIDTH; dash += AXIS_PERIOD) {
         if (dash + AXIS_DASH < x - MARKER_RADIUS || dash > x + MARKER_RADIUS) {
+            gfx_set_color(night_at(dash, y) ? HOST_PAPER : HOST_INK);
             gfx_draw_rect(dash, y, AXIS_DASH, 1, HOST_RECT_FILLED);
         }
     }
     for (int32_t dash = 0; dash < MAP_HEIGHT - AXIS_DASH; dash += AXIS_PERIOD) {
         if (dash + AXIS_DASH < y - MARKER_RADIUS || dash > y + MARKER_RADIUS) {
+            gfx_set_color(night_at(x, dash) ? HOST_PAPER : HOST_INK);
             gfx_draw_rect(x, dash, 1, AXIS_DASH, HOST_RECT_FILLED);
         }
     }
@@ -176,6 +175,7 @@ static void draw_station(void)
         0x1c, 0, 0x22, 0, 0x41, 0, 0x80, 0x80, 0x88, 0x80,
         0x80, 0x80, 0x41, 0, 0x22, 0, 0x1c, 0
     };
+    gfx_set_color(night_at(x, y) ? HOST_PAPER : HOST_INK);
     gfx_draw_bitmap(x - 4, y - 4, 9, 9, bitmap);
     gfx_draw_rect(x - MARKER_RADIUS, y - 1, MARKER_RADIUS - 4, 3, HOST_RECT_FILLED);
     gfx_draw_rect(x + 5, y - 1, MARKER_RADIUS - 4, 3, HOST_RECT_FILLED);
@@ -216,9 +216,10 @@ static void draw_coordinate_badges(void)
     const char *lines[BADGE_COUNT] = { latitude, longitude };
     for (int32_t row = 0; row < BADGE_COUNT; row++) {
         int32_t top = BADGE_TOP + row * (height + BADGE_GAP);
-        gfx_set_color(HOST_INK);
+        bool over_night = orbit_shade_majority(&shade, left, top, width, height);
+        gfx_set_color(over_night ? HOST_PAPER : HOST_INK);
         gfx_draw_rect(left, top, width, height, HOST_RECT_FILLED);
-        gfx_set_color(HOST_PAPER);
+        gfx_set_color(over_night ? HOST_INK : HOST_PAPER);
         app_draw_centered(left + width / 2,
                           top + BADGE_PADDING_Y + capitals - gfx_font_ascent(font),
                           font, lines[row]);
@@ -240,16 +241,27 @@ static void measure_init(measure_t *measure, int32_t number, int32_t unit, int32
     measure->label = app_string(label);
 }
 
+static int32_t measure_width(const measure_t *measure)
+{
+    int32_t value_width = ui_value_width(HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
+                                       app_text_length(measure->value), measure->unit,
+                                       app_text_length(measure->unit));
+    int32_t label_width = app_text_width(HOST_FONT_SMALL, measure->label);
+    return value_width > label_width ? value_width : label_width;
+}
+
 static void draw_measure(int32_t center, const measure_t *measure)
 {
-    int32_t digit_width = ui_value_width(HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
-                                         app_text_length(measure->value), "", 0);
-    int32_t left = center - digit_width / 2;
+    int32_t group_width = ui_value_width(HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
+                                        app_text_length(measure->value), measure->unit,
+                                        app_text_length(measure->unit));
+    int32_t left = center - group_width / 2;
     int32_t label_inset = gfx_font_ascent(HOST_FONT_SMALL) - gfx_font_cap_height(HOST_FONT_SMALL);
     int32_t line_spacing = VALUE_TOP - TELEMETRY_TOP;
     int32_t block_height = line_spacing + gfx_font_ascent(HOST_FONT_TEXT) - label_inset;
     int32_t label_top = MAP_HEIGHT + (gfx_height() - MAP_HEIGHT - block_height) / 2 - label_inset;
-    app_draw_centered(left + digit_width / 2, label_top, HOST_FONT_SMALL, measure->label);
+    int32_t number_width = app_text_width(HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value);
+    app_draw_centered(left + number_width / 2, label_top, HOST_FONT_SMALL, measure->label);
     ui_draw_value(left, label_top + line_spacing, HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
                   app_text_length(measure->value), measure->unit, app_text_length(measure->unit));
 }
@@ -257,14 +269,17 @@ static void draw_measure(int32_t center, const measure_t *measure)
 void app_on_draw(void)
 {
     if (!state.has_data) { ui_draw_reason(state.status); return; }
-    gfx_draw_bitmap_file(0, 0, MAP_WIDTH, MAP_HEIGHT, "land.bin", 8, 0);
-    draw_terminator();
+    orbit_shade_build(&shade, state.solar_latitude, state.solar_longitude);
+    draw_world();
     draw_track();
     draw_station();
     draw_coordinate_badges();
     measure_t altitude, speed;
-    measure_init(&altitude, state.altitude, STR_KM, STR_ALTITUDE);
+    measure_init(&altitude, state.altitude, STR_METERS, STR_ALTITUDE);
     measure_init(&speed, state.velocity, STR_KMH, STR_VELOCITY);
-    draw_measure(MAP_WIDTH / 4, &altitude);
-    draw_measure(3 * MAP_WIDTH / 4, &speed);
+    int32_t altitude_width = measure_width(&altitude);
+    int32_t speed_width = measure_width(&speed);
+    int32_t group_left = (gfx_width() - altitude_width - TELEMETRY_GAP - speed_width) / 2;
+    draw_measure(group_left + altitude_width / 2, &altitude);
+    draw_measure(group_left + altitude_width + TELEMETRY_GAP + speed_width / 2, &speed);
 }
