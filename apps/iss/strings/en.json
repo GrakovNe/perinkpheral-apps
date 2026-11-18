@@ -3,8 +3,8 @@
   "south": "S",
   "east": "E",
   "west": "W",
-  "km": "km",
   "kmh": "km/h",
   "altitude": "Altitude",
-  "velocity": "Speed"
+  "velocity": "Speed",
+  "meters": "m"
 }

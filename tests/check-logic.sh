@@ -18,3 +18,13 @@ ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
 ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     tests/iss/orbit.c apps/iss/orbit.c -o "$build/iss"
 "$build/iss"
+"$sdk/tools/perinkpheral" headers apps/iss "$build"
+strip=-Wl,--gc-sections
+if [ "$(uname -s)" = Darwin ]; then strip=-Wl,-dead_strip; fi
+${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+    -ffunction-sections -fdata-sections "$strip" '-DHOST_IMPORT(name,...)=__VA_ARGS__' \
+    -I"$build" -I"$sdk/sdk" -I"$sdk/sdk/lib" \
+    tests/iss/lifecycle.c apps/iss/orbit.c "$sdk/sdk/lib/app_state.c" \
+    "$sdk/sdk/lib/app_values.c" "$sdk/sdk/lib/app_fixed.c" "$sdk/sdk/lib/app_text.c" \
+    -o "$build/iss-lifecycle"
+"$build/iss-lifecycle"

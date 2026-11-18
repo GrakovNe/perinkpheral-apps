@@ -1,0 +1,15 @@
+{
+  "app": "apps/iss",
+  "at": 1794955920,
+  "language": "en",
+  "glyphs": "glyphs",
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 2",
+    "shot earth",
+    "forward 60",
+    "wait 2",
+    "shot minute"
+  ],
+  "font": "jersey"
+}
