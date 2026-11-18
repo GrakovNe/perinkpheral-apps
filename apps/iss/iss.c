@@ -4,7 +4,6 @@
  * Keep each live fix in memory and checkpoint the track at five-minute intervals.
  */
 #include "app_draw.h"
-#include "app_fixed.h"
 #include "app_state.h"
 #include "app_text.h"
 #include "app_values.h"
@@ -18,7 +17,7 @@ enum {
     TRACK_DOT_SPACING = 6, MARKER_RADIUS = 9, TELEMETRY_TOP = 212, VALUE_TOP = 228,
     BADGE_EDGE = 8, BADGE_TOP = 12, BADGE_PADDING_X = 5, BADGE_PADDING_Y = 3, BADGE_GAP = 3,
     BADGE_COUNT = 2, DIRECTION_COUNT = 4, MAX_LONGITUDE_HUNDREDTHS = 18000,
-    HUNDREDTHS_PER_TENTH = 10
+    HUNDREDTHS_PER_TENTH = 10, TENTHS_PER_DEGREE = 10
 };
 typedef struct {
     int32_t version, has_data, status, latitude, longitude, altitude, velocity;
@@ -189,7 +188,10 @@ static void coordinate(char line[24], int32_t value, int32_t positive, int32_t n
     app_text_t text;
     app_text_start(&text, line, 24);
     int32_t absolute = value < 0 ? -value : value;
-    app_text_add_fixed(&text, (absolute + HUNDREDTHS_PER_TENTH / 2) / HUNDREDTHS_PER_TENTH, 1, 0);
+    int32_t tenths = (absolute + HUNDREDTHS_PER_TENTH / 2) / HUNDREDTHS_PER_TENTH;
+    app_text_add_padded(&text, tenths / TENTHS_PER_DEGREE, 2);
+    app_text_add(&text, ".");
+    app_text_add_number(&text, tenths % TENTHS_PER_DEGREE);
     app_text_add(&text, APP_TEXT_DEGREE " ");
     app_text_add(&text, app_string(value < 0 ? negative : positive));
 }

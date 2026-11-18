@@ -8,10 +8,12 @@ survives temporary unloads in scene memory. Old points expire by age, and the li
 date line and over gaps longer than ten minutes.
 
 The 400×200 equirectangular map leaves room under it for altitude on the left and speed on
-the right. Coordinates are rounded to tenths of a degree in two small inverted badges over
+the right. Coordinates are rounded to tenths of a degree, with at least two integer digits
+(for example, `04.2°`), in two small inverted badges over
 the map. They stay 12 pixels below its top and 8 pixels from the outer edge: on the left
 for western longitudes, on the right for eastern longitudes and the prime meridian.
-Their size is fixed for the selected font and language, including the hemisphere letters.
+Their size is fixed for the selected font and language, including the hemisphere labels
+(`N`, `S`, `E`, `W` in English; `С.Ш`, `Ю.Ш`, `В.Д`, `З.Д` in Russian).
 The crosshair's dashed axes intersect at the position. Fine dots follow
 the solar terminator, found from changes in the sign of the solar dot product. The calculation
 uses Q14 integer sines in tenths of a degree.
