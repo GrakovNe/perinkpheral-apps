@@ -2,6 +2,7 @@
   "name": "kit",
   "version": "0.1.12",
   "title": "UI Kit",
+  "author": "Perinkpheral",
   "description": "Interface elements for app developers.",
   "abi": 3,
   "icon": [

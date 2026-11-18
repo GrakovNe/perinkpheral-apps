@@ -9,12 +9,16 @@
   "steps": [
     "wait 3",
     "shot rates",
-    "press 3L",
-    "shot scrolled",
-    "press 1L",
-    "shot top",
+    "press 3",
+    "shot eur",
+    "press 3 3",
+    "shot jpy",
+    "press 1",
+    "shot cny",
     "press 2",
-    "wait 3",
-    "shot refreshed"
+    "shot rotation",
+    "forward 61",
+    "wait 0.2",
+    "shot rotated"
   ]
 }

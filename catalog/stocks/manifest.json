@@ -1,6 +1,7 @@
 {
   "name": "stocks",
   "title": "Stocks",
+  "author": "Perinkpheral",
   "description": "Stock prices.",
   "version": "0.2.9",
   "abi": 3,

@@ -7,12 +7,17 @@ Run from the repository root with Java 21 or later, wasi-sdk, a C compiler and M
 tests/check-logic.sh
 tests/life/check-session.sh
 tests/stopwatch/check-resume.sh
+sh tests/pomodoro/check-stop.sh
+apps/badapple/test/check.sh
+apps/rates/test/check.sh
 ../perinkpheral/tools/perinkpheral sim-test tests
 ```
 
 `check-logic.sh` covers air-quality ranking, the streamed GitHub calendar parser and
 ISS geometry/history with address and undefined-behavior sanitizers. The Life check
-exercises scene restoration. The Stopwatch check runs the actual application handlers
+compares generations and rendered cells against an independent Conway implementation,
+and checks scene restoration. Pomodoro covers stop and reboot; Bad Apple checks every
+rendered frame against the original pixels; Rates covers streamed history and cache failures. The Stopwatch check runs the actual application handlers
 through cold boot, delayed time synchronization and background restoration.
 Calendar's standalone reader test is in
 [apps/calendar/test](../apps/calendar/test/); CI builds it with SDK text/date helpers.

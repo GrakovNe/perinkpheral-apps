@@ -1,6 +1,7 @@
 {
   "name": "metals",
   "title": "Bank of Russia metals",
+  "author": "Perinkpheral",
   "description": "Bank of Russia prices of gold, silver, platinum and palladium.",
   "version": "0.1.1",
   "abi": 3,

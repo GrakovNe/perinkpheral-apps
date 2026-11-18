@@ -18,7 +18,12 @@
     "press 3",
     "shot skipped-paused",
     "press 2L",
-    "shot reset"
+    "shot reset",
+    "press 2",
+    "press 1",
+    "shot stopped",
+    "forward 1800",
+    "shot still-stopped"
   ],
   "language": "ru",
   "font": "jersey",

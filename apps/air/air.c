@@ -182,6 +182,7 @@ static void number_text(char *buffer, int32_t capacity, int32_t value, int32_t d
 }
 
 #define HERO_WORD_GAP 10 /* between the index's capitals and its word */
+#define HERO_LABEL_GAP 8
 
 static void draw_hero(bool us)
 {
@@ -192,15 +193,17 @@ static void draw_hero(bool us)
     number_text(value, sizeof value, state.aqi[us], 0);
     int32_t left = HERO_LEFT + HERO_PICTURE + HERO_TEXT_GAP;
     int32_t width = HERO_TEXT_RIGHT - left;
-    app_draw_centered(left + width / 2, 4, HOST_FONT_SMALL, us ? "US AQI" : "EU AQI");
     int32_t font = HOST_FONT_DISPLAY | HOST_FONT_TABULAR;
     if (app_text_width(font, value) > width) { font = HOST_FONT_LARGE | HOST_FONT_TABULAR; }
     if (app_text_width(font, value) > width) { font = HOST_FONT_MEDIUM | HOST_FONT_TABULAR; }
-    /* The number and its word are one block, as tall as its capitals and the word's and a gap,
-     * centred on the picture: the word stands under the number, not down by the rule. */
+    /* Centre the label, number and quality together in the upper section. */
     int32_t gap = HERO_WORD_GAP;
     int32_t cap = gfx_font_cap_height(font), word_cap = gfx_font_cap_height(HOST_FONT_SMALL);
-    int32_t top = MARGIN + (HERO_PICTURE - (cap + gap + word_cap)) / 2;
+    int32_t block_height = word_cap + HERO_LABEL_GAP + cap + gap + word_cap;
+    int32_t label_top = (RULE_TOP - block_height) / 2;
+    app_draw_centered(left + width / 2, label_top - (gfx_font_ascent(HOST_FONT_SMALL) - word_cap),
+                      HOST_FONT_SMALL, us ? "US AQI" : "EU AQI");
+    int32_t top = label_top + word_cap + HERO_LABEL_GAP;
     app_draw_centered(left + width / 2, top - (gfx_font_ascent(font) - cap), font, value);
     const char *word = index_word(state.aqi[us], us);
     int32_t word_top = top + cap + gap;
@@ -235,6 +238,23 @@ static void draw_detail(int32_t row, int32_t label, int32_t number, int32_t font
     ui_draw_value(left, top + DETAIL_VALUE_GAP, font, value, app_text_length(value), unit, app_text_length(unit));
 }
 
+static void draw_molecule(int32_t left, int32_t top)
+{
+    /* The 44-pixel symbol shares the tile icons' four-pixel grid. */
+    gfx_draw_rect(left + 20, top + 12, 4, 16, HOST_RECT_FILLED);
+    gfx_draw_rect(left + 4, top + 24, 36, 4, HOST_RECT_FILLED);
+    gfx_draw_rect(left + 4, top + 28, 4, 4, HOST_RECT_FILLED);
+    gfx_draw_rect(left + 36, top + 28, 4, 4, HOST_RECT_FILLED);
+    const int32_t atoms[][2] = { {16, 0}, {0, 32}, {32, 32} };
+    for (int32_t atom = 0; atom < 3; atom++) {
+        gfx_draw_rect(left + atoms[atom][0], top + atoms[atom][1], 12, 12, HOST_RECT_FILLED);
+        gfx_set_color(HOST_PAPER);
+        gfx_draw_rect(left + atoms[atom][0] + 4, top + atoms[atom][1] + 4, 4, 4,
+                      HOST_RECT_FILLED);
+        gfx_set_color(HOST_INK);
+    }
+}
+
 static void draw_tile(int32_t column, int32_t name, int32_t icon, int32_t value, int32_t band, int32_t unit)
 {
     int32_t width = gfx_width() / COLUMN_COUNT;
@@ -246,7 +266,11 @@ static void draw_tile(int32_t column, int32_t name, int32_t icon, int32_t value,
                                   available, fitted, sizeof fitted - 1);
     fitted[length > 0 ? length : 0] = '\0';
     app_draw_centered(center, COLUMN_NAME_TOP, HOST_FONT_SMALL, fitted);
-    gfx_draw_icon(center - COLUMN_PICTURE / 2, COLUMN_PICTURE_TOP, icon, COLUMN_PICTURE / HOST_ICON_CELLS);
+    if (icon == HOST_ICON_GAS) {
+        draw_molecule(center - COLUMN_PICTURE / 2, COLUMN_PICTURE_TOP);
+    } else {
+        gfx_draw_icon(center - COLUMN_PICTURE / 2, COLUMN_PICTURE_TOP, icon, COLUMN_PICTURE / HOST_ICON_CELLS);
+    }
     char number[24];
     /* Grains and micrograms are counted whole; only the UV index has a decimal worth reading. */
     if (column == 0) {
@@ -276,18 +300,6 @@ void app_on_draw(void)
     int32_t font = detail_font();
     draw_detail(0, STR_PM25, state.pm25, font);
     draw_detail(1, STR_PM10, state.pm10, font);
-    char updated[48], freshness[80];
-    int32_t length = app_time_text(state.updated_at, HOST_TIME_NEAR, updated, sizeof updated);
-    app_text_t text;
-    app_text_start(&text, freshness, sizeof freshness);
-    if (state.updated_at > 0 && length > 0) {
-        app_text_add(&text, app_string(status >= 200 && status < 300 ? STR_UPDATED : STR_NO_UPDATE));
-        app_text_add(&text, " ");
-        app_text_add(&text, updated);
-    } else {
-        app_text_add(&text, app_string(STR_CACHED));
-    }
-    app_draw_right(gfx_width() - MARGIN, 106, HOST_FONT_SMALL, freshness);
     gfx_draw_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     /* WHO UV bands: Low <3, Moderate <6, High <8; Very high includes
      * Extreme (11+). https://www.who.int/news-room/questions-and-answers/item/radiation-the-ultraviolet-(uv)-index */

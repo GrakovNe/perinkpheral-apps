@@ -1,6 +1,7 @@
 {
   "name": "iss",
   "title": "ISS",
+  "author": "Perinkpheral",
   "description": "International Space Station over a world map.",
   "version": "0.1.6",
   "abi": 3,

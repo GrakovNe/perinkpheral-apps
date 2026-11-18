@@ -3,8 +3,8 @@
 /*
  * Conway's Game of Life on a torus. Two packed fields hold generations;
  * drawing expands the current field to one screen bitmap, making one host
- * call for all cells. Three recent hashes detect still lives and short
- * oscillators. Animation ends with a clean refresh, at most 500 steps.
+ * call for all cells. Three unpacked rows supply each generation without
+ * repeatedly looking up individual packed neighbours.
  * The packed field stays in the scene while the instance is temporarily unloaded.
  * OK runs or pauses; DOWN steps (held: ten); UP reseeds (held: patterns).
  */
@@ -19,24 +19,21 @@
 #define FIELD_BYTES ((100 * 75 + 7) / 8)
 #define BITMAP_BYTES (WIDTH / 8 * HEIGHT)
 #define STEP_TIMER 0
-#define GENERATIONS_MAX 500
-#define HASH_HISTORY 3
-#define SCENE_VERSION 1
+#define SCENE_VERSION 2
+#define COLUMNS_MAX (WIDTH / 4)
 #define STATUS_MARGIN 6
 #define STATUS_PADDING 5
 
-enum { PAUSED, STILL, EMPTY, LIMIT };
+enum { PAUSED, EMPTY };
 static uint8_t fields[2][FIELD_BYTES];
 static uint8_t bitmap[BITMAP_BYTES];
 static int32_t current, columns, rows, cell, generation, reason;
 static bool running;
-static uint32_t random_state, hashes[HASH_HISTORY];
-static int32_t hash_count, hash_next;
+static uint32_t random_state;
 
 typedef struct {
     int32_t version, cell, generation, reason;
-    uint32_t random_state, hashes[HASH_HISTORY];
-    int32_t hash_count, hash_next;
+    uint32_t random_state;
     bool running;
     uint8_t field[FIELD_BYTES];
 } life_scene_state_t;
@@ -71,17 +68,6 @@ static void clear_fields(void)
     current = generation = 0; running = false; reason = PAUSED;
     timer_set(STEP_TIMER, 0);
 }
-static uint32_t field_hash(void)
-{
-    uint32_t hash = 2166136261u;
-    int32_t bytes = (columns * rows + 7) / 8;
-    for (int32_t i = 0; i < bytes; i++) { hash = (hash ^ fields[current][i]) * 16777619u; }
-    return hash;
-}
-static void reset_hashes(void)
-{
-    hashes[0] = field_hash(); hash_count = 1; hash_next = 1;
-}
 static void new_field(bool reseed)
 {
     cell = cell_size(); columns = WIDTH / cell; rows = HEIGHT / cell;
@@ -96,7 +82,6 @@ static void new_field(bool reseed)
             if (random_number() % 3 == 0) { put(fields[current], x, y); }
         }
     }
-    reset_hashes();
 }
 
 typedef struct { uint8_t x, y; } point_t;
@@ -130,38 +115,62 @@ static void classic_patterns(void)
         put(fields[current], 5 + x, rows - 16 + 12 - y);
         put(fields[current], 5 + 12 - x, rows - 16 + 12 - y);
     }
-    reset_hashes();
 }
 static void pause(int32_t why)
 {
     running = false; reason = why; timer_set(STEP_TIMER, 0);
 }
+static void unpack_row(uint8_t *output, int32_t row)
+{
+    int32_t bit = row * columns;
+    const uint8_t *source = fields[current] + bit / 8;
+    uint8_t mask = (uint8_t)(0x80u >> (bit % 8));
+    for (int32_t x = 0; x < columns; x++) {
+        output[x] = (*source & mask) != 0;
+        mask >>= 1;
+        if (!mask) { mask = 0x80; source++; }
+    }
+}
+
 static void step(void)
 {
-    if (generation >= GENERATIONS_MAX) { pause(LIMIT); return; }
     uint8_t *next = fields[1 - current];
     for (int32_t i = 0; i < FIELD_BYTES; i++) { next[i] = 0; }
+    uint8_t row_data[3][COLUMNS_MAX], sums[COLUMNS_MAX];
+    uint8_t *above = row_data[0], *middle = row_data[1], *below = row_data[2];
+    unpack_row(above, rows - 1);
+    unpack_row(middle, 0);
+    unpack_row(below, 1);
     int32_t population = 0;
+    int32_t output_byte = 0;
+    uint8_t output_mask = 0x80;
     for (int32_t y = 0; y < rows; y++) {
-        int32_t above = y == 0 ? rows - 1 : y - 1, below = y + 1 == rows ? 0 : y + 1;
         for (int32_t x = 0; x < columns; x++) {
-            int32_t left = x == 0 ? columns - 1 : x - 1, right = x + 1 == columns ? 0 : x + 1;
-            int32_t neighbours = alive(left, above) + alive(x, above) + alive(right, above)
-                + alive(left, y) + alive(right, y) + alive(left, below) + alive(x, below) + alive(right, below);
-            if (neighbours == 3 || (neighbours == 2 && alive(x, y))) {
-                put(next, x, y); population++;
-            }
+            sums[x] = above[x] + middle[x] + below[x];
         }
+        int32_t left_sum = sums[columns - 1], middle_sum = sums[0];
+        for (int32_t x = 0; x < columns; x++) {
+            int32_t right_sum = sums[x + 1 == columns ? 0 : x + 1];
+            int32_t neighbours = left_sum + middle_sum + right_sum - middle[x];
+            if (neighbours == 3 || (neighbours == 2 && middle[x])) {
+                next[output_byte] |= output_mask;
+                population++;
+            }
+            output_mask >>= 1;
+            if (!output_mask) { output_mask = 0x80; output_byte++; }
+            left_sum = middle_sum;
+            middle_sum = right_sum;
+        }
+        uint8_t *reused = above;
+        above = middle;
+        middle = below;
+        below = reused;
+        if (y + 1 < rows) { unpack_row(below, y + 2 == rows ? 0 : y + 2); }
     }
-    current = 1 - current; generation++;
-    uint32_t hash = field_hash();
-    bool repeats = false;
-    for (int32_t i = 0; i < hash_count; i++) { repeats |= hashes[i] == hash; }
-    hashes[hash_next] = hash; hash_next = (hash_next + 1) % HASH_HISTORY;
-    if (hash_count < HASH_HISTORY) { hash_count++; }
+    current = 1 - current;
+    /* The counter may saturate after years; the field keeps evolving. */
+    if (generation < INT32_MAX) { generation++; }
     if (!population) { pause(EMPTY); }
-    else if (generation >= GENERATIONS_MAX) { pause(LIMIT); }
-    else if (repeats) { pause(STILL); }
 }
 void app_on_focus(void)
 {
@@ -178,11 +187,8 @@ void app_on_focus(void)
     generation = saved.generation;
     reason = saved.reason;
     random_state = saved.random_state;
-    hash_count = saved.hash_count;
-    hash_next = saved.hash_next;
     running = saved.running;
     for (int32_t index = 0; index < FIELD_BYTES; index++) { fields[current][index] = saved.field[index]; }
-    for (int32_t index = 0; index < HASH_HISTORY; index++) { hashes[index] = saved.hashes[index]; }
     if (running) { timer_set(STEP_TIMER, period()); }
 }
 
@@ -190,9 +196,8 @@ void app_on_blur(void)
 {
     life_scene_state_t saved = {
         .version = SCENE_VERSION, .cell = cell, .generation = generation, .reason = reason,
-        .random_state = random_state, .hash_count = hash_count, .hash_next = hash_next, .running = running
+        .random_state = random_state, .running = running
     };
-    for (int32_t index = 0; index < HASH_HISTORY; index++) { saved.hashes[index] = hashes[index]; }
     for (int32_t index = 0; index < FIELD_BYTES; index++) { saved.field[index] = fields[current][index]; }
     scene_state_set(&saved, sizeof saved);
 }
@@ -206,7 +211,7 @@ void app_on_button(int32_t event)
     switch (event) {
     case BTN_OK_PRESSED:
         if (running) { pause(PAUSED); screen_redraw(HOST_REDRAW_CLEAN); }
-        else if (generation < GENERATIONS_MAX) {
+        else {
             running = true; reason = PAUSED; timer_set(STEP_TIMER, period()); screen_redraw(HOST_REDRAW_NO_BLINK);
         }
         break;
@@ -235,15 +240,18 @@ void app_on_timer(int32_t id)
 }
 static void make_bitmap(void)
 {
-    for (int32_t i = 0; i < BITMAP_BYTES; i++) { bitmap[i] = 0; }
+    for (int32_t i = rows * cell * (WIDTH / 8); i < BITMAP_BYTES; i++) { bitmap[i] = 0; }
     for (int32_t y = 0; y < rows; y++) {
         int32_t pixel_row = y * cell;
+        uint8_t *line = bitmap + pixel_row * (WIDTH / 8);
+        for (int32_t byte = 0; byte < WIDTH / 8; byte++) { line[byte] = 0; }
         for (int32_t x = 0; x < columns; x++) {
             if (!alive(x, y)) { continue; }
-            for (int32_t dx = 0; dx < cell; dx++) {
-                int32_t px = x * cell + dx;
-                bitmap[pixel_row * (WIDTH / 8) + px / 8] |= (uint8_t)(0x80u >> (px % 8));
-            }
+            int32_t pixel = x * cell;
+            int32_t shift = pixel % 8;
+            uint16_t mask = (uint16_t)(((1u << cell) - 1) << (16 - cell - shift));
+            line[pixel / 8] |= (uint8_t)(mask >> 8);
+            if (shift + cell > 8) { line[pixel / 8 + 1] |= (uint8_t)mask; }
         }
         for (int32_t dy = 1; dy < cell; dy++) {
             for (int32_t b = 0; b < WIDTH / 8; b++) {
@@ -255,9 +263,7 @@ static void make_bitmap(void)
 static int32_t status_caption(void)
 {
     switch (reason) {
-    case STILL: return STR_STILL;
     case EMPTY: return STR_EMPTY;
-    case LIMIT: return STR_LIMIT;
     default: return running ? STR_RUNNING : STR_PAUSED;
     }
 }
@@ -276,8 +282,11 @@ static void draw_status(void)
     int32_t font = HOST_FONT_SMALL | HOST_FONT_TABULAR;
     int32_t status_width = app_text_width(font, line);
     const char *hint = running ? app_string(STR_PAUSE_ACTION)
-        : generation < GENERATIONS_MAX ? app_string(STR_PAUSED_ACTIONS) : "";
+        : app_string(STR_PAUSED_ACTIONS);
     int32_t hint_width = app_text_width(HOST_FONT_SMALL, hint);
+    if (status_width + hint_width + 5 * STATUS_PADDING > WIDTH - 2 * STATUS_MARGIN) {
+        hint_width = 0;
+    }
     int32_t width = status_width + 2 * STATUS_PADDING + (hint_width ? hint_width + 3 * STATUS_PADDING : 0);
     int32_t height = gfx_font_height(font) + 2 * STATUS_PADDING;
     int32_t left = WIDTH - STATUS_MARGIN - width;

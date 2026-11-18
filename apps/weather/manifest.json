@@ -1,6 +1,7 @@
 {
   "name": "weather",
   "title": "Weather",
+  "author": "Perinkpheral",
   "description": "Weather now and for three days.",
   "version": "0.2.14",
   "abi": 3,

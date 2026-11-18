@@ -1,15 +1,6 @@
-// SPDX-License-Identifier: MIT
-// Copyright (c) 2026 GrakovNe
-/*
- * Exchange rates: the Bank of Russia's daily prices, kept as integers of
- * ten-thousandths of a ruble. Three streaming pickers share each piece:
- * one picker holds at most sixteen paths, and eight currencies need more.
- * Only a complete, valid response replaces the stored snapshot. Settings
- * changed during a delivery invalidate it. Navigation lives in the session.
- * UP and DOWN scroll; OK asks for fresh data.
- */
-#include "app_draw.h"
-#include "app_fixed.h"
+/* SPDX-License-Identifier: MIT */
+#include "app_days.h"
+#include "history.h"
 #include "app_state.h"
 #include "app_text.h"
 #include "app_ui.h"
@@ -25,9 +16,9 @@
 #define PATHS (PER_PICKER * FIELDS + 1)
 
 typedef struct {
-    int64_t value, previous;
+    int32_t value;
     int32_t nominal;
-    char code[4], name[64];
+    char code[4], name[64], id[HISTORY_ID_BYTES];
 } rate_t;
 typedef struct {
     int32_t version, has_data;
@@ -36,12 +27,32 @@ typedef struct {
 } state_t;
 _Static_assert(sizeof(state_t) <= HOST_KV_VALUE_MAX, "snapshot fits one store value");
 static state_t state, incoming;
-static app_list_t list = { .selected = -1, .height = 226 };
+typedef struct {
+    int32_t version, index, rotating;
+} navigation_t;
+typedef struct {
+    int32_t version;
+    char code[4];
+    history_t history;
+} cached_history_t;
+_Static_assert(sizeof(cached_history_t) * CURRENCIES_MAX <= 4096, "history fits one storage block");
+static navigation_t navigation;
+static history_parser_t history_parser;
+static bool history_reading;
+static cached_history_t chart;
+static const char HISTORY_FILE[] = "history";
+#define HISTORY_FILE_LENGTH 7
+#define ROTATE_TIMER 0
+#define HISTORY_VERSION 1
+#define SNAPSHOT_VERSION 2
+static void request_histories(void);
+static void load_chart(void);
+
 static json_pick_t pickers[PICKERS];
 static char paths[PICKERS][PATHS][40];
 static const char *path_refs[PICKERS][PATHS];
 static int32_t count, status, saved_status;
-static bool reading, urgent;
+static bool reading;
 
 static int32_t currency_count(void)
 {
@@ -57,10 +68,10 @@ static bool valid_code(const char *code)
 
 static void begin_reading(void)
 {
-    incoming = (state_t){ .version = 1, .has_data = 1 };
+    incoming = (state_t){ .version = SNAPSHOT_VERSION, .has_data = 1 };
     count = currency_count();
     for (int32_t group = 0; group < PICKERS; group++) {
-        static const char *const fields[] = { "Value", "Previous", "Nominal", "Name" };
+        static const char *const fields[] = { "Value", "Nominal", "Name", "ID" };
         for (int32_t p = 0; p < PATHS; p++) {
             paths[group][p][0] = 0;
             path_refs[group][p] = paths[group][p];
@@ -95,23 +106,25 @@ static bool take_response(void)
         if (!json_pick_finish(&pickers[group])) { return false; }
     }
     const char *date = json_pick_value(&pickers[0], 0);
-    if (!date || app_text_length(date) < 10 || date[4] != '-' || date[7] != '-') { return false; }
+    if (!date || !history_day(date, true)) return false;
     app_text_copy(incoming.date, sizeof incoming.date, date);
     for (int32_t i = 0; i < count; i++) {
         rate_t *rate = &incoming.rates[i];
         json_pick_t *pick = &pickers[i / PER_PICKER];
         int32_t p = 1 + (i % PER_PICKER) * FIELDS;
         const char *value = json_pick_value(pick, p);
-        const char *previous = json_pick_value(pick, p + 1);
-        const char *nominal = json_pick_value(pick, p + 2);
-        const char *name = json_pick_value(pick, p + 3);
-        if (!value || !previous || !nominal || !app_fixed_parse(value, 4, &rate->value)
-            || !app_fixed_parse(previous, 4, &rate->previous)
-            || !app_parse_number(nominal, 0, &rate->nominal)
-            || rate->nominal < 1 || rate->value < 0 || rate->previous < 0) {
+        const char *nominal = json_pick_value(pick, p + 1);
+        const char *name = json_pick_value(pick, p + 2);
+        const char *id = json_pick_value(pick, p + 3);
+        int32_t nominal_value = 0;
+        if (!value || !nominal || !history_amount(value, 4, &rate->value)
+
+            || !history_amount(nominal, 0, &nominal_value)
+            || nominal_value < 1 || rate->value < 0) {
             rate->nominal = 0;
-        }
+        } else rate->nominal = (int32_t)nominal_value;
         if (name) { app_text_copy(rate->name, sizeof rate->name, name); }
+        if (id) { app_text_copy(rate->id, sizeof rate->id, id); }
     }
     const uint8_t *a = (const uint8_t *)&state, *b = (const uint8_t *)&incoming;
     bool changed = false;
@@ -121,114 +134,290 @@ static bool take_response(void)
     return true;
 }
 
+static const rate_t *rate_for(int32_t index)
+{
+    char code[64];
+    app_setting_item("codes", index, code, sizeof code);
+    if (!valid_code(code)) return 0;
+    for (int32_t slot = 0; slot < CURRENCIES_MAX; ++slot)
+        if (app_text_equal(state.rates[slot].code, code)) return &state.rates[slot];
+    return 0;
+}
+
+static void read_history(int32_t index, cached_history_t *record)
+{
+    if (file_read(HISTORY_FILE, HISTORY_FILE_LENGTH, index * (int32_t)sizeof *record,
+                  record, sizeof *record) != sizeof *record || record->version != HISTORY_VERSION ||
+        record->history.count < 1 || record->history.count > HISTORY_POINTS) {
+        *record = (cached_history_t){0};
+    }
+    record->code[sizeof record->code - 1] = 0;
+    record->history.id[sizeof record->history.id - 1] = 0;
+}
+
+static bool write_history(int32_t index, const cached_history_t *record)
+{
+    int32_t offset = index * (int32_t)sizeof *record;
+    int32_t size = file_size(HISTORY_FILE, HISTORY_FILE_LENGTH);
+    if (size < 0) size = 0;
+    static const uint8_t zeros[sizeof(cached_history_t)] = {0};
+    while (size < offset) {
+        int32_t length = offset - size;
+        if (length > (int32_t)sizeof zeros) length = sizeof zeros;
+        if (file_write(HISTORY_FILE, HISTORY_FILE_LENGTH, size, zeros, length) != HOST_OK) return false;
+        size += length;
+    }
+    return file_write(HISTORY_FILE, HISTORY_FILE_LENGTH, offset, record, sizeof *record) == HOST_OK;
+}
+
+static void load_chart(void)
+{
+    read_history(navigation.index, &chart);
+    const rate_t *rate = rate_for(navigation.index);
+    if (!rate || !app_text_equal(rate->code, chart.code) || !app_text_equal(rate->id, chart.history.id))
+        chart = (cached_history_t){0};
+}
+
+static void append_date(app_text_t *text, int32_t day)
+{
+    int32_t year, month, date;
+    app_date_from_days(day, &year, &month, &date);
+    app_text_add_number(text, date);
+    app_text_add(text, "/");
+    app_text_add_number(text, month);
+    app_text_add(text, "/");
+    app_text_add_number(text, year);
+}
+
+static bool safe_id(const char *id)
+{
+    int32_t length = app_text_length(id);
+    if (length < 2 || length >= HISTORY_ID_BYTES || id[0] != 'R') return false;
+    for (int32_t index = 1; index < length; ++index)
+        if ((id[index] < '0' || id[index] > '9') && (id[index] < 'A' || id[index] > 'Z')) return false;
+    return true;
+}
+
+static void request_histories(void)
+{
+    int32_t day = history_day(state.date, true);
+    if (!day) return;
+    for (int32_t index = 0; index < currency_count(); ++index) {
+        const rate_t *rate = rate_for(index);
+        if (!rate || !rate->nominal || !safe_id(rate->id)) continue;
+        cached_history_t previous;
+        read_history(index, &previous);
+        if (app_text_equal(previous.code, rate->code) && app_text_equal(previous.history.id, rate->id) &&
+            previous.history.count && previous.history.as_of >= day) continue;
+        char url[192];
+        app_text_t text;
+        app_text_start(&text, url, sizeof url);
+        app_text_add(&text, "https://www.cbr.ru/scripts/XML_dynamic.asp?date_req1=");
+        append_date(&text, day - HISTORY_DAYS + 1);
+        app_text_add(&text, "&date_req2=");
+        append_date(&text, day);
+        app_text_add(&text, "&VAL_NM_RQ=");
+        app_text_add(&text, rate->id);
+        http_send(HOST_REQUEST_FIRST + index, HOST_HTTP_GET, url, app_text_length(url), "", 0, "", 0);
+    }
+}
+
+static void update_header(void)
+{
+    char buffer[32];
+    app_text_t text;
+    app_text_start(&text, buffer, sizeof buffer);
+    app_text_add_number(&text, navigation.index + 1);
+    app_text_add(&text, "/");
+    app_text_add_number(&text, currency_count());
+    if (navigation.rotating) { app_text_add(&text, " "); app_text_add(&text, app_string(STR_AUTO)); }
+    header_set_text(HOST_HEADER_LEFT, buffer, app_text_length(buffer));
+}
+
+static void update_rotation(void)
+{
+    char setting[16];
+    app_setting("rotate", setting, sizeof setting);
+    int32_t minutes = app_text_equal(setting, "10 min") ? 10 : app_text_equal(setting, "5 min") ? 5 :
+                      app_text_equal(setting, "2 min") ? 2 : 1;
+    timer_set(ROTATE_TIMER, navigation.rotating && currency_count() > 1 ? minutes * 60000 : 0);
+}
+
+static void select_currency(int32_t step)
+{
+    int32_t total = currency_count();
+    if (!total) return;
+    navigation.index = (navigation.index + step + total) % total;
+    load_chart();
+    update_header();
+}
+
 void app_on_load(void)
 {
-    if (!app_state_load("state", &state, sizeof state, 1)) { state = (state_t){ .version = 1 }; }
-    if (kv_get("status", 6, &status, sizeof status) != sizeof status) { status = 0; }
+    if (!app_state_load("state", &state, sizeof state, SNAPSHOT_VERSION)) state = (state_t){ .version = SNAPSHOT_VERSION };
+    if (kv_get("status", 6, &status, sizeof status) != sizeof status) status = 0;
     saved_status = status;
+    if (!app_state_load("navigation", &navigation, sizeof navigation, 1)) navigation = (navigation_t){ .version = 1 };
+    if (navigation.index < 0 || navigation.index >= currency_count()) navigation.index = 0;
 }
+
 void app_on_focus(void)
 {
-    app_session_load(&list, sizeof list);
-    list.count = currency_count();
+    if (!state.has_data) poll_run(0);
+    load_chart();
+    update_header();
+    update_rotation();
 }
-void app_on_blur(void) { app_session_save(&list, sizeof list); }
+
+void app_on_terminate(void)
+{
+    navigation_t stored;
+    if (!app_state_load("navigation", &stored, sizeof stored, 1) || stored.index != navigation.index || stored.rotating != navigation.rotating)
+        app_state_save("navigation", &navigation, sizeof navigation);
+}
+
 void app_on_settings(void)
 {
-    reading = false;
-    list.count = currency_count();
+    reading = history_reading = false;
+    if (navigation.index >= currency_count()) navigation.index = 0;
+    load_chart();
+    update_header();
+    update_rotation();
+    request_histories();
     screen_redraw(HOST_REDRAW_NORMAL);
 }
+
 void app_on_button(int32_t event)
 {
-    if (event == BTN_OK_PRESSED) { urgent = true; poll_run(0); }
-    else if (app_list_button(&list, event) == APP_UI_CHANGED) { screen_redraw(HOST_REDRAW_NORMAL); }
+    if (event == BTN_UP_PRESSED) select_currency(-1);
+    else if (event == BTN_DOWN_PRESSED) select_currency(1);
+    else if (event == BTN_OK_PRESSED) {
+        navigation.rotating = !navigation.rotating;
+        app_state_save("navigation", &navigation, sizeof navigation);
+        update_header();
+    } else return;
+    update_rotation();
+    screen_redraw(HOST_REDRAW_NORMAL);
 }
+
+void app_on_timer(int32_t id)
+{
+    if (id != ROTATE_TIMER || !navigation.rotating) return;
+    select_currency(1);
+    update_rotation();
+    screen_redraw(HOST_REDRAW_NORMAL);
+}
+
+static void history_answer(const uint8_t *data, int32_t length, int32_t flags, int32_t http_status)
+{
+    if (flags & HOST_DATA_FIRST) {
+        history_start(&history_parser);
+        history_reading = http_status >= 200 && http_status < 300;
+    }
+    if (flags & HOST_DATA_FAILED) history_reading = false;
+    if (history_reading && length > 0)
+        history_reading = history_feed(&history_parser, data, (size_t)length);
+    if ((flags & HOST_DATA_LAST) && history_reading && history_finish(&history_parser)) {
+        const history_t *fresh = &history_parser.result;
+        int32_t current_day = history_day(state.date, true);
+        for (int32_t index = 0; index < currency_count(); ++index) {
+            const rate_t *rate = rate_for(index);
+            if (!rate || !app_text_equal(rate->id, fresh->id) || fresh->as_of > current_day) continue;
+            cached_history_t previous;
+            read_history(index, &previous);
+            bool same_currency = app_text_equal(previous.code, rate->code) && app_text_equal(previous.history.id, fresh->id);
+            if (same_currency && previous.history.count &&
+                previous.history.as_of > fresh->as_of) continue;
+            cached_history_t record = { .version = HISTORY_VERSION, .history = *fresh };
+            app_text_copy(record.code, sizeof record.code, rate->code);
+            bool changed = false;
+            for (size_t byte = 0; byte < sizeof record; ++byte)
+                changed |= ((const uint8_t *)&previous)[byte] != ((const uint8_t *)&record)[byte];
+            if (changed && !write_history(index, &record)) continue;
+            if (index == navigation.index) { chart = record; screen_redraw(HOST_REDRAW_NORMAL); }
+        }
+    }
+    if (flags & (HOST_DATA_LAST | HOST_DATA_FAILED)) history_reading = false;
+}
+
 void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t flags, int32_t http_status)
 {
-    if (request != 0) { return; }
+    if (request >= HOST_REQUEST_FIRST && request < HOST_REQUEST_FIRST + CURRENCIES_MAX) {
+        history_answer(data, length, flags, http_status);
+        return;
+    }
+    if (request != 0) return;
     if (flags & HOST_DATA_FAILED) {
         status = http_status;
         reading = false;
     } else {
-        if (flags & HOST_DATA_FIRST) {
-            status = http_status;
-            begin_reading();
-        }
+        if (flags & HOST_DATA_FIRST) { status = http_status; begin_reading(); }
         if (reading && status >= 200 && status < 300) {
-            for (int32_t group = 0; group < PICKERS; group++) {
+            for (int32_t group = 0; group < PICKERS; ++group)
                 json_pick_feed(&pickers[group], (const char *)data, length);
+            if (flags & HOST_DATA_LAST) {
+                if (!take_response()) status = HOST_FAILED_NO_ANSWER;
+                else { load_chart(); request_histories(); }
             }
-            if ((flags & HOST_DATA_LAST) && !take_response()) { status = HOST_FAILED_NO_ANSWER; }
         }
     }
     if (flags & (HOST_DATA_LAST | HOST_DATA_FAILED)) {
         reading = false;
-        if (status != saved_status && kv_set("status", 6, &status, sizeof status) == HOST_OK) { saved_status = status; }
-        screen_redraw(urgent ? HOST_REDRAW_SOON : HOST_REDRAW_NORMAL);
-        urgent = false;
+        if (status != saved_status && kv_set("status", 6, &status, sizeof status) == HOST_OK) saved_status = status;
+        screen_redraw(HOST_REDRAW_NORMAL);
     }
+}
+
+static void draw_centered(int32_t center, int32_t y, int32_t font, const char *text)
+{
+    int32_t length = app_text_length(text);
+    gfx_draw_text(center - gfx_text_width(font, text, length) / 2, y, font, text, length);
 }
 
 void app_on_draw(void)
 {
-    list.count = currency_count();
-    if (!list.count) { ui_draw_reason(HOST_FAILED_NOT_READY); return; }
-    if (!state.has_data && ui_draw_reason(status)) { return; }
-    int32_t first = app_list_first(&list), visible = ui_list_visible(&list);
-    for (int32_t i = first; i < list.count && i < first + visible; i++) {
-        char code[64], label[80], value[48], name[80];
-        app_setting_item("codes", i, code, sizeof code);
-        const rate_t *rate = 0;
-        for (int32_t j = 0; j < CURRENCIES_MAX; j++) {
-            if (valid_code(code) && app_text_equal(state.rates[j].code, code)) { rate = &state.rates[j]; break; }
-        }
-        app_text_t text;
-        app_text_start(&text, label, sizeof label);
-        app_text_add(&text, code);
-        if (rate && rate->nominal > 1) {
-            app_text_add(&text, " ("); app_text_add_number(&text, rate->nominal); app_text_add(&text, ")");
-        }
-        app_text_start(&text, value, sizeof value);
-        if (rate && rate->nominal) {
-            app_text_add_fixed(&text, rate->value, 4, 0);
-            app_text_add(&text, " / ");
-            app_text_add_fixed(&text, app_fixed_rescale(rate->value - rate->previous, 4, 2), 2, APP_FIXED_SIGN);
-        } else { app_text_add(&text, app_string(STR_NO_DATA)); }
-        int32_t y = 8 + (i - first) * 42;
-        /* The kit owns the scrollbar; measured columns keep all digits visible. */
-        ui_draw_list_row(&list, i, "", 0, "", 0, HOST_ICON_NONE);
-        int32_t right = gfx_width() - HOST_UI_MARGIN - (list.count > visible ? 8 : 0);
-        int32_t font = HOST_FONT_TEXT | HOST_FONT_TABULAR;
-        int32_t value_width = app_text_width(font, value);
-        char fitted[80];
-        int32_t label_font = app_text_width(HOST_FONT_TEXT, label) <= right - value_width - 28 ? HOST_FONT_TEXT : HOST_FONT_SMALL;
-        int32_t n = gfx_fit_text(label_font, label, app_text_length(label), right - value_width - 28, fitted, sizeof fitted);
-        gfx_draw_text(HOST_UI_MARGIN, y, label_font, fitted, n);
-        app_draw_right(right, y, font, value);
-        host_text_argument_t arg = { .text = rate ? rate->name : "", .length = rate ? app_text_length(rate->name) : 0 };
-        const char *pattern = app_string(STR_CURRENCY_NAME);
-        n = text_fill(pattern, app_text_length(pattern), &arg, 1, name, sizeof name);
-        n = gfx_fit_text(HOST_FONT_SMALL, name, n, right - HOST_UI_MARGIN, fitted, sizeof fitted);
-        gfx_draw_text(HOST_UI_MARGIN, y + 25, HOST_FONT_SMALL, fitted, n);
+    int32_t width = gfx_width(), height = gfx_height();
+    if (!currency_count()) { ui_draw_reason(HOST_FAILED_NOT_READY); return; }
+    const rate_t *rate = rate_for(navigation.index);
+    if (!rate || rate->nominal < 1) {
+        if (!ui_draw_reason(status)) draw_centered(width / 2, height / 2, HOST_FONT_TEXT, app_string(STR_NO_DATA));
+        return;
     }
-    if (state.has_data) {
-        app_draw_text(HOST_UI_MARGIN, gfx_height() - gfx_font_height(HOST_FONT_SMALL) - 4,
-                      HOST_FONT_SMALL, app_string(STR_COLUMNS));
-        int32_t year = 0, month = 0, day = 0;
-        for (int32_t i = 0; i < 10; i++) {
-            if (i == 4 || i == 7) { continue; }
-            int32_t digit = state.date[i] - '0';
-            if (i < 4) { year = year * 10 + digit; }
-            else if (i < 7) { month = month * 10 + digit; }
-            else { day = day * 10 + digit; }
-        }
-        host_local_time_t parts = { .year = year, .month = month, .day = day, .hour = 12 };
-        int64_t moment;
-        char date[48];
-        if (time_from_local(&parts, &moment) == HOST_OK) {
-            app_time_text(moment, HOST_TIME_LONG_DATE, date, sizeof date);
-            app_draw_right(gfx_width() - HOST_UI_MARGIN, gfx_height() - gfx_font_height(HOST_FONT_SMALL) - 4, HOST_FONT_SMALL, date);
-        }
+    char title[96], fitted[96], price[32];
+    app_text_t text;
+    bool named = app_string(STR_CURRENCY_NAME)[0] && rate->name[0];
+    app_text_start(&text, fitted, sizeof fitted);
+    if (named) { app_text_add(&text, rate->name); app_text_add(&text, " ("); }
+    app_text_add(&text, rate->code);
+    app_text_add(&text, named ? ")" : " / RUB");
+    int32_t length = gfx_fit_text(HOST_FONT_TEXT, fitted, app_text_length(fitted), width - 2 * HOST_UI_MARGIN, title, sizeof title);
+    gfx_draw_text(HOST_UI_MARGIN, HOST_UI_MARGIN, HOST_FONT_TEXT, title, length);
+    app_text_start(&text, price, sizeof price);
+    int32_t normalized = (int32_t)(rate->value / rate->nominal);
+    app_text_add_number(&text, normalized / 10000);
+    char fraction[6] = { '.', 0, 0, 0, 0, 0 };
+    for (int32_t index = 4; index > 0; --index) {
+        fraction[index] = (char)('0' + normalized % 10);
+        normalized /= 10;
     }
+    app_text_add(&text, fraction);
+    int32_t row = HOST_UI_MARGIN + gfx_font_height(HOST_FONT_TEXT) + 4;
+    ui_draw_value(HOST_UI_MARGIN, row, HOST_FONT_MEDIUM, price, app_text_length(price), "RUB", 3);
+    int32_t chart_top = row + gfx_font_height(HOST_FONT_MEDIUM) + 8;
+    int32_t caption_height = gfx_font_height(HOST_FONT_SMALL);
+    if (chart.history.count > 1) {
+        host_chart_t plot = {
+            .x = HOST_UI_MARGIN, .y = chart_top, .width = width - 2 * HOST_UI_MARGIN,
+            .height = height - chart_top - caption_height - 8,
+            .kind = HOST_CHART_AREA, .flags = HOST_CHART_RANGE_RIGHT | HOST_CHART_MARK_LAST,
+            .decimals = 4, .count = chart.history.count
+        };
+        ui_draw_chart(&plot, chart.history.values);
+    } else draw_centered(width / 2, chart_top + 30, HOST_FONT_SMALL, app_string(STR_NO_HISTORY));
+    char caption[64];
+    app_text_start(&text, caption, sizeof caption);
+    app_text_add(&text, app_string(STR_PERIOD));
+    app_text_add(&text, " · ");
+    append_date(&text, chart.history.count ? chart.history.days[chart.history.count - 1] : history_day(state.date, true));
+    draw_centered(width / 2, height - caption_height - 4, HOST_FONT_SMALL, caption);
 }

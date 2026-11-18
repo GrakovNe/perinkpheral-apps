@@ -74,8 +74,13 @@ jobs:
           tests/check-logic.sh
           tests/life/check-session.sh
           tests/stopwatch/check-resume.sh
+          sh tests/pomodoro/check-stop.sh
+          apps/badapple/test/check.sh
+          apps/rates/test/check.sh
       - name: The applications in the simulator
-        run: perinkpheral/tools/perinkpheral sim-test tests
+        run: |
+          perinkpheral/tools/perinkpheral sim-test tests
+          perinkpheral/tools/perinkpheral sim-test apps/badapple/test/sim
       - name: The pictures that differ
         if: failure()
         uses: actions/upload-artifact@v4

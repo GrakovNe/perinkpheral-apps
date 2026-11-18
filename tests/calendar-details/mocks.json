@@ -1,0 +1,3 @@
+{
+  "https://calendar.example.test/events.ics": {"status": 200, "file": "events.ics"}
+}

@@ -1,0 +1,11 @@
+{
+  "app": "apps/calendar",
+  "at": 1794992400,
+  "tz": "Europe/Moscow",
+  "language": "ru",
+  "font": "jersey",
+  "glyphs": "glyphs",
+  "store": {"feed": "https://calendar.example.test/events.ics", "remind": "Off"},
+  "mocks": "../calendar-details/mocks.json",
+  "steps": ["wait 2", "press 2", "shot meeting", "press 4", "press 3", "press 2", "shot overnight", "press 4", "press 3", "press 2", "shot all-day"]
+}

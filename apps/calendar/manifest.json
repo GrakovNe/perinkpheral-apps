@@ -1,7 +1,8 @@
 {
   "name": "calendar",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "title": "Calendar",
+  "author": "Perinkpheral",
   "description": "Calendar events.",
   "abi": 3,
   "writes_files": true,

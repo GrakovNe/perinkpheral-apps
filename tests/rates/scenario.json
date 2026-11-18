@@ -8,6 +8,10 @@
   "mocks": "mocks.json",
   "steps": [
     "wait 3",
-    "shot rates"
+    "shot rates",
+    "press 3",
+    "shot eur",
+    "press 3 3",
+    "shot jpy"
   ]
 }
