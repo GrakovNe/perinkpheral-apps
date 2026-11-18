@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 /*
- * Equirectangular map with inverted night regions and sampled ground track.
+ * Equirectangular map with a day/night theme and sampled ground track.
  * Keep each live fix in memory and checkpoint the track at five-minute intervals.
  */
 #include "app_draw.h"
@@ -15,7 +15,8 @@ enum {
     VERSION = 2, SECONDS_PER_MINUTE = 60,
     ALTITUDE_DECIMALS = 3, MAX_ALTITUDE_METERS = 2000000,
     TRACK_SAMPLE_MINUTES = 5, AXIS_DASH = 4, AXIS_PERIOD = 9, TELEMETRY_GAP = 64,
-    TRACK_DOT_SPACING = 6, MARKER_RADIUS = 9, TELEMETRY_TOP = 212, VALUE_TOP = 228,
+    TRACK_DASH_LENGTH = 4, TRACK_DASH_PERIOD = 8,
+    MARKER_RADIUS = 9, TELEMETRY_TOP = 212, VALUE_TOP = 228,
     BADGE_EDGE = 8, BADGE_TOP = 12, BADGE_PADDING_X = 5, BADGE_PADDING_Y = 3, BADGE_GAP = 3,
     BADGE_COUNT = 2, DIRECTION_COUNT = 4, MAX_LONGITUDE_HUNDREDTHS = 18000,
     HUNDREDTHS_PER_TENTH = 10, TENTHS_PER_DEGREE = 10
@@ -27,7 +28,7 @@ typedef struct {
     orbit_track_t track;
 } state_t;
 static state_t state;
-static orbit_shade_t shade;
+static bool map_night;
 static int32_t saved_minute, saved_status;
 _Static_assert(sizeof(state_t) <= HOST_SCENE_STATE_MAX, "ISS snapshot fits scene storage");
 _Static_assert(sizeof(state_t) <= HOST_KV_VALUE_MAX, "ISS snapshot fits one store value");
@@ -108,34 +109,23 @@ void app_on_picked(int32_t request, int32_t http_status)
     screen_redraw(HOST_REDRAW_NORMAL);
 }
 
-static bool night_at(int32_t x, int32_t y)
-{
-    return orbit_shade_at(&shade, x, y);
-}
-
 static void draw_world(void)
 {
     static uint8_t pixels[MAP_WIDTH * MAP_HEIGHT / 8];
     if (file_read("land.bin", 8, 0, pixels, sizeof pixels) != sizeof pixels) { return; }
-    orbit_shade_invert(&shade, pixels);
+    if (map_night) {
+        for (int32_t byte = 0; byte < (int32_t)sizeof pixels; byte++) { pixels[byte] ^= 0xff; }
+    }
     gfx_set_color(HOST_INK);
     gfx_draw_bitmap(0, 0, MAP_WIDTH, MAP_HEIGHT, pixels);
 }
 
-static void track_dot(int32_t x, int32_t y)
-{
-    bool night = night_at(x, y);
-    gfx_set_color(night ? HOST_INK : HOST_PAPER);
-    gfx_draw_rect(x - 1, y - 1, 4, 4, HOST_RECT_FILLED);
-    gfx_set_color(night ? HOST_PAPER : HOST_INK);
-    gfx_draw_rect(x, y, 2, 2, HOST_RECT_FILLED);
-}
-
 static void draw_track(void)
 {
-    int32_t prior_x = -1, prior_y = 0, prior_minute = 0;
+    int32_t prior_x = -1, prior_y = 0, prior_minute = 0, dash_phase = 0;
     int64_t now = time_now();
     int32_t minute = now > 0 ? (int32_t)(now / SECONDS_PER_MINUTE) : state.minute;
+    gfx_set_color(map_night ? HOST_PAPER : HOST_INK);
     for (int32_t index = 0; index < state.track.count; index++) {
         const orbit_point_t *point = &state.track.points[(state.track.next + TRACK_POINTS - state.track.count + index) % TRACK_POINTS];
         if (point->minute <= minute - TRACK_POINTS) { prior_x = -1; continue; }
@@ -145,13 +135,19 @@ static void draw_track(void)
         int32_t steps = distance_x > distance_y ? distance_x : distance_y;
         /* Do not join across the date line or across an unobserved gap. */
         if (prior_x >= 0 && distance_x < MAP_WIDTH / 2 && point->minute - prior_minute <= TRACK_SAMPLE_MINUTES * 2 && steps) {
-            for (int32_t step = TRACK_DOT_SPACING; step < steps; step += TRACK_DOT_SPACING) {
-                track_dot(prior_x + dx * step / steps, prior_y + dy * step / steps);
+            for (int32_t step = 0; step < steps;) {
+                bool ink = dash_phase < TRACK_DASH_LENGTH;
+                int32_t run = (ink ? TRACK_DASH_LENGTH : TRACK_DASH_PERIOD) - dash_phase;
+                if (run > steps - step) { run = steps - step; }
+                if (ink) {
+                    int32_t end = step + run - 1;
+                    gfx_draw_line(prior_x + dx * step / steps, prior_y + dy * step / steps,
+                                  prior_x + dx * end / steps, prior_y + dy * end / steps);
+                }
+                step += run;
+                dash_phase = (dash_phase + run) % TRACK_DASH_PERIOD;
             }
-        }
-        if (x != orbit_x(state.longitude) || y != orbit_y(state.latitude)) {
-            track_dot(x, y);
-        }
+        } else if (steps) { dash_phase = 0; }
         prior_x = x; prior_y = y; prior_minute = point->minute;
     }
 }
@@ -160,13 +156,13 @@ static void draw_station(void)
     int32_t x = orbit_x(state.longitude), y = orbit_y(state.latitude);
     for (int32_t dash = 0; dash < MAP_WIDTH; dash += AXIS_PERIOD) {
         if (dash + AXIS_DASH < x - MARKER_RADIUS || dash > x + MARKER_RADIUS) {
-            gfx_set_color(night_at(dash, y) ? HOST_PAPER : HOST_INK);
+            gfx_set_color(map_night ? HOST_PAPER : HOST_INK);
             gfx_draw_rect(dash, y, AXIS_DASH, 1, HOST_RECT_FILLED);
         }
     }
     for (int32_t dash = 0; dash < MAP_HEIGHT - AXIS_DASH; dash += AXIS_PERIOD) {
         if (dash + AXIS_DASH < y - MARKER_RADIUS || dash > y + MARKER_RADIUS) {
-            gfx_set_color(night_at(x, dash) ? HOST_PAPER : HOST_INK);
+            gfx_set_color(map_night ? HOST_PAPER : HOST_INK);
             gfx_draw_rect(x, dash, 1, AXIS_DASH, HOST_RECT_FILLED);
         }
     }
@@ -175,7 +171,7 @@ static void draw_station(void)
         0x1c, 0, 0x22, 0, 0x41, 0, 0x80, 0x80, 0x88, 0x80,
         0x80, 0x80, 0x41, 0, 0x22, 0, 0x1c, 0
     };
-    gfx_set_color(night_at(x, y) ? HOST_PAPER : HOST_INK);
+    gfx_set_color(map_night ? HOST_PAPER : HOST_INK);
     gfx_draw_bitmap(x - 4, y - 4, 9, 9, bitmap);
     gfx_draw_rect(x - MARKER_RADIUS, y - 1, MARKER_RADIUS - 4, 3, HOST_RECT_FILLED);
     gfx_draw_rect(x + 5, y - 1, MARKER_RADIUS - 4, 3, HOST_RECT_FILLED);
@@ -216,10 +212,9 @@ static void draw_coordinate_badges(void)
     const char *lines[BADGE_COUNT] = { latitude, longitude };
     for (int32_t row = 0; row < BADGE_COUNT; row++) {
         int32_t top = BADGE_TOP + row * (height + BADGE_GAP);
-        bool over_night = orbit_shade_majority(&shade, left, top, width, height);
-        gfx_set_color(over_night ? HOST_PAPER : HOST_INK);
+        gfx_set_color(map_night ? HOST_PAPER : HOST_INK);
         gfx_draw_rect(left, top, width, height, HOST_RECT_FILLED);
-        gfx_set_color(over_night ? HOST_INK : HOST_PAPER);
+        gfx_set_color(map_night ? HOST_INK : HOST_PAPER);
         app_draw_centered(left + width / 2,
                           top + BADGE_PADDING_Y + capitals - gfx_font_ascent(font),
                           font, lines[row]);
@@ -269,7 +264,7 @@ static void draw_measure(int32_t center, const measure_t *measure)
 void app_on_draw(void)
 {
     if (!state.has_data) { ui_draw_reason(state.status); return; }
-    orbit_shade_build(&shade, state.solar_latitude, state.solar_longitude);
+    map_night = orbit_night(state.latitude, state.longitude, state.solar_latitude, state.solar_longitude);
     draw_world();
     draw_track();
     draw_station();
