@@ -154,18 +154,23 @@ static ics_t       reader;
 static ics_event_t incoming[ICS_EVENTS_MAX];
 static bool        is_reading;
 
+static bool events_dirty;
+
+static void save_events(void)
+{
+    events_dirty = file_write(EVENTS_FILE, sizeof EVENTS_FILE - 1, 0, &stored, sizeof stored) != HOST_OK;
+}
+
 static void store_events(int32_t count)
 {
-    static stored_events_t fresh;
-    fresh = (stored_events_t){ .version = EVENTS_VERSION, .count = count };
-    for (int32_t i = 0; i < count; i++) {
-        fresh.events[i] = incoming[i];
+    bool changed = stored.count != count ||
+                   !is_same(stored.events, incoming, count * (int32_t)sizeof incoming[0]);
+    if (changed) {
+        stored = (stored_events_t){ .version = EVENTS_VERSION, .count = count };
+        for (int32_t i = 0; i < count; i++) { stored.events[i] = incoming[i]; }
     }
-    /* The flash is written only when the calendar is another. */
-    if (!is_same(&fresh, &stored, sizeof fresh)) {
-        stored = fresh;
-        file_write(EVENTS_FILE, sizeof EVENTS_FILE - 1, 0, &stored, sizeof stored);
-    }
+    /* Keep retrying a failed save even when the next answer is identical. */
+    if (changed || events_dirty) { save_events(); }
 }
 
 static void schedule_next_change(void);
@@ -230,8 +235,9 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
     }
     ics_feed(&reader, (const char *)data, length);
     if (flags & HOST_DATA_LAST) {
-        store_events(ics_end(&reader));
-        finish_fetch(HTTP_OK);
+        int32_t count = ics_end(&reader);
+        if (reader.complete) { store_events(count); }
+        finish_fetch(reader.complete ? HTTP_OK : STATUS_NOT_A_CALENDAR);
     }
 }
 
@@ -304,7 +310,7 @@ void app_on_settings(void)
         state.status = 0;
         save_state();
         stored = (stored_events_t){ .version = EVENTS_VERSION };
-        file_write(EVENTS_FILE, sizeof EVENTS_FILE - 1, 0, &stored, sizeof stored);
+        save_events();
     }
     schedule_reminder();
     schedule_next_change();

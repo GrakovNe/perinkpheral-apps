@@ -18,3 +18,5 @@ ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
 ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     tests/iss/orbit.c apps/iss/orbit.c -o "$build/iss"
 "$build/iss"
+
+sh tests/network/check.sh

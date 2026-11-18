@@ -67,7 +67,7 @@ static void refresh(void)
     char body[HOST_HTTP_BODY_MAX + 1];
     app_text_t text;
     app_text_start(&text, body, sizeof body);
-    app_text_add(&text, "{\"query\":\"query($login:String!){user(login:$login){login contributionsCollection{contributionCalendar{totalContributions weeks{contributionDays{contributionCount contributionLevel date}}}}}}\",\"variables\":{\"login\":\"");
+    app_text_add(&text, "{\"query\":\"query($login:String!){user(login:$login){login contributionsCollection{contributionCalendar{totalContributions weeks{contributionDays{contributionLevel date}}}}}}\",\"variables\":{\"login\":\"");
     app_text_add(&text, login);
     app_text_add(&text, "\"}}");
     static const char url[] = "https://api.github.com/graphql";

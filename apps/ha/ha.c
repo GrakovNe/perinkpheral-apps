@@ -47,12 +47,21 @@ static int32_t screen_length;
 static char    coming[SCREEN_MAX + 1];
 static int32_t coming_length;
 static int32_t coming_status;
+static bool receiving, screen_dirty;
 
 /* Why there is nothing to show, when there is nothing: the status of the
  * last answer, an HTTP one or a HOST_FAILED_*. 0: nothing was asked yet. */
 #define STATUS_KEY "status"
 #define HTTP_OK    200
-static int32_t last_status;
+static int32_t last_status, saved_status;
+
+static void save_status(void)
+{
+    if (last_status != saved_status &&
+        kv_set(STATUS_KEY, sizeof STATUS_KEY - 1, &last_status, sizeof last_status) == HOST_OK) {
+        saved_status = last_status;
+    }
+}
 
 /* The list layout: the host's list of facts, moved with UP and DOWN. */
 static host_list_t list = { .selected = -1 };
@@ -70,13 +79,18 @@ static bool has_asked;
  * token are the host's to put in - the application never sees the token. */
 static void ask(void)
 {
-    has_asked = true;
     /* The screen is the integration's, which knows the device by the secret it gave it and
      * answers with the screen. */
     static const char URL[] = "{{server}}/api/perinkpheral/screen";
     static const char HEADERS[] = "Authorization: Bearer {{token}}";
-    http_send(REQUEST_SCREEN, HOST_HTTP_GET, URL, sizeof URL - 1, HEADERS, sizeof HEADERS - 1,
-                 "", 0);
+    int32_t result = http_send(REQUEST_SCREEN, HOST_HTTP_GET, URL, sizeof URL - 1,
+                               HEADERS, sizeof HEADERS - 1, "", 0);
+    has_asked = result == HOST_OK;
+    if (!has_asked) {
+        last_status = result == HOST_ERR_NO_SPACE ? HOST_FAILED_NO_MEMORY : HOST_FAILED_NOT_READY;
+        save_status();
+        screen_redraw(HOST_REDRAW_NORMAL);
+    }
 }
 
 /* The screen is asked for now and again from now on. */
@@ -100,18 +114,22 @@ static void keep_fresh(void)
 static void accept_answer(void)
 {
     last_status = coming_status;
-    kv_set(STATUS_KEY, sizeof STATUS_KEY - 1, &last_status, sizeof last_status);
+    save_status();
     /* A sensor that is not there renders as "None": not a screen. */
     bool is_screen_payload = coming_status == HTTP_OK && coming_length > 0 && coming[0] != 'N';
     if (!is_screen_payload) {
         return; /* what was shown before stays */
     }
+    bool changed = coming_length != screen_length;
     for (int32_t i = 0; i < coming_length; i++) {
+        changed |= screen[i] != coming[i];
         screen[i] = coming[i];
     }
     screen_length = coming_length;
     screen[screen_length] = '\0';
-    kv_set(SCREEN_KEY, sizeof SCREEN_KEY - 1, screen, screen_length);
+    if (changed || screen_dirty) {
+        screen_dirty = kv_set(SCREEN_KEY, sizeof SCREEN_KEY - 1, screen, screen_length) != HOST_OK;
+    }
 }
 
 void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t flags,
@@ -121,6 +139,7 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
         return;
     }
     if (flags & HOST_DATA_FAILED) {
+        receiving = false;
         coming_status = http_status;
         coming_length = 0;
         accept_answer();
@@ -130,11 +149,14 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
     if (flags & HOST_DATA_FIRST) {
         coming_status = http_status;
         coming_length = 0;
+        receiving = true;
     }
+    if (!receiving) { return; }
     for (int32_t i = 0; i < length && coming_length < SCREEN_MAX; i++) {
         coming[coming_length++] = (char)data[i];
     }
     if (flags & HOST_DATA_LAST) {
+        receiving = false;
         accept_answer();
         screen_redraw(HOST_REDRAW_NORMAL);
     }
@@ -147,8 +169,10 @@ void app_on_load(void)
     int32_t length = kv_get(SCREEN_KEY, sizeof SCREEN_KEY - 1, screen, SCREEN_MAX);
     screen_length = length > 0 ? length : 0;
     screen[screen_length] = '\0';
-    if (kv_get(STATUS_KEY, sizeof STATUS_KEY - 1, &last_status, sizeof last_status) !=
-        sizeof last_status) {
+    bool loaded_status = kv_get(STATUS_KEY, sizeof STATUS_KEY - 1, &last_status, sizeof last_status) ==
+                         sizeof last_status;
+    saved_status = loaded_status ? last_status : 0;
+    if (!loaded_status) {
         /* The first run ever: nobody has set the alarm yet. */
         last_status = 0;
         keep_fresh();
