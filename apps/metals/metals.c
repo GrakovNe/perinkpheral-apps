@@ -262,8 +262,7 @@ static void update_header(void)
     app_text_t text;
     app_text_start(&text, buffer, sizeof buffer);
     app_text_add_number(&text, session.metal + 1);
-    app_text_add(&text, "/4 ");
-    app_text_add(&text, app_string(STR_SOURCE));
+    app_text_add(&text, "/4");
     header_set_text(HOST_HEADER_LEFT, buffer, app_text_length(buffer));
 }
 
@@ -332,13 +331,13 @@ void app_on_alarm(int32_t id)
 void app_on_focus(void)
 {
     int32_t configured = configured_metal();
-    if (!app_session_load(&session, sizeof session) || session.configured != configured ||
+    bool restored = app_session_load(&session, sizeof session);
+    if (!restored || session.configured != configured ||
         session.metal < 0 || session.metal >= METALS) {
         session = (session_t){ .metal = configured, .configured = configured };
     }
     update_header();
-    schedule();
-    ask();
+    if (!restored) { ask(); }
 }
 
 void app_on_blur(void) { app_session_save(&session, sizeof session); }
@@ -455,8 +454,8 @@ void app_on_draw(void)
     char date[48];
     int64_t moment = (int64_t)month.days[month.count - 1].date * DAY_SECONDS + 12 * 3600 - time_zone_offset();
     app_time_text(moment, HOST_TIME_LONG_DATE, date, sizeof date);
-    int32_t date_width = app_text_width(HOST_FONT_SMALL, date);
-    app_draw_text((width - date_width) / 2, height - small - 4, HOST_FONT_SMALL, date);
+    app_draw_text(MARGIN, height - small - 4, HOST_FONT_SMALL, app_string(STR_SOURCE));
+    app_draw_right(width - MARGIN, height - small - 4, HOST_FONT_SMALL, date);
 
     if (month.count < 2) { return; }
     int32_t series[DAYS_MAX], low = INT32_MAX, high = 0;

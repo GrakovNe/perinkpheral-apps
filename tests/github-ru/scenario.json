@@ -17,5 +17,6 @@
     "forward 21600",
     "wait 2",
     "shot six-hours"
-  ]
+  ],
+  "font": "jersey"
 }

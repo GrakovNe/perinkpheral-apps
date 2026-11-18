@@ -26,5 +26,15 @@ int main(void)
     assert(track.count == 1);
     assert(orbit_track_add(&track, 201, 0, -17990));
     assert(track.count == 2);
-    puts("ISS orbit: fixed-point projection, terminator and history passed");
+    orbit_track_t sampled = {0};
+    assert(orbit_track_sample(&sampled, 1, 50, -30, 5));
+    for (int32_t minute = 2; minute <= 5; minute++) {
+        assert(!orbit_track_sample(&sampled, minute, 51, -29, 5));
+    }
+    assert(orbit_track_sample(&sampled, 6, 52, -28, 5));
+    assert(!orbit_track_sample(&sampled, 5, 51, -29, 5));
+    assert(sampled.count == 2 && sampled.points[0].latitude == 50);
+    assert(orbit_track_sample(&sampled, 96, -20, 40, 5));
+    assert(sampled.count == 1 && sampled.points[2].minute == 96);
+    puts("ISS orbit: fixed-point projection, terminator and sampled history passed");
 }

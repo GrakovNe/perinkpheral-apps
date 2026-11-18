@@ -67,6 +67,12 @@ jobs:
             perinkpheral/sdk/lib/app_days.c perinkpheral/sdk/lib/app_text.c -Iperinkpheral/sdk \
             -o "$RUNNER_TEMP/test_ics"
           "$RUNNER_TEMP/test_ics"
+      - name: Application logic and scene restoration
+        env:
+          PERINKPHERAL: ${{ github.workspace }}/perinkpheral
+        run: |
+          tests/check-new-apps.sh
+          tests/life/check-session.sh
       - name: The applications in the simulator
         run: perinkpheral/tools/perinkpheral sim-test tests
       - name: The pictures that differ

@@ -4,5 +4,7 @@
   "paused": "Paused",
   "still": "Still",
   "empty": "Empty",
+  "paused_actions": "OK: Run  Down: Step",
+  "pause_action": "OK: Pause",
   "limit": "500"
 }

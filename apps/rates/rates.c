@@ -192,7 +192,7 @@ void app_on_draw(void)
         app_text_start(&text, value, sizeof value);
         if (rate && rate->nominal) {
             app_text_add_fixed(&text, rate->value, 4, 0);
-            app_text_add(&text, " ");
+            app_text_add(&text, " / ");
             app_text_add_fixed(&text, app_fixed_rescale(rate->value - rate->previous, 4, 2), 2, APP_FIXED_SIGN);
         } else { app_text_add(&text, app_string(STR_NO_DATA)); }
         int32_t y = 8 + (i - first) * 42;
@@ -213,6 +213,8 @@ void app_on_draw(void)
         gfx_draw_text(HOST_UI_MARGIN, y + 25, HOST_FONT_SMALL, fitted, n);
     }
     if (state.has_data) {
+        app_draw_text(HOST_UI_MARGIN, gfx_height() - gfx_font_height(HOST_FONT_SMALL) - 4,
+                      HOST_FONT_SMALL, app_string(STR_COLUMNS));
         int32_t year = 0, month = 0, day = 0;
         for (int32_t i = 0; i < 10; i++) {
             if (i == 4 || i == 7) { continue; }

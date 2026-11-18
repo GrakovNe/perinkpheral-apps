@@ -2,7 +2,7 @@
   "name": "metals",
   "title": "Bank of Russia metals",
   "description": "Bank of Russia prices of gold, silver, platinum and palladium.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "abi": 3,
   "icon": [
     "...........",
@@ -17,15 +17,26 @@
     "...........",
     "..........."
   ],
-  "hosts": ["www.cbr.ru"],
-  "certificates": ["russian-root-ca.pem"],
-  "intents": ["started"],
+  "hosts": [
+    "www.cbr.ru"
+  ],
+  "certificates": [
+    "russian-root-ca.pem"
+  ],
+  "intents": [
+    "started"
+  ],
   "settings": [
     {
       "key": "metal",
       "type": "choice",
       "title": "Metal",
-      "options": ["Gold", "Silver", "Platinum", "Palladium"],
+      "options": [
+        "Gold",
+        "Silver",
+        "Platinum",
+        "Palladium"
+      ],
       "default": "Gold"
     }
   ]

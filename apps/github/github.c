@@ -85,7 +85,16 @@ void app_on_load(void)
     if (!app_state_load("state", &state, sizeof state, VERSION)) { state = (state_t){ .version = VERSION }; }
     saved_state = state;
 }
-void app_on_focus(void) { refresh(); }
+void app_on_focus(void)
+{
+    int32_t entered;
+    if (!app_session_load(&entered, sizeof entered)) { refresh(); }
+}
+void app_on_blur(void)
+{
+    int32_t entered = 1;
+    app_session_save(&entered, sizeof entered);
+}
 void app_on_installed(void) { schedule(); }
 void app_on_updated(void) { schedule(); }
 void app_on_settings(void)
@@ -144,14 +153,13 @@ static void draw_number(int32_t center, int32_t top, int32_t value)
 static void draw_month(int32_t column, int32_t month)
 {
     gfx_set_color(HOST_INK);
-    const char *initials = app_string(STR_MONTHS), *letter = initials;
-    for (int32_t index = 1; index < month; index++) {
-        letter++;
-        while (((uint8_t)*letter & 0xc0) == 0x80) { letter++; }
-    }
-    int32_t length = 1;
-    while (((uint8_t)letter[length] & 0xc0) == 0x80) { length++; }
-    gfx_draw_text(GRID_LEFT + column * STEP, GRID_TOP - 22, HOST_FONT_SMALL, letter, length);
+    const int32_t months[] = { STR_JAN, STR_FEB, STR_MAR, STR_APR, STR_MAY, STR_JUN,
+        STR_JUL, STR_AUG, STR_SEP, STR_OCT, STR_NOV, STR_DEC };
+    const char *label = app_string(months[month - 1]);
+    int32_t left = GRID_LEFT + column * STEP;
+    int32_t right = left + app_text_width(HOST_FONT_SMALL, label);
+    if (right > gfx_width() - GRID_LEFT) { return; }
+    app_draw_text(left, GRID_TOP - 22, HOST_FONT_SMALL, label);
 }
 void app_on_draw(void)
 {
@@ -176,7 +184,11 @@ void app_on_draw(void)
     for (int32_t column = 0; column < 53; column++) {
         int32_t year, month, day;
         app_date_from_days(first + column * 7 + 3, &year, &month, &day);
-        if (month != prior_month) { draw_month(column, month); prior_month = month; }
+        if (month != prior_month) {
+            /* Two-month ticks leave room for three-letter names in both host fonts. */
+            if (month % 2 == 0 && (column > 0 || day <= 7)) { draw_month(column, month); }
+            prior_month = month;
+        }
         for (int32_t row = 0; row < 7; row++) {
             int32_t index = first + column * 7 + row - state.calendar.first_day;
             if (index < 0 || index >= state.calendar.count) { continue; }

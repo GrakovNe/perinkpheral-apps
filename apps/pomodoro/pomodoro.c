@@ -227,6 +227,9 @@ void app_on_draw(void)
     int32_t w = ui_value_width(font, number, app_text_length(number), unit, app_text_length(unit));
     int32_t y = 68 - (gfx_font_ascent(font) - gfx_font_cap_height(font));
     ui_draw_value((gfx_width() - w) / 2, y, font, number, app_text_length(number), unit, app_text_length(unit));
-    ui_draw_bar(32, 183, gfx_width() - 64, state.phase_length - left, state.phase_length);
+    /* The bar follows the displayed minutes, including when a redraw comes late. */
+    int32_t total_minutes = (state.phase_length + 59) / 60;
+    int32_t remaining_minutes = (left + 59) / 60;
+    ui_draw_bar(32, 183, gfx_width() - 64, total_minutes - remaining_minutes, total_minutes);
     app_draw_actions(app_string(state.ends_at ? STR_PAUSE : STR_START), 0);
 }

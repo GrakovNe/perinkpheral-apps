@@ -2,7 +2,7 @@
   "name": "iss",
   "title": "ISS",
   "description": "International Space Station over a world map.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "abi": 3,
   "fullscreen": false,
   "icon": [
@@ -30,12 +30,11 @@
         "longitude",
         "altitude",
         "velocity",
-        "visibility",
         "solar_lat",
         "solar_lon",
         "timestamp"
       ]
     }
   ],
-  "firmware": "0.1.30"
+  "firmware": "0.1.34"
 }

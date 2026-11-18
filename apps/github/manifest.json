@@ -2,7 +2,7 @@
   "name": "github",
   "title": "GitHub activity",
   "description": "GitHub contribution calendar and current streak.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "abi": 3,
   "fullscreen": false,
   "icon": [

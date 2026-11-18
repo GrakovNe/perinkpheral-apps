@@ -4,13 +4,13 @@
     {
       "name": "air",
       "title": "Air quality",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 6792,
-          "sha256": "15dadc2edaffbad1070c7fc10ecabeae4af66b4f0dda385ea9563c4efdafc83b"
+          "size": 7420,
+          "sha256": "b7190bf7248d9178371dc80581cc8d56b70c081c4a1314a5e9a52f22d2b62179"
         },
         {
           "name": "manifest.ru",
@@ -19,27 +19,27 @@
         },
         {
           "name": "strings.ru",
-          "size": 450,
-          "sha256": "6203f4d34d7daaf9ae9d8252d9727ec1319536dc1c09f2632cdc5382b864a42c"
+          "size": 578,
+          "sha256": "040bfa6e9f4c2853e20c73b3ff322b7628fa328924c8ee163a3c64eec2d135e9"
         },
         {
           "name": "manifest.json",
           "size": 2156,
-          "sha256": "49b80469435991a9b9e5b2e2f1044fccb605872de2402d5092bb7b69dbd2b42c"
+          "sha256": "e2224cfd362c313a3d27d4149bda33bc24a39790b1d436a8955e8c14ea95d535"
         }
       ],
       "firmware": "0.1.30",
       "icon": [
         "...........",
-        "......###..",
-        "....##..#..",
-        "...#....#..",
-        "..#..#..#..",
-        "..#.#...#..",
-        "..##...#...",
-        "...####....",
-        "..#........",
-        ".#.........",
+        "......##...",
+        ".......##..",
+        "########...",
+        "...........",
+        "###########",
+        "...........",
+        "######.....",
+        ".....##....",
+        "....##.....",
         "..........."
       ],
       "description": "Air quality, particles, UV and the strongest irritants.",
@@ -190,13 +190,13 @@
     {
       "name": "github",
       "title": "GitHub activity",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 12442,
-          "sha256": "04b0acf721bd8d47544214f3583d9b1c88243ced45782370a6b58626163dd3f7"
+          "size": 12724,
+          "sha256": "7a31b22191affa5b50d3b2f90a66a79c698a93cbb8fc70441d1ab1e1de5352a4"
         },
         {
           "name": "manifest.ru",
@@ -205,13 +205,13 @@
         },
         {
           "name": "strings.ru",
-          "size": 111,
-          "sha256": "2a7c8ad75d2dd761f9a75e902d0b1a922f51735fbb31e0c938930c8fde464d77"
+          "size": 192,
+          "sha256": "80172623bfc08402150ac492c642bee0a53aaea673093c120bc19d4f85e6a5bd"
         },
         {
           "name": "manifest.json",
           "size": 731,
-          "sha256": "60a5b40020fce3df173f4e07f1da1582d47a6ae436de1c694119af91f5754bd3"
+          "sha256": "3be46a6bc97ab7b5b6ff50d6665c4b23f5ca59312c85fa330bb60073b121b9bd"
         }
       ],
       "firmware": "0.1.30",
@@ -287,13 +287,13 @@
     {
       "name": "iss",
       "title": "ISS",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 7430,
-          "sha256": "1f4e5d29358be6023bf23c59bf7c16b2062bfc4deb8a7ee7115894be0b24dbf2"
+          "size": 8207,
+          "sha256": "f864b6bdbefe4cae95fa9467a92e3521b368e1d807613345d8b2829859b6467d"
         },
         {
           "name": "land.bin",
@@ -307,16 +307,16 @@
         },
         {
           "name": "strings.ru",
-          "size": 79,
-          "sha256": "b47fd0f01b11504fdcb6c72fbfd09031223254f4a49f194d751914b473797999"
+          "size": 184,
+          "sha256": "c4149c0df2ce7fd9261bbe536cd7c1e06f7cdf7d5043fbf65290dadeebcc268c"
         },
         {
           "name": "manifest.json",
-          "size": 754,
-          "sha256": "051fd3118e6482f1455c21e0a01e1eb48bb2441755912e9b1472d5211cd7f43e"
+          "size": 732,
+          "sha256": "8c95cb1b4356c60d0a9b620b2ddf07935e35b354d8da04997cb8dc6942393120"
         }
       ],
-      "firmware": "0.1.30",
+      "firmware": "0.1.34",
       "icon": [
         "...........",
         "##.......##",
@@ -390,13 +390,13 @@
     {
       "name": "life",
       "title": "Life",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 5187,
-          "sha256": "1b5179b38ac711e8401b54b749404687abf8d085daf1a4f458a28ef4e77ac8af"
+          "size": 6191,
+          "sha256": "d1451ef1091f69cea0d23706e098aec3d8043443a43b3bd2e33c78360c53f6fa"
         },
         {
           "name": "manifest.ru",
@@ -405,16 +405,16 @@
         },
         {
           "name": "strings.ru",
-          "size": 70,
-          "sha256": "a694491e0c382ca957c1c066e2cfc398cfaae7a58a19beca9acf09481d5eb6a4"
+          "size": 120,
+          "sha256": "4cb01a317016498b54f0cdf69065658c4211a8dc5732793f33d00e92e375132f"
         },
         {
           "name": "manifest.json",
           "size": 856,
-          "sha256": "a22e636d39e56f6ea8c32c29d18cae311265b72e4a4b500723c40e7262eacc98"
+          "sha256": "48a8083f2dd0036f20bb2057b20aeed6836f06ba5d45b10c84c232184e6cad90"
         }
       ],
-      "firmware": "0.1.30",
+      "firmware": "0.1.34",
       "icon": [
         "...........",
         "....##.....",
@@ -439,13 +439,13 @@
     {
       "name": "metals",
       "title": "Bank of Russia metals",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 8991,
-          "sha256": "88186d2799763645997ff8530c83916b37f3b2e29a159a6a52ba488c073b2d34"
+          "size": 8976,
+          "sha256": "931eda31be7f6c7d78baf0b8a65440e6687f123739786116a6647f9fe7ccbb22"
         },
         {
           "name": "manifest.ru",
@@ -465,7 +465,7 @@
         {
           "name": "manifest.json",
           "size": 774,
-          "sha256": "f1fbcaa7bf78aba45a8113369e4da03104fc53cec3b45f3cd1e9d1240ea432fe"
+          "sha256": "f3ffded4dbec0f5b58206aabc097d8b7a93d0bb5603e7b86feb0c553cfebf66f"
         }
       ],
       "firmware": "0.1.30",
@@ -496,13 +496,13 @@
     {
       "name": "pomodoro",
       "title": "Pomodoro",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 5665,
-          "sha256": "1c0275480dbbe3c28c76280e6a0498b5650ec1ac5a3d1273a2539306edf22008"
+          "size": 5687,
+          "sha256": "92cb9c5fdde8b27b3888006e2e33dc04e61fe98ec5ba741550018884fbadeab8"
         },
         {
           "name": "manifest.ru",
@@ -517,7 +517,7 @@
         {
           "name": "manifest.json",
           "size": 1172,
-          "sha256": "19df8cb2aab1880e42ad9f531f90bdedae367913a14af079be08fe3b52e7c0b1"
+          "sha256": "de1133f3b172378b8b34f38667f9005411e91b10f06de2014a8d84d10ba1e3a7"
         }
       ],
       "firmware": "0.1.30",
@@ -545,13 +545,13 @@
     {
       "name": "rates",
       "title": "Exchange rates",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 10584,
-          "sha256": "b7702a99b85260ef0f708faa9337e012d725abe69afe8cd404c1142c66277527"
+          "size": 10681,
+          "sha256": "afa461424431727597dc94e8ac4e8445b8a319e450ed070338f2e1756736370e"
         },
         {
           "name": "manifest.ru",
@@ -560,13 +560,13 @@
         },
         {
           "name": "strings.ru",
-          "size": 32,
-          "sha256": "f32882d6b5fa925c61682e4ab0c292fe314cf69854a36bd48ad8010106b73868"
+          "size": 63,
+          "sha256": "09e0088c5a9e4cf1c7b94c99a988dd74f5ed13084dbca93f83d00dda1e8aa155"
         },
         {
           "name": "manifest.json",
           "size": 959,
-          "sha256": "5f11837a04900b9b5c4b2578a0dcc61ed254fb269dbec57f25c48a8ce666c634"
+          "sha256": "82b789dc968b280d281b782461169e8a797b734ddabd70894f07fe2f14f3df9d"
         }
       ],
       "firmware": "0.1.30",
@@ -594,13 +594,13 @@
     {
       "name": "status",
       "title": "Service status",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 3224,
-          "sha256": "8991569a3be389e01d6469441c9f6d456ffc8fc42f298a1983b397a4b37d159f"
+          "size": 4143,
+          "sha256": "519028d6fea4035f5be7bf395b0ddaf5018896cd2ced99ee106c24cb9c7143bb"
         },
         {
           "name": "manifest.ru",
@@ -609,13 +609,13 @@
         },
         {
           "name": "strings.ru",
-          "size": 172,
-          "sha256": "e862341afd58ebbb1e3b2707a40ba315a172235f7185497054c3127311c2aee2"
+          "size": 227,
+          "sha256": "7238ccc8a37267bd3b76310d6c1b657f63e1e3744fbe2e019bc68dd197f58bec"
         },
         {
           "name": "manifest.json",
           "size": 2003,
-          "sha256": "6d438f6643c147599fe2d00e4eee5bd6fcaabb5ac2d8bd9196d10d2df7f52a69"
+          "sha256": "f91ee4e3332a34eaaaf6c35e66de27cc8957895cacf32e31c68aa93442c0bb91"
         }
       ],
       "firmware": "0.1.30",

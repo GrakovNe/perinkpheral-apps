@@ -10,3 +10,4 @@ int32_t orbit_x(int32_t longitude);
 int32_t orbit_y(int32_t latitude);
 bool orbit_night(int32_t latitude, int32_t longitude, int32_t solar_latitude, int32_t solar_longitude);
 bool orbit_track_add(orbit_track_t *track, int32_t minute, int32_t latitude, int32_t longitude);
+bool orbit_track_sample(orbit_track_t *track, int32_t minute, int32_t latitude, int32_t longitude, int32_t spacing);

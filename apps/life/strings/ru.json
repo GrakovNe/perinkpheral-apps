@@ -4,6 +4,8 @@
   "paused": "Пауза",
   "still": "Покой",
   "empty": "Пусто",
+  "paused_actions": "OK: Пуск  Вниз: Шаг",
+  "pause_action": "OK: Пауза",
   "limit": "500",
   "manifest": {
     "title": "Жизнь",

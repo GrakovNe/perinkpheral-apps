@@ -7,6 +7,8 @@
  * last good answer and its place; missing pollen stays distinct from zero.
  * Changing the index scale needs no request. OK asks for fresh data.
  */
+#include <stddef.h>
+
 #include "air_quality.h"
 #include "app_draw.h"
 #include "app_fixed.h"
@@ -18,13 +20,13 @@
 
 enum { EU, US, PM25, PM10, UV, IRRITANT_FIRST };
 enum {
-    STATE_VERSION = 2, MARGIN = 16, HERO_LEFT = MARGIN + 6,
+    STATE_VERSION = 3, PREVIOUS_STATE_VERSION = 2, MARGIN = 16, HERO_LEFT = MARGIN + 6,
     HERO_PICTURE = 88, HERO_TEXT_GAP = 16, HERO_TEXT_RIGHT = 246,
-    DETAIL_LEFT = 246, DETAIL_PICTURE = 22, DETAIL_GAP = 8,
+    DETAIL_LEFT = 266,
     DETAIL_TOP = 17, DETAIL_LINE = 46, DETAIL_VALUE_GAP = 13,
     RULE_TOP = MARGIN + HERO_PICTURE + MARGIN,
-    COLUMN_COUNT = 4, COLUMN_NAME_TOP = 133, COLUMN_PICTURE_TOP = 158,
-    COLUMN_PICTURE = 44, COLUMN_VALUE_TOP = 209, COLUMN_BAND_TOP = 240,
+    COLUMN_COUNT = 4, COLUMN_NAME_TOP = 130, COLUMN_PICTURE_TOP = 148,
+    COLUMN_PICTURE = 44, COLUMN_VALUE_TOP = 195, COLUMN_UNIT_TOP = 222, COLUMN_BAND_TOP = 242,
     COLUMN_INSET = 6
 };
 
@@ -32,6 +34,7 @@ typedef struct {
     int32_t version, has_data;
     int32_t aqi[2], pm25, pm10, uv, irritants[AIR_IRRITANTS];
     char lat[40], lon[40];
+    int64_t updated_at;
 } state_t;
 
 static state_t state;
@@ -103,7 +106,11 @@ static const char *band_word(int32_t band)
 
 void app_on_load(void)
 {
-    if (!app_state_load("state", &state, sizeof state, STATE_VERSION)) {
+    int32_t length = kv_get("state", 5, &state, sizeof state);
+    if (length == offsetof(state_t, updated_at) && state.version == PREVIOUS_STATE_VERSION) {
+        state.version = STATE_VERSION;
+        state.updated_at = 0;
+    } else if (length != sizeof state || state.version != STATE_VERSION) {
         state = (state_t){ .version = STATE_VERSION };
     }
     if (kv_get("status", 6, &status, sizeof status) != sizeof status) { status = 0; }
@@ -152,6 +159,7 @@ void app_on_picked(int32_t request, int32_t http_status)
         app_setting("lat", fresh.lat, sizeof fresh.lat);
         app_setting("lon", fresh.lon, sizeof fresh.lon);
         if (whole) {
+            fresh.updated_at = time_now();
             bool changed = false;
             const uint8_t *saved = (const uint8_t *)&state, *received = (const uint8_t *)&fresh;
             for (int32_t index = 0; index < (int32_t)sizeof state; index++) {
@@ -178,12 +186,13 @@ static void number_text(char *buffer, int32_t capacity, int32_t value, int32_t d
 static void draw_hero(bool us)
 {
     int32_t band = index_band(state.aqi[us], us);
-    int32_t icon = band < (us ? 1 : 2) ? HOST_ICON_LEAF : band < 3 ? HOST_ICON_GAS : HOST_ICON_MASK;
+    int32_t icon = band < (us ? 1 : 2) ? HOST_ICON_LEAF : band < 3 ? HOST_ICON_WIND : HOST_ICON_MASK;
     gfx_draw_icon(HERO_LEFT, MARGIN, icon, HERO_PICTURE / HOST_ICON_CELLS);
     char value[16];
     number_text(value, sizeof value, state.aqi[us], 0);
     int32_t left = HERO_LEFT + HERO_PICTURE + HERO_TEXT_GAP;
     int32_t width = HERO_TEXT_RIGHT - left;
+    app_draw_centered(left + width / 2, 4, HOST_FONT_SMALL, us ? "US AQI" : "EU AQI");
     int32_t font = HOST_FONT_DISPLAY | HOST_FONT_TABULAR;
     if (app_text_width(font, value) > width) { font = HOST_FONT_LARGE | HOST_FONT_TABULAR; }
     if (app_text_width(font, value) > width) { font = HOST_FONT_MEDIUM | HOST_FONT_TABULAR; }
@@ -202,7 +211,7 @@ static void draw_hero(bool us)
 static int32_t detail_font(void)
 {
     int32_t font = HOST_FONT_TEXT | HOST_FONT_TABULAR;
-    int32_t available = gfx_width() - MARGIN - DETAIL_LEFT - DETAIL_PICTURE - DETAIL_GAP;
+    int32_t available = gfx_width() - MARGIN - DETAIL_LEFT;
     const char *unit = app_string(STR_CONCENTRATION);
     const int32_t numbers[] = { state.pm25, state.pm10 };
     for (int32_t row = 0; row < 2; row++) {
@@ -218,8 +227,7 @@ static int32_t detail_font(void)
 static void draw_detail(int32_t row, int32_t label, int32_t number, int32_t font)
 {
     int32_t top = DETAIL_TOP + row * DETAIL_LINE;
-    int32_t left = DETAIL_LEFT + DETAIL_PICTURE + DETAIL_GAP;
-    gfx_draw_icon(DETAIL_LEFT, top + DETAIL_VALUE_GAP, HOST_ICON_PARTICLES, DETAIL_PICTURE / HOST_ICON_CELLS);
+    int32_t left = DETAIL_LEFT;
     app_draw_text(left, top, HOST_FONT_SMALL, app_string(label));
     char value[24];
     number_text(value, sizeof value, number, 1);
@@ -227,7 +235,7 @@ static void draw_detail(int32_t row, int32_t label, int32_t number, int32_t font
     ui_draw_value(left, top + DETAIL_VALUE_GAP, font, value, app_text_length(value), unit, app_text_length(unit));
 }
 
-static void draw_tile(int32_t column, int32_t name, int32_t icon, int32_t value, int32_t band)
+static void draw_tile(int32_t column, int32_t name, int32_t icon, int32_t value, int32_t band, int32_t unit)
 {
     int32_t width = gfx_width() / COLUMN_COUNT;
     int32_t center = column * width + width / 2;
@@ -249,6 +257,7 @@ static void draw_tile(int32_t column, int32_t name, int32_t icon, int32_t value,
     int32_t font = HOST_FONT_TEXT | HOST_FONT_TABULAR;
     if (app_text_width(font, number) > available) { font = HOST_FONT_SMALL | HOST_FONT_TABULAR; }
     app_draw_centered(center, COLUMN_VALUE_TOP, font, number);
+    app_draw_centered(center, COLUMN_UNIT_TOP, HOST_FONT_SMALL, app_string(unit));
     app_draw_centered(center, COLUMN_BAND_TOP, HOST_FONT_SMALL, band_word(band));
 }
 
@@ -267,16 +276,29 @@ void app_on_draw(void)
     int32_t font = detail_font();
     draw_detail(0, STR_PM25, state.pm25, font);
     draw_detail(1, STR_PM10, state.pm10, font);
+    char updated[48], freshness[80];
+    int32_t length = app_time_text(state.updated_at, HOST_TIME_NEAR, updated, sizeof updated);
+    app_text_t text;
+    app_text_start(&text, freshness, sizeof freshness);
+    if (state.updated_at > 0 && length > 0) {
+        app_text_add(&text, app_string(status >= 200 && status < 300 ? STR_UPDATED : STR_NO_UPDATE));
+        app_text_add(&text, " ");
+        app_text_add(&text, updated);
+    } else {
+        app_text_add(&text, app_string(STR_CACHED));
+    }
+    app_draw_right(gfx_width() - MARGIN, 106, HOST_FONT_SMALL, freshness);
     gfx_draw_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     /* WHO UV bands: Low <3, Moderate <6, High <8; Very high includes
      * Extreme (11+). https://www.who.int/news-room/questions-and-answers/item/radiation-the-ultraviolet-(uv)-index */
     int32_t uv_band = state.uv < 30 ? 0 : state.uv < 60 ? 1 : state.uv < 80 ? 2 : 3;
-    draw_tile(0, STR_UV, HOST_ICON_SUN, state.uv, uv_band);
+    draw_tile(0, STR_UV, HOST_ICON_SUN, state.uv, uv_band, STR_INDEX);
     int32_t selected[AIR_TILES];
     int32_t count = air_worst(state.irritants, selected);
     for (int32_t tile = 0; tile < count; tile++) {
         int32_t irritant = selected[tile];
         draw_tile(tile + 1, IRRITANTS[irritant].name, IRRITANTS[irritant].icon,
-                  state.irritants[irritant], air_band(irritant, state.irritants[irritant]));
+                  state.irritants[irritant], air_band(irritant, state.irritants[irritant]),
+                  irritant >= AIR_ALDER ? STR_GRAINS : STR_CONCENTRATION);
     }
 }

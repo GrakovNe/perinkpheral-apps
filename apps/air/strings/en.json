@@ -27,5 +27,10 @@
   "alder": "Alder",
   "mugwort": "Mugwort",
   "ragweed": "Ragweed",
-  "olive": "Olive"
+  "olive": "Olive",
+  "cached": "Cached reading",
+  "updated": "Updated",
+  "no_update": "No update since",
+  "index": "index",
+  "grains": "grains/m3"
 }

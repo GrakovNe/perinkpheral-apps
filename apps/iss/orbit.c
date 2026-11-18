@@ -51,3 +51,12 @@ bool orbit_track_add(orbit_track_t *track, int32_t minute, int32_t latitude, int
     if (track->count < TRACK_POINTS) { track->count++; }
     return true;
 }
+
+bool orbit_track_sample(orbit_track_t *track, int32_t minute, int32_t latitude, int32_t longitude, int32_t spacing)
+{
+    if (track->count) {
+        int32_t last = (track->next + TRACK_POINTS - 1) % TRACK_POINTS;
+        if (minute - track->points[last].minute < spacing) { return false; }
+    }
+    return orbit_track_add(track, minute, latitude, longitude);
+}

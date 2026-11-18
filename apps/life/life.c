@@ -5,7 +5,7 @@
  * drawing expands the current field to one screen bitmap, making one host
  * call for all cells. Three recent hashes detect still lives and short
  * oscillators. Animation ends with a clean refresh, at most 500 steps.
- * No field is persisted: receiving the screen starts a new paused field.
+ * The packed field stays in the scene while the instance is temporarily unloaded.
  * OK runs or pauses; DOWN steps (held: ten); UP reseeds (held: patterns).
  */
 #include "app_draw.h"
@@ -20,14 +20,28 @@
 #define BITMAP_BYTES (WIDTH / 8 * HEIGHT)
 #define STEP_TIMER 0
 #define GENERATIONS_MAX 500
+#define HASH_HISTORY 3
+#define SCENE_VERSION 1
+#define STATUS_MARGIN 6
+#define STATUS_PADDING 5
 
 enum { PAUSED, STILL, EMPTY, LIMIT };
 static uint8_t fields[2][FIELD_BYTES];
 static uint8_t bitmap[BITMAP_BYTES];
 static int32_t current, columns, rows, cell, generation, reason;
 static bool running;
-static uint32_t random_state, hashes[3];
+static uint32_t random_state, hashes[HASH_HISTORY];
 static int32_t hash_count, hash_next;
+
+typedef struct {
+    int32_t version, cell, generation, reason;
+    uint32_t random_state, hashes[HASH_HISTORY];
+    int32_t hash_count, hash_next;
+    bool running;
+    uint8_t field[FIELD_BYTES];
+} life_scene_state_t;
+
+_Static_assert(sizeof(life_scene_state_t) <= HOST_SCENE_STATE_MAX, "Life field fits scene storage");
 
 static int32_t cell_size(void)
 {
@@ -143,14 +157,45 @@ static void step(void)
     uint32_t hash = field_hash();
     bool repeats = false;
     for (int32_t i = 0; i < hash_count; i++) { repeats |= hashes[i] == hash; }
-    hashes[hash_next] = hash; hash_next = (hash_next + 1) % 3;
-    if (hash_count < 3) { hash_count++; }
+    hashes[hash_next] = hash; hash_next = (hash_next + 1) % HASH_HISTORY;
+    if (hash_count < HASH_HISTORY) { hash_count++; }
     if (!population) { pause(EMPTY); }
     else if (generation >= GENERATIONS_MAX) { pause(LIMIT); }
     else if (repeats) { pause(STILL); }
 }
-void app_on_focus(void) { new_field(true); }
-void app_on_blur(void) { pause(PAUSED); }
+void app_on_focus(void)
+{
+    life_scene_state_t saved;
+    if (scene_state_get(&saved, sizeof saved) != sizeof saved || saved.version != SCENE_VERSION ||
+        saved.cell != cell_size()) {
+        new_field(true);
+        return;
+    }
+    cell = saved.cell;
+    columns = WIDTH / cell;
+    rows = HEIGHT / cell;
+    current = 0;
+    generation = saved.generation;
+    reason = saved.reason;
+    random_state = saved.random_state;
+    hash_count = saved.hash_count;
+    hash_next = saved.hash_next;
+    running = saved.running;
+    for (int32_t index = 0; index < FIELD_BYTES; index++) { fields[current][index] = saved.field[index]; }
+    for (int32_t index = 0; index < HASH_HISTORY; index++) { hashes[index] = saved.hashes[index]; }
+    if (running) { timer_set(STEP_TIMER, period()); }
+}
+
+void app_on_blur(void)
+{
+    life_scene_state_t saved = {
+        .version = SCENE_VERSION, .cell = cell, .generation = generation, .reason = reason,
+        .random_state = random_state, .hash_count = hash_count, .hash_next = hash_next, .running = running
+    };
+    for (int32_t index = 0; index < HASH_HISTORY; index++) { saved.hashes[index] = hashes[index]; }
+    for (int32_t index = 0; index < FIELD_BYTES; index++) { saved.field[index] = fields[current][index]; }
+    scene_state_set(&saved, sizeof saved);
+}
 void app_on_settings(void)
 {
     if (cell != cell_size()) { new_field(true); screen_redraw(HOST_REDRAW_CLEAN); }
@@ -207,15 +252,52 @@ static void make_bitmap(void)
         }
     }
 }
+static int32_t status_caption(void)
+{
+    switch (reason) {
+    case STILL: return STR_STILL;
+    case EMPTY: return STR_EMPTY;
+    case LIMIT: return STR_LIMIT;
+    default: return running ? STR_RUNNING : STR_PAUSED;
+    }
+}
+
+static void draw_status(void)
+{
+    char line[96];
+    app_text_t text;
+    app_text_start(&text, line, sizeof line);
+    app_text_add(&text, app_string(STR_GENERATION));
+    app_text_add(&text, " ");
+    app_text_add_number(&text, generation);
+    app_text_add(&text, "  ");
+    app_text_add(&text, app_string(status_caption()));
+
+    int32_t font = HOST_FONT_SMALL | HOST_FONT_TABULAR;
+    int32_t status_width = app_text_width(font, line);
+    const char *hint = running ? app_string(STR_PAUSE_ACTION)
+        : generation < GENERATIONS_MAX ? app_string(STR_PAUSED_ACTIONS) : "";
+    int32_t hint_width = app_text_width(HOST_FONT_SMALL, hint);
+    int32_t width = status_width + 2 * STATUS_PADDING + (hint_width ? hint_width + 3 * STATUS_PADDING : 0);
+    int32_t height = gfx_font_height(font) + 2 * STATUS_PADDING;
+    int32_t left = WIDTH - STATUS_MARGIN - width;
+    int32_t top = HEIGHT - STATUS_MARGIN - height;
+
+    gfx_set_color(HOST_PAPER);
+    gfx_draw_rect(left - 1, top - 1, width + 2, height + 2, HOST_RECT_FILLED);
+    gfx_set_color(HOST_INK);
+    gfx_draw_rect(left, top, width, height, 0);
+    if (hint_width) {
+        app_draw_text(left + STATUS_PADDING, top + STATUS_PADDING, HOST_FONT_SMALL, hint);
+        int32_t divider = left + hint_width + 2 * STATUS_PADDING;
+        gfx_draw_line(divider, top + STATUS_PADDING, divider, top + height - STATUS_PADDING - 1);
+    }
+    app_draw_text(left + width - STATUS_PADDING - status_width, top + STATUS_PADDING, font, line);
+}
+
 void app_on_draw(void)
 {
-    make_bitmap(); gfx_draw_bitmap(0, 0, WIDTH, HEIGHT, bitmap);
-    char line[96]; app_text_t text;
-    app_text_start(&text, line, sizeof line);
-    app_text_add(&text, app_string(STR_GENERATION)); app_text_add(&text, " "); app_text_add_number(&text, generation); app_text_add(&text, "  ");
-    app_text_add(&text, app_string(running ? STR_RUNNING : reason == STILL ? STR_STILL : reason == EMPTY ? STR_EMPTY : reason == LIMIT ? STR_LIMIT : STR_PAUSED));
-    int32_t width = app_text_width(HOST_FONT_SMALL | HOST_FONT_TABULAR, line);
-    int32_t height = gfx_font_height(HOST_FONT_SMALL), x = WIDTH - width - 8, y = HEIGHT - height - 4;
-    gfx_set_color(HOST_PAPER); gfx_draw_rect(x - 4, y - 2, width + 12, height + 6, HOST_RECT_FILLED);
-    gfx_set_color(HOST_INK); app_draw_text(x, y, HOST_FONT_SMALL | HOST_FONT_TABULAR, line);
+    make_bitmap();
+    gfx_draw_bitmap(0, 0, WIDTH, HEIGHT, bitmap);
+    draw_status();
 }

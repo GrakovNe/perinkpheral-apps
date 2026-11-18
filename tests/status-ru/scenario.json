@@ -10,5 +10,6 @@
     "press 2",
     "wait 2",
     "shot refreshed"
-  ]
+  ],
+  "font": "jersey"
 }

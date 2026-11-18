@@ -4,7 +4,11 @@
   "east": "E",
   "west": "W",
   "km": "km",
-  "speed": "km/h",
-  "day": "day",
-  "night": "night"
+  "kmh": "km/h",
+  "altitude": "Altitude",
+  "velocity": "Speed",
+  "updated": "Updated",
+  "update_failed": "Update failed",
+  "minute": "min ago",
+  "hour": "h ago"
 }

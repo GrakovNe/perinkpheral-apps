@@ -2,6 +2,7 @@
   "app": "apps/iss",
   "at": 1794955920,
   "language": "ru",
+  "font": "jersey",
   "glyphs": "glyphs",
   "mocks": "mocks.json",
   "steps": [

@@ -2,7 +2,7 @@
   "name": "rates",
   "title": "Exchange rates",
   "description": "Exchange rates of the Bank of Russia.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "abi": 3,
   "fullscreen": false,
   "hosts": [

@@ -2,7 +2,7 @@
   "name": "status",
   "title": "Service status",
   "description": "Status of up to four services.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "abi": 3,
   "fullscreen": false,
   "icon": [

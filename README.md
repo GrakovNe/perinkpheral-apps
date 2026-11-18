@@ -27,8 +27,8 @@ CI builds and tests every push. Each successful push to `main` releases a catalo
 
 ## Repository
 
-- `apps/` - 15 applications: `air`, `badapple`, `calendar`, `clock`, `ha`,
-  `kit`, `life`, `metals`, `pomodoro`, `rates`, `stocks`, `stopwatch`, `sun`,
+- `apps/` - 18 applications: `air`, `badapple`, `calendar`, `clock`, `github`, `ha`,
+  `iss`, `kit`, `life`, `metals`, `pomodoro`, `rates`, `status`, `stocks`, `stopwatch`, `sun`,
   `timer`, `weather`.
 - `catalog/` - committed application packages and `catalog.json`.
 - `tests/` - simulator scenarios, network mocks and reference images.
