@@ -16,14 +16,15 @@ the map. They stay 12 pixels below its top and 8 pixels from the outer edge: on 
 for western longitudes, on the right for eastern longitudes and the prime meridian.
 Their size is fixed for the selected font and language, including the hemisphere labels
 (`N`, `S`, `E`, `W` in English; `С.Ш`, `Ю.Ш`, `В.Д`, `З.Д` in Russian).
-The crosshair's dashed axes intersect at the position. The whole map is dark when the station
-is over the Earth's night side and light when it is over the day side. The track, axes, marker
-and coordinate badges follow that palette. This follows the ground position, not whether the
-station itself is in Earth's shadow. The solar dot product uses Q14 integer sines once per draw.
+The crosshair's dashed axes intersect at the position. The whole screen, including the system
+header and telemetry, is dark when the station is over the Earth's night side and light when
+it is over the day side. This follows the ground position, not whether the station itself is
+in Earth's shadow. The solar dot product uses Q14 integer sines once per draw.
 The observed track uses thin four-pixel dashes with four-pixel gaps, continued across samples.
 
 `files/land.bin` is a raw, MSB-first 400×200 bitmap, 50 bytes per row, derived from
 [the source bitmap](assets/world-land-400x200.png). Natural Earth land is public domain.
 An ink pixel is retained only where both x and y are even, producing a fine stipple. The app reads
-this 10 KB package file into a bitmap, inverts it for the night theme and draws the result.
+this 10 KB package file into a bitmap and draws the light palette. Perinkpheral OS inverts
+the composed screen for the night theme through `screen_set_inverted` (firmware 0.1.54 or later).
 `sine.h` contains rounded `16384 * sin(angle)` values for 0–90 degrees at 0.1-degree steps.
