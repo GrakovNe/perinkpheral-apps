@@ -150,7 +150,9 @@ static void draw_track(void)
                 track_dot(prior_x + dx * step / steps, prior_y + dy * step / steps);
             }
         }
-        track_dot(x, y);
+        if (x != orbit_x(state.longitude) || y != orbit_y(state.latitude)) {
+            track_dot(x, y);
+        }
         prior_x = x; prior_y = y; prior_minute = point->minute;
     }
 }
@@ -168,9 +170,6 @@ static void draw_station(void)
         }
     }
 
-    gfx_set_color(HOST_PAPER);
-    gfx_draw_rect(x - 6, y - 6, 13, 13, HOST_RECT_FILLED);
-    gfx_set_color(HOST_INK);
     static const uint8_t bitmap[18] = {
         0x1c, 0, 0x22, 0, 0x41, 0, 0x80, 0x80, 0x88, 0x80,
         0x80, 0x80, 0x41, 0, 0x22, 0, 0x1c, 0
@@ -213,8 +212,12 @@ static void draw_measure(int32_t left, const measure_t *measure)
 {
     int32_t digit_width = ui_value_width(HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
                                          app_text_length(measure->value), "", 0);
-    app_draw_centered(left + digit_width / 2, TELEMETRY_TOP, HOST_FONT_SMALL, measure->label);
-    ui_draw_value(left, VALUE_TOP, HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
+    int32_t label_inset = gfx_font_ascent(HOST_FONT_SMALL) - gfx_font_cap_height(HOST_FONT_SMALL);
+    int32_t line_spacing = VALUE_TOP - TELEMETRY_TOP;
+    int32_t block_height = line_spacing + gfx_font_ascent(HOST_FONT_TEXT) - label_inset;
+    int32_t label_top = MAP_HEIGHT + (gfx_height() - MAP_HEIGHT - block_height) / 2 - label_inset;
+    app_draw_centered(left + digit_width / 2, label_top, HOST_FONT_SMALL, measure->label);
+    ui_draw_value(left, label_top + line_spacing, HOST_FONT_TEXT | HOST_FONT_TABULAR, measure->value,
                   app_text_length(measure->value), measure->unit, app_text_length(measure->unit));
 }
 
@@ -239,6 +242,6 @@ void app_on_draw(void)
     int32_t right = free_width / 6 + coordinates_width;
     app_draw_right(right, TELEMETRY_TOP + 3, HOST_FONT_SMALL, latitude);
     app_draw_right(right, VALUE_TOP + 3, HOST_FONT_SMALL, longitude);
-    draw_measure(right + free_width / 3, &altitude);
-    draw_measure(MAP_WIDTH - free_width / 6 - speed.width, &speed);
+    draw_measure(right + free_width / 3, &speed);
+    draw_measure(MAP_WIDTH - free_width / 6 - altitude.width, &altitude);
 }
