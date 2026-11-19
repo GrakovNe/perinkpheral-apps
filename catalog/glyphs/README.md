@@ -1,7 +1,7 @@
 # Glyph packs
 
 Letters beyond ASCII for the device's fonts. Made by `tools/perinkpheral glyph-packs` of the
-[perinkpheral](https://github.com/GrakovNe/perinkpheral) repository.
+[perinkpheral](https://github.com/perinkpheral/perinkpheral) repository.
 
 The packs are font software under the SIL Open Font License 1.1, not under the MIT license of
 this repository.

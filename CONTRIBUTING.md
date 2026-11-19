@@ -1,8 +1,8 @@
 # Developing applications
 
-The [firmware repository](https://github.com/GrakovNe/perinkpheral) owns the SDK and
-shared tools. Read its [Perinkpheral OS application contract](https://github.com/GrakovNe/perinkpheral/blob/main/sdk/host_api.h)
-and [application guide](https://github.com/GrakovNe/perinkpheral/releases/latest/download/perinkpheral-app-guide.pdf)
+The [firmware repository](https://github.com/perinkpheral/perinkpheral) owns the SDK and
+shared tools. Read its [Perinkpheral OS application contract](https://github.com/perinkpheral/perinkpheral/blob/main/sdk/host_api.h)
+and [application guide](https://github.com/perinkpheral/perinkpheral/releases/latest/download/perinkpheral-app-guide.pdf)
 before changing an application. ABI 3 requires firmware 0.1.30 or later.
 
 ## Layout

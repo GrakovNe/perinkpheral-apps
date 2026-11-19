@@ -1,7 +1,7 @@
 # HA Companion
 
 A Home Assistant dashboard for perINKpheral. The
-[Home Assistant integration](https://github.com/GrakovNe/perinkpheral-hacs)
+[Home Assistant integration](https://github.com/perinkpheral/perinkpheral-hacs)
 chooses the layout and entities; this application draws their values on the display.
 
 ## Set up

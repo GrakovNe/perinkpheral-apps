@@ -35,4 +35,4 @@ applications. The normal simulator runner needs permission to listen on localhos
 
 CI runs `sim-test tests` with offline fixtures. Passing simulator checks do not establish panel timing, real
 button behavior, network endurance or battery life. Those belong to the
-[firmware's hardware qualification](https://github.com/GrakovNe/perinkpheral/blob/main/docs/testing/stability.md).
+[firmware's hardware qualification](https://github.com/perinkpheral/perinkpheral/blob/main/docs/testing/stability.md).
