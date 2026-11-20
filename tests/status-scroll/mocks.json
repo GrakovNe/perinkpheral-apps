@@ -1,0 +1,24 @@
+{
+  "https://www.githubstatus.com/api/v2/status.json": {
+    "file": "../fixtures/githubstatus.json"
+  },
+  "https://www.cloudflarestatus.com/api/v2/status.json": {
+    "file": "../fixtures/cloudflarestatus.json"
+  },
+  "https://discordstatus.com/api/v2/status.json": {
+    "file": "../fixtures/discordstatus.json"
+  },
+  "https://status.openai.com/api/v2/status.json": {
+    "file": "../fixtures/openaistatus.json"
+  },
+  "https://www.redditstatus.com/api/v2/status.json": {
+    "body": "{\"page\":{\"name\":\"Reddit\"},\"status\":{\"indicator\":\"major\",\"description\":\"Partial System Outage\"}}"
+  },
+  "https://status.digitalocean.com/api/v2/status.json": {
+    "body": "{\"page\":{\"name\":\"DigitalOcean\"},\"status\":{\"indicator\":\"maintenance\",\"description\":\"Service Under Maintenance\"}}"
+  },
+  "https://status.example.org/api/v2/status.json": {
+    "body": "Service Unavailable",
+    "status": 503
+  }
+}

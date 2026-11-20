@@ -1,0 +1,17 @@
+{
+  "app": "apps/status",
+  "at": 1794955920,
+  "store": {
+    "services": "www.githubstatus.com\nwww.cloudflarestatus.com\ndiscordstatus.com\nstatus.openai.com\nwww.redditstatus.com\nstatus.digitalocean.com\nstatus.example.org"
+  },
+  "mocks": "mocks.json",
+  "steps": [
+    "wait 3",
+    "shot top",
+    "press 3 3 3",
+    "shot bottom"
+  ],
+  "language": "ru",
+  "font": "jersey",
+  "glyphs": "glyphs"
+}

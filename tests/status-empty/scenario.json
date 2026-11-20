@@ -2,8 +2,7 @@
   "app": "apps/status",
   "at": 1794955920,
   "store": {
-    "page2": "",
-    "page4": ""
+    "services": "www.githubstatus.com\ndiscordstatus.com"
   },
   "mocks": "mocks.json",
   "steps": [

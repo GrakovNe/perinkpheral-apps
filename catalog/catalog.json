@@ -568,28 +568,28 @@
     {
       "name": "status",
       "title": "Service status",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 4143,
-          "sha256": "519028d6fea4035f5be7bf395b0ddaf5018896cd2ced99ee106c24cb9c7143bb"
+          "size": 6321,
+          "sha256": "efe0b5c645572abd2402ed4ce41147b3598221ca73d13acbbddbef36f446f543"
         },
         {
           "name": "manifest.ru",
-          "size": 421,
-          "sha256": "7e49f367fc6735bfdbc1e51321149f8149d7bb751a84f871029b6f3c1714bb83"
+          "size": 375,
+          "sha256": "10ebc65c442c75294df1cbd601232cfe52cfe3e7ceedd44d878c803dd9f19e51"
         },
         {
           "name": "strings.ru",
-          "size": 227,
-          "sha256": "7238ccc8a37267bd3b76310d6c1b657f63e1e3744fbe2e019bc68dd197f58bec"
+          "size": 204,
+          "sha256": "4af8f1d3e67fb74e1d682fee02722e75244d7cb926a2dadc6f94b709bc57228e"
         },
         {
           "name": "manifest.json",
-          "size": 2027,
-          "sha256": "5859c7efa2dd5d77a2249ea3ec7af63f1f4466808b3ddc72ec320bc3a372ade5"
+          "size": 1165,
+          "sha256": "4a30c4e16468c3604ef8afd7c1e601233ae2e6800a5245a2051905db170735b4"
         }
       ],
       "author": "Perinkpheral",
