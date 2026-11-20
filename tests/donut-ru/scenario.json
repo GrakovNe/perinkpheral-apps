@@ -1,0 +1,16 @@
+{
+  "app": "apps/donut",
+  "store": {
+    "interval": "3600000",
+    "tick": "100"
+  },
+  "steps": [
+    "forward 3600",
+    "wait 1",
+    "press 1",
+    "shot summary"
+  ],
+  "language": "ru",
+  "font": "jersey",
+  "glyphs": "glyphs"
+}

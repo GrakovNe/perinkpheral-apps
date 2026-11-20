@@ -1,0 +1,28 @@
+{
+  "app": "apps/donut",
+  "store": {
+    "interval": "3600000",
+    "tick": "100"
+  },
+  "steps": [
+    "shot start",
+    "forward 3600",
+    "wait 1",
+    "shot next",
+    "forward 3600",
+    "wait 1",
+    "forward 3600",
+    "wait 1",
+    "forward 3600",
+    "wait 1",
+    "forward 3600",
+    "wait 1",
+    "forward 3600",
+    "wait 1",
+    "shot later",
+    "press 1",
+    "shot summary",
+    "press 2",
+    "shot start"
+  ]
+}
