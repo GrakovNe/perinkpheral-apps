@@ -3,7 +3,7 @@
   "title": "Service status",
   "author": "Perinkpheral",
   "description": "Status of popular services",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "abi": 3,
   "fullscreen": false,
   "icon": [
@@ -19,36 +19,18 @@
     "...........",
     "..........."
   ],
-  "hosts": [
-    "{{page1}}",
-    "{{page2}}",
-    "{{page3}}",
-    "{{page4}}"
-  ],
   "settings": [
     {
-      "key": "page1",
-      "type": "link",
-      "title": "Page 1",
-      "default": "https://www.githubstatus.com/api/v2/status.json"
-    },
-    {
-      "key": "page2",
-      "type": "link",
-      "title": "Page 2",
-      "default": "https://www.cloudflarestatus.com/api/v2/status.json"
-    },
-    {
-      "key": "page3",
-      "type": "link",
-      "title": "Page 3",
-      "default": "https://discordstatus.com/api/v2/status.json"
-    },
-    {
-      "key": "page4",
-      "type": "link",
-      "title": "Page 4",
-      "default": "https://status.openai.com/api/v2/status.json"
+      "key": "services",
+      "type": "list",
+      "title": "Services",
+      "help": "Status page host: www.githubstatus.com",
+      "default": [
+        "www.githubstatus.com",
+        "www.cloudflarestatus.com",
+        "discordstatus.com",
+        "status.openai.com"
+      ]
     },
     {
       "key": "pace",
@@ -65,39 +47,12 @@
   ],
   "polls": [
     {
-      "url": "{{page1}}",
+      "url": "https://{{services}}/api/v2/status.json",
       "every": "{{pace}}",
+      "each": "services",
       "pick": [
         "page.name",
-        "status.indicator",
-        "status.description"
-      ]
-    },
-    {
-      "url": "{{page2}}",
-      "every": "{{pace}}",
-      "pick": [
-        "page.name",
-        "status.indicator",
-        "status.description"
-      ]
-    },
-    {
-      "url": "{{page3}}",
-      "every": "{{pace}}",
-      "pick": [
-        "page.name",
-        "status.indicator",
-        "status.description"
-      ]
-    },
-    {
-      "url": "{{page4}}",
-      "every": "{{pace}}",
-      "pick": [
-        "page.name",
-        "status.indicator",
-        "status.description"
+        "status.indicator"
       ]
     }
   ]

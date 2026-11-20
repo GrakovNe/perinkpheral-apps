@@ -6,7 +6,6 @@
   "maintenance": "Maintenance",
   "unknown": "No data",
   "all_good": "All OK",
-  "page": "Page {0}",
   "affected": "{0} affected",
   "no_update": "Not up to date",
   "stale": "Stale"

@@ -13,8 +13,10 @@ apps/rates/test/check.sh
 ../perinkpheral/tools/perinkpheral sim-test tests
 ```
 
-`check-logic.sh` covers air-quality ranking and
-ISS geometry/history with address and undefined-behavior sanitizers. The Life check
+`check-logic.sh` covers air-quality ranking,
+ISS geometry/history and the Service status rows - an answer's own row, the order, the
+record at the longest list, a changed list, scrolling - with address and undefined-behavior
+sanitizers. The Life check
 compares generations and rendered cells against an independent Conway implementation,
 and checks scene restoration. The Donut check holds rendered frames against a torus traced
 in floating point, and runs the handlers through late timers, repaints, stop, restart and

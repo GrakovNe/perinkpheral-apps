@@ -27,5 +27,12 @@ ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
     -I"$build" -I"$sdk/sdk" -I"$sdk/sdk/lib" \
     tests/iss/track.c apps/iss/orbit.c -o "$build/iss-track"
 "$build/iss-track"
+"$sdk/tools/perinkpheral" headers apps/status "$build"
+${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+    -ffunction-sections -fdata-sections "$strip" '-DHOST_IMPORT(name,...)=__VA_ARGS__' \
+    -I"$build" -I"$sdk/sdk" -I"$sdk/sdk/lib" \
+    tests/status/rows.c "$sdk/sdk/lib/app_state.c" "$sdk/sdk/lib/app_values.c" \
+    "$sdk/sdk/lib/app_fixed.c" "$sdk/sdk/lib/app_text.c" -o "$build/status-rows"
+"$build/status-rows"
 
 sh tests/network/check.sh
