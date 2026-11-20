@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 /*
- * Equirectangular map with a day/night theme and sampled ground track.
+ * Equirectangular map with a sampled ground track.
  * Keep each live fix in memory and checkpoint the track at five-minute intervals.
  */
 #include "app_draw.h"
@@ -23,7 +23,7 @@ enum {
 };
 typedef struct {
     int32_t version, has_data, status, latitude, longitude, altitude, velocity;
-    int32_t solar_latitude, solar_longitude;
+    int32_t unused[2]; /* The sun's position, in snapshots stored before 0.1.12: the layout is kept. */
     int32_t second, minute; /* Older snapshots stored 0 or 1 in the seconds slot. */
     orbit_track_t track;
 } state_t;
@@ -85,12 +85,8 @@ void app_on_picked(int32_t request, int32_t http_status)
         app_value_number(2, ALTITUDE_DECIMALS, &fresh.altitude) &&
         fresh.altitude >= 0 && fresh.altitude < MAX_ALTITUDE_METERS &&
         app_value_number(3, 0, &fresh.velocity) && fresh.velocity >= 0 && fresh.velocity < 100000 &&
-        app_value_number(4, 2, &fresh.solar_latitude) && fresh.solar_latitude >= -9000 && fresh.solar_latitude <= 9000 &&
-        app_value_number(5, 2, &fresh.solar_longitude) && fresh.solar_longitude >= -36000 && fresh.solar_longitude <= 36000 &&
-        app_value_fixed(6, 0, &timestamp) && timestamp >= HOST_TIME_MIN && timestamp <= HOST_TIME_MAX;
+        app_value_fixed(4, 0, &timestamp) && timestamp >= HOST_TIME_MIN && timestamp <= HOST_TIME_MAX;
     if (valid && timestamp >= (int64_t)state.minute * SECONDS_PER_MINUTE + state.second) {
-        if (fresh.solar_longitude > 18000) { fresh.solar_longitude -= 36000; }
-        if (fresh.solar_longitude < -18000) { fresh.solar_longitude += 36000; }
         fresh.has_data = 1;
         fresh.status = 200;
         fresh.minute = (int32_t)(timestamp / SECONDS_PER_MINUTE);
@@ -259,8 +255,6 @@ static void draw_measure(int32_t center, const measure_t *measure)
 
 void app_on_draw(void)
 {
-    screen_set_inverted(state.has_data &&
-        orbit_night(state.latitude, state.longitude, state.solar_latitude, state.solar_longitude));
     if (!state.has_data) { ui_draw_reason(state.status); return; }
     draw_world();
     draw_track();

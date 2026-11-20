@@ -23,11 +23,6 @@ int main(void)
     orbit_track_add(&state.track, 10, 0, -5400);
     draw_track();
     assert(strokes == 5 && ink == HOST_INK);
-    strokes = 0;
-    state.solar_longitude = 18000;
-    assert(orbit_night(state.latitude, state.longitude, state.solar_latitude, state.solar_longitude));
-    draw_track();
-    assert(strokes == 5 && ink == HOST_INK); /* Perinkpheral OS inverts the complete frame. */
     state.track = (orbit_track_t){0}; strokes = 0;
     orbit_track_add(&state.track, 5, 0, 17900);
     orbit_track_add(&state.track, 10, 0, -17900);
@@ -38,5 +33,5 @@ int main(void)
     orbit_track_add(&state.track, 10, 0, -5400);
     draw_track();
     assert(strokes == 0);
-    puts("ISS track: dash spacing survives sample boundaries; day/night, date line and missing fixes passed");
+    puts("ISS track: dash spacing survives sample boundaries; date line and missing fixes passed");
 }

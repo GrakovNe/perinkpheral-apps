@@ -3,7 +3,7 @@
   "title": "ISS",
   "author": "Perinkpheral",
   "description": "International Space Station over a world map",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "firmware": "0.1.61",
   "abi": 3,
   "fullscreen": false,
@@ -32,8 +32,6 @@
         "longitude",
         "altitude",
         "velocity",
-        "solar_lat",
-        "solar_lon",
         "timestamp"
       ]
     }
