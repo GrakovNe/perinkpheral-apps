@@ -1,0 +1,20 @@
+{
+  "frames": "Кадров: ",
+  "draw_average": "Отрисовка сред.: ",
+  "draw_worst": "Отрисовка макс.: ",
+  "frame_interval": "Интервал кадров: ",
+  "milliseconds": " мс",
+  "restart": "OK: заново",
+  "manifest": {
+    "title": "Пончик",
+    "description": "Вращающийся тор donut.c: проверка экрана.",
+    "settings": {
+      "interval": {
+        "title": "Интервал кадров, мс"
+      },
+      "tick": {
+        "title": "Шаг часов сценария, мс"
+      }
+    }
+  }
+}

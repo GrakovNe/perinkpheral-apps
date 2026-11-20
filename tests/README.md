@@ -6,6 +6,7 @@ Run from the repository root with Java 21 or later, wasi-sdk, a C compiler and M
 ```sh
 tests/check-logic.sh
 tests/life/check-session.sh
+tests/donut/check.sh
 tests/stopwatch/check-resume.sh
 sh tests/pomodoro/check-stop.sh
 apps/rates/test/check.sh
@@ -15,7 +16,10 @@ apps/rates/test/check.sh
 `check-logic.sh` covers air-quality ranking and
 ISS geometry/history with address and undefined-behavior sanitizers. The Life check
 compares generations and rendered cells against an independent Conway implementation,
-and checks scene restoration. Pomodoro covers stop and reboot; Rates covers streamed history and cache failures. The Stopwatch check runs the actual application handlers
+and checks scene restoration. The Donut check holds rendered frames against a torus traced
+in floating point, and runs the handlers through late timers, repaints, stop, restart and
+unload; its scenarios count their clock instead of reading it (the hidden `tick` setting),
+so the summary's milliseconds repeat. Pomodoro covers stop and reboot; Rates covers streamed history and cache failures. The Stopwatch check runs the actual application handlers
 through cold boot, delayed time synchronization and background restoration.
 Calendar's standalone reader test is in
 [apps/calendar/test](../apps/calendar/test/); CI builds it with SDK text/date helpers.

@@ -1,0 +1,8 @@
+{
+  "frames": "Frames: ",
+  "draw_average": "Draw avg: ",
+  "draw_worst": "Draw max: ",
+  "frame_interval": "Frame interval: ",
+  "milliseconds": " ms",
+  "restart": "OK: restart"
+}

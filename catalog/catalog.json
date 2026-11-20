@@ -153,6 +153,56 @@
       }
     },
     {
+      "name": "donut",
+      "title": "Donut",
+      "version": "0.1.0",
+      "abi": 3,
+      "files": [
+        {
+          "name": "app.wasm",
+          "size": 6122,
+          "sha256": "3385a203903bb0d9dfcfb0ac9d632c7c66fbec340e1f35d451c02ab921caf1e6"
+        },
+        {
+          "name": "manifest.ru",
+          "size": 242,
+          "sha256": "0227dadc6729510200ed6620629135157d14f41fb80fcc62b05b7c94cefd64bd"
+        },
+        {
+          "name": "strings.ru",
+          "size": 148,
+          "sha256": "2aca92e4b9edaaa23687bd6056c4f8c1fc7db97c5ee4cd2e5e62782e15bdb891"
+        },
+        {
+          "name": "manifest.json",
+          "size": 703,
+          "sha256": "dfb8979880a8f5ac9ee870226ad0d84286a322070c8de7e0e7de6bfb1fe28e90"
+        }
+      ],
+      "author": "Perinkpheral",
+      "firmware": "0.1.30",
+      "icon": [
+        "...........",
+        "...#####...",
+        "..#######..",
+        ".#########.",
+        ".###...###.",
+        ".###...###.",
+        ".###...###.",
+        ".#########.",
+        "..#######..",
+        "...#####...",
+        "..........."
+      ],
+      "description": "The spinning torus of donut.c: a display test.",
+      "translations": {
+        "ru": {
+          "title": "\u041f\u043e\u043d\u0447\u0438\u043a",
+          "description": "\u0412\u0440\u0430\u0449\u0430\u044e\u0449\u0438\u0439\u0441\u044f \u0442\u043e\u0440 donut.c: \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u044d\u043a\u0440\u0430\u043d\u0430."
+        }
+      }
+    },
+    {
       "name": "ha",
       "title": "HA Companion",
       "version": "0.3.17",

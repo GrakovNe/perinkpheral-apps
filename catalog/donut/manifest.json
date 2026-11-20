@@ -1,0 +1,37 @@
+{
+  "name": "donut",
+  "title": "Donut",
+  "author": "Perinkpheral",
+  "description": "The spinning torus of donut.c: a display test.",
+  "version": "0.1.0",
+  "abi": 3,
+  "fullscreen": true,
+  "settings": [
+    {
+      "key": "interval",
+      "type": "number",
+      "title": "Frame interval, ms",
+      "hidden": true
+    },
+    {
+      "key": "tick",
+      "type": "number",
+      "title": "Scenario clock step, ms",
+      "hidden": true
+    }
+  ],
+  "icon": [
+    "...........",
+    "...#####...",
+    "..#######..",
+    ".#########.",
+    ".###...###.",
+    ".###...###.",
+    ".###...###.",
+    ".#########.",
+    "..#######..",
+    "...#####...",
+    "..........."
+  ],
+  "firmware": "0.1.30"
+}

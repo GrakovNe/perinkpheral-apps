@@ -73,6 +73,7 @@ jobs:
         run: |
           tests/check-logic.sh
           tests/life/check-session.sh
+          tests/donut/check.sh
           tests/stopwatch/check-resume.sh
           sh tests/check-timers.sh
           sh tests/pomodoro/check-stop.sh
