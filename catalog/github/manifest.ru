@@ -1,1 +1,0 @@
-{"title":"Активность GitHub","description":"Календарь активности","settings":{"login":{"title":"Логин"},"token":{"title":"Токен для чтения"}}}

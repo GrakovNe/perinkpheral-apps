@@ -4,13 +4,13 @@
     {
       "name": "air",
       "title": "Air quality",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 7271,
-          "sha256": "6e4a947c4d4db38a6e654f28954aef3bb1c80d98d5ab70ecad793a29ceb83c99"
+          "size": 6871,
+          "sha256": "ba5f01b022ca67cc7d9960f22920bd44ee2da73bd3c20a24dafec1b916cc0b73"
         },
         {
           "name": "manifest.ru",
@@ -19,13 +19,13 @@
         },
         {
           "name": "strings.ru",
-          "size": 437,
-          "sha256": "e75501eeb361ffdc9ea27c896c2d454332f4a4d61b2014cc8d44f716c04ef553"
+          "size": 388,
+          "sha256": "14f85b7e552d7a0a14b6dc6b73f1f8bdc6dde0ae009fac25d67aff46be51d041"
         },
         {
           "name": "manifest.json",
           "size": 2184,
-          "sha256": "e9b655e4ca6d02cbcc0241be72496903c1a60a0c034e4e29dc59a2dff3aca9d0"
+          "sha256": "0f60eb497ae2f4f474f97e3f446950d326f2dd0c15432e962298eb1117f815a2"
         }
       ],
       "author": "Perinkpheral",
@@ -188,56 +188,6 @@
         "ru": {
           "title": "\u0427\u0430\u0441\u044b",
           "description": "\u041a\u0440\u0443\u043f\u043d\u044b\u0435 \u0447\u0430\u0441\u044b \u0441 \u0434\u0430\u0442\u043e\u0439."
-        }
-      }
-    },
-    {
-      "name": "github",
-      "title": "GitHub activity",
-      "version": "0.1.4",
-      "abi": 3,
-      "files": [
-        {
-          "name": "app.wasm",
-          "size": 12966,
-          "sha256": "0d6ff9506b90697759a21c09ce371b20a43fb064b398ceee2b444379d3e0a50d"
-        },
-        {
-          "name": "manifest.ru",
-          "size": 190,
-          "sha256": "7ba40a124f5d1c470afe4327289a3f8b45571e09d8749a92b4e5ba390bc187c8"
-        },
-        {
-          "name": "strings.ru",
-          "size": 192,
-          "sha256": "80172623bfc08402150ac492c642bee0a53aaea673093c120bc19d4f85e6a5bd"
-        },
-        {
-          "name": "manifest.json",
-          "size": 728,
-          "sha256": "a94e1d42347aa9326a19ea75b47d28310fc561fbc5016642664107319686bc8a"
-        }
-      ],
-      "author": "Perinkpheral",
-      "firmware": "0.1.30",
-      "icon": [
-        "...........",
-        ".##.....##.",
-        ".#.#####.#.",
-        ".#.......#.",
-        "#..#...#..#",
-        "#.........#",
-        ".#.......#.",
-        "..#######..",
-        "....#.#....",
-        "...##.##...",
-        "..........."
-      ],
-      "description": "Activity calendar",
-      "translations": {
-        "ru": {
-          "title": "\u0410\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u044c GitHub",
-          "description": "\u041a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u044c \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u0438"
         }
       }
     },
