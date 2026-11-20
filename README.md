@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/GrakovNe/perinkpheral/main/assets/mark/mark-on-paper-512.png" width="96" alt="The perINKpheral mark">
+<img src="https://raw.githubusercontent.com/Perinkpheral/perinkpheral/main/assets/mark/mark-on-paper-512.png" width="96" alt="The perINKpheral mark">
 
 # perINKpheral applications
 
@@ -37,7 +37,7 @@ CI builds and tests every push. Each successful push to `main` releases a catalo
 ## Application authors
 
 The catalog is served at
-`https://raw.githubusercontent.com/GrakovNe/perinkpheral-apps/HEAD/catalog`.
+`https://raw.githubusercontent.com/Perinkpheral/perinkpheral-apps/HEAD/catalog`.
 `build.sh` rebuilds it from `apps/`. Every application requires a test in `tests/`.
 The application guide linked above covers the SDK and package format.
 [CONTRIBUTING.md](CONTRIBUTING.md) describes source layout, validation and catalog delivery.

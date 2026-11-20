@@ -38,7 +38,7 @@ typedef struct {
     uint8_t field[FIELD_BYTES];
 } life_scene_state_t;
 
-_Static_assert(sizeof(life_scene_state_t) <= HOST_SCENE_STATE_MAX, "Life field fits scene storage");
+_Static_assert(sizeof(life_scene_state_t) <= HOST_SESSION_MAX, "Life field fits scene storage");
 
 static int32_t cell_size(void)
 {
@@ -175,7 +175,7 @@ static void step(void)
 void app_on_focus(void)
 {
     life_scene_state_t saved;
-    if (scene_state_get(&saved, sizeof saved) != sizeof saved || saved.version != SCENE_VERSION ||
+    if (session_get(&saved, sizeof saved) != sizeof saved || saved.version != SCENE_VERSION ||
         saved.cell != cell_size()) {
         new_field(true);
         return;
@@ -199,7 +199,7 @@ void app_on_blur(void)
         .random_state = random_state, .running = running
     };
     for (int32_t index = 0; index < FIELD_BYTES; index++) { saved.field[index] = fields[current][index]; }
-    scene_state_set(&saved, sizeof saved);
+    session_set(&saved, sizeof saved);
 }
 void app_on_settings(void)
 {
