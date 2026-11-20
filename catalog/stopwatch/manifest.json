@@ -1,9 +1,9 @@
 {
   "name": "stopwatch",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "title": "Stopwatch",
   "author": "Perinkpheral",
-  "description": "Stopwatch.",
+  "description": "Stopwatch",
   "abi": 3,
   "intents": [
     "started",

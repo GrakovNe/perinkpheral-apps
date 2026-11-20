@@ -7,7 +7,7 @@
   "pause_action": "OK: Пауза",
   "manifest": {
     "title": "Жизнь",
-    "description": "Игра \"Жизнь\" Конвея.",
+    "description": "Игра \"Жизнь\" Конвея",
     "settings": {
       "speed": {
         "title": "Скорость",

@@ -13,7 +13,7 @@
   "phase_waning_crescent": "Убывающий серп",
   "manifest": {
     "title": "Солнце и Луна",
-    "description": "Восход, закат и фаза Луны.",
+    "description": "Восход, закат и фаза Луны",
     "settings": {
       "city": {
         "title": "Город"

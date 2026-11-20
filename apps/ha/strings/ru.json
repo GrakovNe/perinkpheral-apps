@@ -2,7 +2,7 @@
   "no_screen": "Нет экрана",
   "set_up_in_ha": "Настройте в HA",
   "manifest": {
-    "description": "Панель Home Assistant.",
+    "description": "Панель Home Assistant",
     "settings": {
       "server": {
         "title": "Сервер"

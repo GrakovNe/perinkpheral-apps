@@ -2,8 +2,8 @@
   "name": "donut",
   "title": "Donut",
   "author": "Perinkpheral",
-  "description": "The spinning torus of donut.c: a display test.",
-  "version": "0.1.0",
+  "description": "The famous spinning torus",
+  "version": "0.1.1",
   "abi": 3,
   "fullscreen": true,
   "settings": [

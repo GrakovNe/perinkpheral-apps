@@ -10,7 +10,7 @@
   "back": "Назад",
   "manifest": {
     "title": "Календарь",
-    "description": "События из календаря.",
+    "description": "События из календаря",
     "settings": {
       "feed": {
         "title": "Адрес календаря",

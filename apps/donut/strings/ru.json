@@ -7,7 +7,7 @@
   "restart": "OK: заново",
   "manifest": {
     "title": "Пончик",
-    "description": "Вращающийся тор donut.c: проверка экрана.",
+    "description": "Тот самый вращающийся тор",
     "settings": {
       "interval": {
         "title": "Интервал кадров, мс"

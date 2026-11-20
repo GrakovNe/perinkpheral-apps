@@ -1,9 +1,9 @@
 {
   "name": "ha",
-  "version": "0.3.17",
+  "version": "0.3.18",
   "title": "HA Companion",
   "author": "Perinkpheral",
-  "description": "Home Assistant dashboard.",
+  "description": "Home Assistant dashboard",
   "abi": 3,
   "settings": [
     {

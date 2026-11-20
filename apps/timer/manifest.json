@@ -2,8 +2,8 @@
   "name": "timer",
   "title": "Timer",
   "author": "Perinkpheral",
-  "description": "Countdown.",
-  "version": "0.3.10",
+  "description": "Countdown",
+  "version": "0.3.11",
   "abi": 3,
   "icon": [
     ".#########.",

@@ -2,8 +2,8 @@
   "name": "status",
   "title": "Service status",
   "author": "Perinkpheral",
-  "description": "Status of up to four services.",
-  "version": "0.1.1",
+  "description": "Status of popular services",
+  "version": "0.1.2",
   "abi": 3,
   "fullscreen": false,
   "icon": [

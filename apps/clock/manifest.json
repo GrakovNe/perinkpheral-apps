@@ -2,8 +2,8 @@
   "name": "clock",
   "title": "Clock",
   "author": "Perinkpheral",
-  "description": "Large clock with the date.",
-  "version": "0.1.9",
+  "description": "Large clock with the date",
+  "version": "0.1.10",
   "abi": 3,
   "fullscreen": true,
   "icon": [
