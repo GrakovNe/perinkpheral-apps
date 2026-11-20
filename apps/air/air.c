@@ -20,12 +20,16 @@
 
 enum { EU, US, PM25, PM10, UV, IRRITANT_FIRST };
 enum {
-    STATE_VERSION = 3, PREVIOUS_STATE_VERSION = 2, MARGIN = 16, HERO_LEFT = MARGIN + 6,
-    HERO_PICTURE = 88, HERO_TEXT_GAP = 16, HERO_TEXT_RIGHT = 246,
-    DETAIL_LEFT = 292,
-    DETAIL_TOP = 17, DETAIL_LINE = 46, DETAIL_VALUE_GAP = 13,
-    RULE_TOP = MARGIN + HERO_PICTURE + MARGIN,
-    COLUMN_COUNT = 4, COLUMN_PICTURE = 44, COLUMN_GAP = 12, COLUMN_INSET = 6,
+    STATE_VERSION = 3, PREVIOUS_STATE_VERSION = 2, MARGIN = 16,
+    COLUMN_COUNT = 4, COLUMN_WIDTH = 100, COLUMN_PICTURE = 44, COLUMN_GAP = 12, COLUMN_TEXT_GAP = 7, COLUMN_INSET = 6,
+    /* The index stands on the screen's centre; the picture and the particles
+     * stand the same way out from it on either side. Over the outer tiles they
+     * pressed against the edges and left two holes beside the index. */
+    HERO_SIDE = 132, HERO_PICTURE = 66, HERO_LEFT = 200 - HERO_SIDE - HERO_PICTURE / 2,
+    HERO_TEXT_LEFT = COLUMN_WIDTH, HERO_TEXT_RIGHT = 3 * COLUMN_WIDTH,
+    DETAIL_CENTER = 200 + HERO_SIDE, DETAIL_VALUE_GAP = COLUMN_TEXT_GAP, DETAIL_ROW_GAP = 16,
+    RULE_TOP = 120,
+    BAR_SEGMENT = 9, BAR_GAP = 2, BAR_HEIGHT = 6, BAR_REST = 2,
     LABEL_DESCENDER = 2
 };
 
@@ -95,12 +99,6 @@ static const char *index_word(int32_t index, bool us)
         { STR_GOOD, STR_MODERATE, STR_SENSITIVE, STR_UNHEALTHY, STR_VERY_UNHEALTHY, STR_HAZARDOUS }
     };
     return app_string(words[us][index_band(index, us)]);
-}
-
-static const char *band_word(int32_t band)
-{
-    static const int32_t words[AIR_BANDS] = { STR_LOW, STR_MODERATE, STR_HIGH, STR_VERY_HIGH };
-    return app_string(words[band]);
 }
 
 void app_on_load(void)
@@ -181,16 +179,16 @@ static void number_text(char *buffer, int32_t capacity, int32_t value, int32_t d
 }
 
 #define HERO_WORD_GAP 10 /* between the index's capitals and its word */
-#define HERO_LABEL_GAP 8
+#define HERO_LABEL_GAP 10 /* the same above the number as below it */
 
 static void draw_hero(bool us)
 {
     int32_t band = index_band(state.aqi[us], us);
     int32_t icon = band < (us ? 1 : 2) ? HOST_ICON_LEAF : band < 3 ? HOST_ICON_WIND : HOST_ICON_MASK;
-    gfx_draw_icon(HERO_LEFT, MARGIN, icon, HERO_PICTURE / HOST_ICON_CELLS);
+    gfx_draw_icon(HERO_LEFT, (RULE_TOP - HERO_PICTURE) / 2, icon, HERO_PICTURE / HOST_ICON_CELLS);
     char value[16];
     number_text(value, sizeof value, state.aqi[us], 0);
-    int32_t left = HERO_LEFT + HERO_PICTURE + HERO_TEXT_GAP;
+    int32_t left = HERO_TEXT_LEFT;
     int32_t width = HERO_TEXT_RIGHT - left;
     int32_t font = HOST_FONT_DISPLAY | HOST_FONT_TABULAR;
     if (app_text_width(font, value) > width) { font = HOST_FONT_LARGE | HOST_FONT_TABULAR; }
@@ -210,71 +208,59 @@ static void draw_hero(bool us)
                       HOST_FONT_SMALL, word);
 }
 
-static int32_t detail_font(void)
+static void draw_centered_at(int32_t center, int32_t top, int32_t font, const char *text)
 {
+    top -= gfx_font_ascent(font) - gfx_font_cap_height(font);
+    app_draw_centered(center, top, font, text);
+}
+
+/* PM2.5 over PM10, each a caption and its number, centred as one block in the last column. */
+static void draw_details(void)
+{
+    const int32_t labels[] = { STR_PM25, STR_PM10 }, numbers[] = { state.pm25, state.pm10 };
     int32_t font = HOST_FONT_TEXT | HOST_FONT_TABULAR;
-    int32_t available = gfx_width() - MARGIN - DETAIL_LEFT;
-    const int32_t numbers[] = { state.pm25, state.pm10 };
-    for (int32_t row = 0; row < 2; row++) {
+    int32_t caption = gfx_font_cap_height(HOST_FONT_SMALL), figure = gfx_font_cap_height(font);
+    int32_t row = caption + DETAIL_VALUE_GAP + figure;
+    int32_t top = (RULE_TOP - 2 * row - DETAIL_ROW_GAP) / 2;
+    for (int32_t at = 0; at < 2; at++, top += row + DETAIL_ROW_GAP) {
         char value[24];
-        number_text(value, sizeof value, numbers[row], 1);
-        if (app_text_width(font, value) > available) {
-            return HOST_FONT_SMALL | HOST_FONT_TABULAR;
-        }
-    }
-    return font;
-}
-
-static void draw_detail(int32_t row, int32_t label, int32_t number, int32_t font)
-{
-    int32_t top = DETAIL_TOP + row * DETAIL_LINE;
-    int32_t left = DETAIL_LEFT;
-    app_draw_text(left, top, HOST_FONT_SMALL, app_string(label));
-    char value[24];
-    number_text(value, sizeof value, number, 1);
-    app_draw_text(left, top + DETAIL_VALUE_GAP, font, value);
-}
-
-static void draw_molecule(int32_t left, int32_t top)
-{
-    /* The 44-pixel symbol shares the tile icons' four-pixel grid. */
-    gfx_draw_rect(left + 20, top + 12, 4, 16, HOST_RECT_FILLED);
-    gfx_draw_rect(left + 4, top + 24, 36, 4, HOST_RECT_FILLED);
-    gfx_draw_rect(left + 4, top + 28, 4, 4, HOST_RECT_FILLED);
-    gfx_draw_rect(left + 36, top + 28, 4, 4, HOST_RECT_FILLED);
-    const int32_t atoms[][2] = { {16, 0}, {0, 32}, {32, 32} };
-    for (int32_t atom = 0; atom < 3; atom++) {
-        gfx_draw_rect(left + atoms[atom][0], top + atoms[atom][1], 12, 12, HOST_RECT_FILLED);
-        gfx_set_color(HOST_PAPER);
-        gfx_draw_rect(left + atoms[atom][0] + 4, top + atoms[atom][1] + 4, 4, 4,
-                      HOST_RECT_FILLED);
-        gfx_set_color(HOST_INK);
+        number_text(value, sizeof value, numbers[at], 1);
+        draw_centered_at(DETAIL_CENTER, top, HOST_FONT_SMALL, app_string(labels[at]));
+        draw_centered_at(DETAIL_CENTER, top + caption + DETAIL_VALUE_GAP, font, value);
     }
 }
 
 typedef struct {
-    int32_t name, picture, value, band;
+    int32_t picture, value, name, bar;
 } tile_layout_t;
 
 static tile_layout_t tile_layout(void)
 {
     /* Small labels reserve two pixels below their capitals for descenders. */
     int32_t name_height = gfx_font_cap_height(HOST_FONT_SMALL) + LABEL_DESCENDER;
-    int32_t band_height = name_height;
     int32_t value_height = gfx_font_cap_height(HOST_FONT_TEXT);
-    int32_t block_height = name_height + COLUMN_PICTURE + value_height + band_height + 3 * COLUMN_GAP;
+    /* The number, its name and its scale read as one group under the picture:
+     * closer to each other than to it. */
+    int32_t block_height = COLUMN_PICTURE + COLUMN_GAP + value_height + COLUMN_TEXT_GAP +
+        name_height + COLUMN_TEXT_GAP + BAR_HEIGHT;
     tile_layout_t layout;
-    layout.name = RULE_TOP + 1 + (gfx_height() - RULE_TOP - 1 - block_height) / 2;
-    layout.picture = layout.name + name_height + COLUMN_GAP;
+    layout.picture = RULE_TOP + 1 + (gfx_height() - RULE_TOP - 1 - block_height) / 2;
     layout.value = layout.picture + COLUMN_PICTURE + COLUMN_GAP;
-    layout.band = layout.value + value_height + COLUMN_GAP;
+    layout.name = layout.value + value_height + COLUMN_TEXT_GAP;
+    layout.bar = layout.name + name_height + COLUMN_TEXT_GAP;
     return layout;
 }
 
-static void draw_centered_at(int32_t center, int32_t top, int32_t font, const char *text)
+/* The band as a scale of AIR_BANDS segments, tall up to it and low after: it
+ * needs no word and no room for one. Nothing in it is one pixel thin - a
+ * hairline outline of a few pixels is the first thing the panel loses. */
+static void draw_band(int32_t center, int32_t top, int32_t band)
 {
-    top -= gfx_font_ascent(font) - gfx_font_cap_height(font);
-    app_draw_centered(center, top, font, text);
+    int32_t left = center - (AIR_BANDS * BAR_SEGMENT + (AIR_BANDS - 1) * BAR_GAP) / 2;
+    for (int32_t segment = 0; segment < AIR_BANDS; segment++, left += BAR_SEGMENT + BAR_GAP) {
+        int32_t height = segment <= band ? BAR_HEIGHT : BAR_REST;
+        gfx_draw_rect(left, top + BAR_HEIGHT - height, BAR_SEGMENT, height, HOST_RECT_FILLED);
+    }
 }
 
 static void draw_tile(const tile_layout_t *layout, int32_t column, int32_t name, int32_t icon,
@@ -288,12 +274,7 @@ static void draw_tile(const tile_layout_t *layout, int32_t column, int32_t name,
     int32_t length = gfx_fit_text(HOST_FONT_SMALL, label, app_text_length(label),
                                   available, fitted, sizeof fitted - 1);
     fitted[length > 0 ? length : 0] = '\0';
-    draw_centered_at(center, layout->name, HOST_FONT_SMALL, fitted);
-    if (icon == HOST_ICON_GAS) {
-        draw_molecule(center - COLUMN_PICTURE / 2, layout->picture);
-    } else {
-        gfx_draw_icon(center - COLUMN_PICTURE / 2, layout->picture, icon, COLUMN_PICTURE / HOST_ICON_CELLS);
-    }
+    gfx_draw_icon(center - COLUMN_PICTURE / 2, layout->picture, icon, COLUMN_PICTURE / HOST_ICON_CELLS);
     char number[24];
     /* Grains and micrograms are counted whole; only the UV index has a decimal worth reading. */
     if (column == 0) {
@@ -304,7 +285,8 @@ static void draw_tile(const tile_layout_t *layout, int32_t column, int32_t name,
     int32_t font = HOST_FONT_TEXT | HOST_FONT_TABULAR;
     if (app_text_width(font, number) > available) { font = HOST_FONT_SMALL | HOST_FONT_TABULAR; }
     draw_centered_at(center, layout->value, font, number);
-    draw_centered_at(center, layout->band, HOST_FONT_SMALL, band_word(band));
+    draw_centered_at(center, layout->name, HOST_FONT_SMALL, fitted);
+    draw_band(center, layout->bar, band);
 }
 
 void app_on_draw(void)
@@ -319,9 +301,7 @@ void app_on_draw(void)
         return;
     }
     draw_hero(app_setting_is("scale", "US"));
-    int32_t font = detail_font();
-    draw_detail(0, STR_PM25, state.pm25, font);
-    draw_detail(1, STR_PM10, state.pm10, font);
+    draw_details();
     gfx_draw_rect(MARGIN, RULE_TOP, gfx_width() - 2 * MARGIN, 1, HOST_RECT_FILLED);
     /* WHO UV bands: Low <3, Moderate <6, High <8; Very high includes
      * Extreme (11+). https://www.who.int/news-room/questions-and-answers/item/radiation-the-ultraviolet-(uv)-index */

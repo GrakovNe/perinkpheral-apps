@@ -4,13 +4,13 @@
     {
       "name": "air",
       "title": "Air quality",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 7271,
-          "sha256": "6e4a947c4d4db38a6e654f28954aef3bb1c80d98d5ab70ecad793a29ceb83c99"
+          "size": 6871,
+          "sha256": "ba5f01b022ca67cc7d9960f22920bd44ee2da73bd3c20a24dafec1b916cc0b73"
         },
         {
           "name": "manifest.ru",
@@ -19,13 +19,13 @@
         },
         {
           "name": "strings.ru",
-          "size": 437,
-          "sha256": "e75501eeb361ffdc9ea27c896c2d454332f4a4d61b2014cc8d44f716c04ef553"
+          "size": 388,
+          "sha256": "14f85b7e552d7a0a14b6dc6b73f1f8bdc6dde0ae009fac25d67aff46be51d041"
         },
         {
           "name": "manifest.json",
           "size": 2184,
-          "sha256": "e9b655e4ca6d02cbcc0241be72496903c1a60a0c034e4e29dc59a2dff3aca9d0"
+          "sha256": "0f60eb497ae2f4f474f97e3f446950d326f2dd0c15432e962298eb1117f815a2"
         }
       ],
       "author": "Perinkpheral",
