@@ -52,45 +52,6 @@
       }
     },
     {
-      "name": "badapple",
-      "title": "Bad Apple",
-      "version": "0.1.9",
-      "abi": 3,
-      "files": [
-        {
-          "name": "app.wasm",
-          "size": 3419,
-          "sha256": "ca23245407148a1c840ccc36a17e4f5c396ad27ffeb565551b9aec077672dec2"
-        },
-        {
-          "name": "frames.bin",
-          "size": 50150,
-          "sha256": "50a51b7eb33e49586c483cc9c81a9f438f6a6ee137b7caadca1d5189d9f6052b"
-        },
-        {
-          "name": "manifest.json",
-          "size": 417,
-          "sha256": "90cacae2a2d20eb7b71356b2f0396a03b4512c146dc6500c9695fdc270a66476"
-        }
-      ],
-      "author": "Perinkpheral",
-      "firmware": "0.1.30",
-      "icon": [
-        "......#....",
-        ".....#.....",
-        "..##.#.##..",
-        ".#########.",
-        "###########",
-        "###########",
-        "###########",
-        "###########",
-        ".#########.",
-        "..#######..",
-        "...##.##..."
-      ],
-      "description": "The Bad Apple!"
-    },
-    {
       "name": "calendar",
       "title": "Calendar",
       "version": "0.4.15",

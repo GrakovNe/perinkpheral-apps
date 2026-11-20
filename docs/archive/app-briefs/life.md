@@ -4,8 +4,7 @@ Archived design brief for an application that has shipped. This records the orig
 proposal, not current behavior or outstanding work. See the [archive index](README.md)
 and [contribution guide](../../../CONTRIBUTING.md).
 
-Reference implementations: `apps/badapple` (a row of pictures with
-`HOST_REDRAW_NO_BLINK`, one bitmap drawn per frame) and `apps/kit` for the buttons.
+Reference implementation: `apps/kit` for the buttons.
 
 ## What it is
 

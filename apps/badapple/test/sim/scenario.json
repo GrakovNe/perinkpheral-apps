@@ -1,4 +1,0 @@
-{
-  "app": "apps/badapple",
-  "steps": ["shot start", "forward 2", "wait 0.1", "shot frame-1", "forward 100", "wait 0.1", "shot frame-2"]
-}
