@@ -3,7 +3,7 @@
 # Pure calculations and the streamed, realistic GraphQL fixture, offline.
 set -eu
 cd "$(dirname "$0")/.."
-sdk=${PERINKPHERAL:-../perinkpheral}
+sdk=${PERINKPHERAL:-../perinkpheral-os}
 build=$(mktemp -d)
 trap 'rm -rf "$build"' EXIT HUP INT TERM
 ${CC:-cc} -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \

@@ -37,16 +37,16 @@ needed. Check the Perinkpheral OS application contract for exact limits and life
 ## Build and verify
 
 Install Java 21 or later, wasi-sdk (verified with 34), a C compiler and Make. With a
-sibling `../perinkpheral` checkout:
+sibling `../perinkpheral-os` checkout:
 
 ```sh
 export WASI_SDK_PATH=/path/to/wasi-sdk
-../perinkpheral/tools/perinkpheral build apps/<name> --out /tmp/<name>
-../perinkpheral/tools/perinkpheral sim apps/<name>
+../perinkpheral-os/tools/perinkpheral build apps/<name> --out /tmp/<name>
+../perinkpheral-os/tools/perinkpheral sim apps/<name>
 tests/check-logic.sh
 tests/life/check-session.sh
 tests/stopwatch/check-resume.sh
-../perinkpheral/tools/perinkpheral sim-test tests
+../perinkpheral-os/tools/perinkpheral sim-test tests
 ./build.sh
 ```
 

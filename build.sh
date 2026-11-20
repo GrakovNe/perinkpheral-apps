@@ -6,7 +6,7 @@
 # (WASI_SDK_PATH) and Java 21 or later.
 set -e
 here=$(cd "$(dirname "$0")" && pwd)
-sdk=${PERINKPHERAL:-$here/../perinkpheral}
+sdk=${PERINKPHERAL:-$here/../perinkpheral-os}
 if [ ! -x "$sdk/tools/perinkpheral" ]; then
     echo "no perinkpheral checkout at $sdk: set PERINKPHERAL to where it is" >&2
     exit 1

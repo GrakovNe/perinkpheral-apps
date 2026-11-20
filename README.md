@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/Perinkpheral/perinkpheral/main/assets/mark/mark-on-paper-512.png" width="96" alt="The perINKpheral mark">
+<img src="https://raw.githubusercontent.com/Perinkpheral/perinkpheral-os/main/assets/mark/mark-on-paper-512.png" width="96" alt="The perINKpheral mark">
 
 # perINKpheral applications
 
@@ -13,13 +13,13 @@ Application guide (PDF):
 
 ## Build
 
-Requires Java 21 or later, wasi-sdk and a sibling `../perinkpheral` checkout.
+Requires Java 21 or later, wasi-sdk and a sibling `../perinkpheral-os` checkout.
 `PERINKPHERAL` selects another SDK checkout.
 
 ```sh
 export WASI_SDK_PATH=/path/to/wasi-sdk
 ./build.sh
-../perinkpheral/tools/perinkpheral sim-test tests
+../perinkpheral-os/tools/perinkpheral sim-test tests
 ```
 
 Simulator tests also require a C compiler and Make.

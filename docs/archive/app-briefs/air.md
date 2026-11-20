@@ -82,7 +82,7 @@ included in Very high, and never participates in the selection.
 `tests/air`, `air-us`, `air-ru`, `air-error`, `air-unset` carry complete current-response mocks.
 The European examples exercise seasonal pollen and different hero bands; US has no pollen.
 The two November samples in `tests/fixtures/` include all sixteen fields with realistic values.
-Run `../perinkpheral/tools/perinkpheral sim-test tests --update`, inspect the five Air pictures,
+Run `../perinkpheral-os/tools/perinkpheral sim-test tests --update`, inspect the five Air pictures,
 and then compare them without `--update`.
 
 The pure ranking regression test also runs without the SDK or simulator:
