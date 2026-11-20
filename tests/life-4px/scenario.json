@@ -14,7 +14,7 @@
     "press 3",
     "shot step",
     "press 2",
-    "wait 3",
+    "forward 3",
     "press 2",
     "shot paused",
     "press 1L",
