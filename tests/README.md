@@ -13,7 +13,7 @@ apps/rates/test/check.sh
 ../perinkpheral/tools/perinkpheral sim-test tests
 ```
 
-`check-logic.sh` covers air-quality ranking, the streamed GitHub calendar parser and
+`check-logic.sh` covers air-quality ranking and
 ISS geometry/history with address and undefined-behavior sanitizers. The Life check
 compares generations and rendered cells against an independent Conway implementation,
 and checks scene restoration. Pomodoro covers stop and reboot; Bad Apple checks every
@@ -25,8 +25,7 @@ Calendar's standalone reader test is in
 Simulator scenarios run real WASM applications with local mock responses and compare
 frames pixel by pixel. A `mocks.json` file names response files relative to itself;
 shared inputs live in [fixtures](fixtures/README.md). Keep those paths valid when
-moving a scenario or response. `tests/github/calendar.json` is the larger GraphQL
-fixture used by its streaming parser and simulator cases.
+moving a scenario or response.
 
 Run `sim-test tests --update` only for an intended rendering change and inspect each
 changed PNG. Then repeat without `--update`; never regenerate baselines merely to

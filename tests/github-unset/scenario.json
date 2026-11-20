@@ -1,8 +1,0 @@
-{
-  "app": "apps/github",
-  "at": 1794955920,
-  "mocks": "mocks.json",
-  "steps": [
-    "shot setup"
-  ]
-}

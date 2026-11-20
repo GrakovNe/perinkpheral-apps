@@ -7,7 +7,7 @@ build=$(mktemp -d)
 trap 'rm -rf "$build"' EXIT HUP INT TERM
 strip=-Wl,--gc-sections
 if [ "$(uname -s)" = Darwin ]; then strip=-Wl,-dead_strip; fi
-for app in ha weather calendar github; do
+for app in ha weather calendar; do
     mkdir -p "$build/$app"
     "$sdk/tools/perinkpheral" headers "apps/$app" "$build/$app"
     extra=
