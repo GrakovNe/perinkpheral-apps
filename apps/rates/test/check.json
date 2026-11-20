@@ -1,0 +1,8 @@
+{
+  "at": 1794913200,
+  "tz": "Europe/Moscow",
+  "store": {
+    "codes": "USD\nEUR\nCNY\nJPY"
+  },
+  "mocks": "../../../tests/rates/mocks.json"
+}

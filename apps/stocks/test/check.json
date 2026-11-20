@@ -1,0 +1,8 @@
+{
+  "at": 1794955920,
+  "store": {
+    "tickers": "AAPL",
+    "refresh": "15 min"
+  },
+  "mocks": "../../../tests/stocks/mocks.json"
+}

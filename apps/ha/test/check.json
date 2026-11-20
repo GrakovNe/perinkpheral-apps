@@ -1,0 +1,12 @@
+{
+  "at": 1794913200,
+  "store": {
+    "server": "http://homeassistant.example.test:8123",
+    "token": "pairing-secret"
+  },
+  "mocks": {
+    "http://homeassistant.example.test:8123/api/perinkpheral/screen": {
+      "body": "hero|21|sunny"
+    }
+  }
+}

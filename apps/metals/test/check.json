@@ -1,0 +1,8 @@
+{
+  "at": 1794902400,
+  "tz": "Europe/Moscow",
+  "store": {
+    "metal": "Gold"
+  },
+  "mocks": "../../../tests/metals/mocks.json"
+}

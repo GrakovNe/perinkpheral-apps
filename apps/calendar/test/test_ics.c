@@ -10,14 +10,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "ics.h"
-
-/* The reader only uses pure text helpers; this linked helper is not used. */
-int32_t time_text(int64_t moment, int32_t style, char *text, int32_t capacity)
-{
-    (void)moment; (void)style; (void)text; (void)capacity;
-    return -2;
-}
+#include "../ics.c"
 
 static int checks, failures;
 #define CHECK(condition)                                                      \

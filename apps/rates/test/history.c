@@ -1,8 +1,8 @@
-/* SPDX-License-Identifier: MIT */
+// SPDX-License-Identifier: MIT
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include "../history.h"
+#include "../history.c"
 
 static const char example[] = "<?xml version=\"1.0\" encoding=\"windows-1251\"?><ValCurs ID=\"R01820\" DateRange1=\"01.10.2026\" DateRange2=\"03.10.2026\" name=\"Foreign Currency Market Dynamic\">"
     "<Record Date=\"01.10.2026\" Id=\"R01820\"><Nominal>100</Nominal><Value>51,8246</Value><VunitRate>0,518246</VunitRate></Record>"

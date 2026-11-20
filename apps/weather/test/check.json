@@ -1,0 +1,10 @@
+{
+  "at": 1794832230,
+  "tz": "Europe/Moscow",
+  "store": {
+    "city": "Saint Petersburg",
+    "lat": "59.94",
+    "lon": "30.31"
+  },
+  "mocks": "../../../tests/weather/mocks.json"
+}

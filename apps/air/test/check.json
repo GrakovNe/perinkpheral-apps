@@ -1,0 +1,10 @@
+{
+  "at": 1778583600,
+  "tz": "Europe/Moscow",
+  "store": {
+    "city": "Berlin",
+    "lat": "52.52",
+    "lon": "13.41"
+  },
+  "mocks": "../../../tests/air/mocks.json"
+}
