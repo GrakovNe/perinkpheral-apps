@@ -6,7 +6,7 @@
   "milliseconds": " мс",
   "restart": "OK: заново",
   "manifest": {
-    "title": "Пончик",
+    "title": "donut.c",
     "description": "Тот самый вращающийся тор",
     "settings": {
       "interval": {

@@ -154,8 +154,8 @@
     },
     {
       "name": "donut",
-      "title": "Donut",
-      "version": "0.1.1",
+      "title": "donut.c",
+      "version": "0.1.2",
       "abi": 3,
       "files": [
         {
@@ -165,8 +165,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 220,
-          "sha256": "51b28dc1ec3d809762dee7b0909b235018207a657b89d159412c5f1a9c272d93"
+          "size": 215,
+          "sha256": "542102ec31940a367df6496a46912d01acd3169e2f2db5695474774f03ff1624"
         },
         {
           "name": "strings.ru",
@@ -175,8 +175,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 682,
-          "sha256": "bb04ee307ed2b11402db4d208667385c00d5a9361dc91104b61adad07af89962"
+          "size": 684,
+          "sha256": "c491b4276da60b5950d4671dde106af2304f666c94d2dce20ad0a66c12f91c8a"
         }
       ],
       "author": "Perinkpheral",
@@ -197,7 +197,7 @@
       "description": "The famous spinning torus",
       "translations": {
         "ru": {
-          "title": "\u041f\u043e\u043d\u0447\u0438\u043a",
+          "title": "donut.c",
           "description": "\u0422\u043e\u0442 \u0441\u0430\u043c\u044b\u0439 \u0432\u0440\u0430\u0449\u0430\u044e\u0449\u0438\u0439\u0441\u044f \u0442\u043e\u0440"
         }
       }

@@ -1,9 +1,9 @@
 {
   "name": "donut",
-  "title": "Donut",
+  "title": "donut.c",
   "author": "Perinkpheral",
   "description": "The famous spinning torus",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "abi": 3,
   "fullscreen": true,
   "settings": [

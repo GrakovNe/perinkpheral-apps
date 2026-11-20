@@ -1,1 +1,1 @@
-{"title":"Пончик","description":"Тот самый вращающийся тор","settings":{"interval":{"title":"Интервал кадров, мс"},"tick":{"title":"Шаг часов сценария, мс"}}}
+{"title":"donut.c","description":"Тот самый вращающийся тор","settings":{"interval":{"title":"Интервал кадров, мс"},"tick":{"title":"Шаг часов сценария, мс"}}}
