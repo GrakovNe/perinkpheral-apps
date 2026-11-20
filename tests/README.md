@@ -1,7 +1,7 @@
 # Application tests
 
 Run from the repository root with Java 21 or later, wasi-sdk, a C compiler and Make.
-`PERINKPHERAL` selects the SDK checkout for shell tests (default `../perinkpheral`).
+`PERINKPHERAL` selects the SDK checkout for shell tests (default `../perinkpheral-os`).
 
 ```sh
 tests/check-logic.sh
@@ -10,7 +10,7 @@ tests/donut/check.sh
 tests/stopwatch/check-resume.sh
 sh tests/pomodoro/check-stop.sh
 apps/rates/test/check.sh
-../perinkpheral/tools/perinkpheral sim-test tests
+../perinkpheral-os/tools/perinkpheral sim-test tests
 ```
 
 `check-logic.sh` covers air-quality ranking,

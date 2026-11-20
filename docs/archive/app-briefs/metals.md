@@ -113,5 +113,5 @@ month: `wait 3`, `shot failed`, `press 3`, `shot failed-next`.
 No floating point, no C library (use `sdk/lib`), draw only in `app_on_draw`, state in the store,
 the session for where the user is, strings in `strings/en.json` and `strings/ru.json` with the
 manifest's texts under `manifest` in `ru.json`, English and plain hyphens in code and comments,
-SPDX headers, interface text short. Check: `../perinkpheral/tools/perinkpheral build apps/metals
---out /tmp/metals`, `../perinkpheral/tools/perinkpheral sim-test tests`, `./build.sh`.
+SPDX headers, interface text short. Check: `../perinkpheral-os/tools/perinkpheral build apps/metals
+--out /tmp/metals`, `../perinkpheral-os/tools/perinkpheral sim-test tests`, `./build.sh`.

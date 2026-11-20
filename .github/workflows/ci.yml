@@ -30,8 +30,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/checkout@v5
         with:
-          repository: Perinkpheral/perinkpheral
-          path: perinkpheral
+          repository: Perinkpheral/perinkpheral-os
+          path: perinkpheral-os
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -44,10 +44,10 @@ jobs:
             | tar -xz -C "$RUNNER_TEMP"
           echo "WASI_SDK_PATH=$RUNNER_TEMP/wasi-sdk-34.0-x86_64-linux" >> "$GITHUB_ENV"
       - name: The tools
-        run: perinkpheral/tools/perinkpheral > /dev/null
+        run: perinkpheral-os/tools/perinkpheral > /dev/null
       - name: The catalog is what the applications build to
         env:
-          PERINKPHERAL: ${{ github.workspace }}/perinkpheral
+          PERINKPHERAL: ${{ github.workspace }}/perinkpheral-os
         run: |
           ./build.sh
           if ! git diff --exit-code --stat -- catalog; then
@@ -63,13 +63,13 @@ jobs:
         run: |
           cc -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -fsanitize=address,undefined \
             '-DHOST_IMPORT(name,...)=__VA_ARGS__' \
-            -Iapps/calendar -Iperinkpheral/sdk/lib apps/calendar/test/test_ics.c apps/calendar/ics.c \
-            perinkpheral/sdk/lib/app_days.c perinkpheral/sdk/lib/app_text.c -Iperinkpheral/sdk \
+            -Iapps/calendar -Iperinkpheral-os/sdk/lib apps/calendar/test/test_ics.c apps/calendar/ics.c \
+            perinkpheral-os/sdk/lib/app_days.c perinkpheral-os/sdk/lib/app_text.c -Iperinkpheral-os/sdk \
             -o "$RUNNER_TEMP/test_ics"
           "$RUNNER_TEMP/test_ics"
       - name: Application logic and scene restoration
         env:
-          PERINKPHERAL: ${{ github.workspace }}/perinkpheral
+          PERINKPHERAL: ${{ github.workspace }}/perinkpheral-os
         run: |
           tests/check-logic.sh
           tests/life/check-session.sh
@@ -81,7 +81,7 @@ jobs:
           tests/stocks/check-storage.sh
       - name: The applications in the simulator
         run: |
-          perinkpheral/tools/perinkpheral sim-test tests
+          perinkpheral-os/tools/perinkpheral sim-test tests
       - name: The pictures that differ
         if: failure()
         uses: actions/upload-artifact@v4

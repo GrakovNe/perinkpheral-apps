@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 set -eu
 cd "$(dirname "$0")/../.."
-sdk=${PERINKPHERAL:-../perinkpheral}
+sdk=${PERINKPHERAL:-../perinkpheral-os}
 build=$(mktemp -d)
 trap 'rm -rf "$build"' EXIT HUP INT TERM
 
