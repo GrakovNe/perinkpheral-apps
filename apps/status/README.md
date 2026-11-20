@@ -1,7 +1,8 @@
 # Service status
 
 Atlassian Statuspage summaries of the services in the Services list, initially GitHub,
-Cloudflare, Discord and OpenAI. An item is the host of a status page, `www.githubstatus.com`:
+Discord and OpenAI (Cloudflare's page was left out of the defaults on 2026-11-21: the device
+could not open a connection to it within the request's time, every round). An item is the host of a status page, `www.githubstatus.com`:
 the application asks `https://<host>/api/v2/status.json`. A scheme, a port or a path in an
 item is not a host and the row stays without data. About 12 hosts of 20 characters fit the
 list's 255 bytes; whole addresses would fit 5.

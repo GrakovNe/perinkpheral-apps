@@ -3,7 +3,7 @@
   "title": "Service status",
   "author": "Perinkpheral",
   "description": "Status of popular services",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "abi": 3,
   "fullscreen": false,
   "icon": [
@@ -27,7 +27,6 @@
       "help": "Status page host: www.githubstatus.com",
       "default": [
         "www.githubstatus.com",
-        "www.cloudflarestatus.com",
         "discordstatus.com",
         "status.openai.com"
       ]

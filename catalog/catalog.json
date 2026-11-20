@@ -568,7 +568,7 @@
     {
       "name": "status",
       "title": "Service status",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "abi": 3,
       "files": [
         {
@@ -588,8 +588,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 1165,
-          "sha256": "4a30c4e16468c3604ef8afd7c1e601233ae2e6800a5245a2051905db170735b4"
+          "size": 1129,
+          "sha256": "26dfa9eb04fcc52c9fdf089151241d6070533dc43206a7127575d8c9ae3a8d47"
         }
       ],
       "author": "Perinkpheral",
