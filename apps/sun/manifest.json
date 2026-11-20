@@ -2,8 +2,8 @@
   "name": "sun",
   "title": "Sun and Moon",
   "author": "Perinkpheral",
-  "description": "Sunrise, sunset and the moon's phase.",
-  "version": "0.1.9",
+  "description": "Sunrise, sunset and the moon's phase",
+  "version": "0.1.10",
   "abi": 3,
   "icon": [
     "...........",

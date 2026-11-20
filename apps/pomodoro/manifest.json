@@ -2,8 +2,8 @@
   "name": "pomodoro",
   "title": "Pomodoro",
   "author": "Perinkpheral",
-  "description": "Work and breaks in turns.",
-  "version": "0.1.2",
+  "description": "Work and breaks in turns",
+  "version": "0.1.3",
   "abi": 3,
   "fullscreen": false,
   "settings": [

@@ -4,7 +4,7 @@
     {
       "name": "air",
       "title": "Air quality",
-      "version": "0.1.6",
+      "version": "0.1.7",
       "abi": 3,
       "files": [
         {
@@ -14,8 +14,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 526,
-          "sha256": "e96f28eba0265f69e5e8b724eaf5cd25f7d71ed0f2527f495d851f145eb43391"
+          "size": 507,
+          "sha256": "0f8ed8e9af89459b8c6436a3e34974556875727c823ea9f026aa2965a273171e"
         },
         {
           "name": "strings.ru",
@@ -24,8 +24,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 2184,
-          "sha256": "0f60eb497ae2f4f474f97e3f446950d326f2dd0c15432e962298eb1117f815a2"
+          "size": 2178,
+          "sha256": "65018f8d5a0641c8c0e279e5a555506fc58d2cd7285deb7773d7988836fbef77"
         }
       ],
       "author": "Perinkpheral",
@@ -43,18 +43,18 @@
         "....##.....",
         "..........."
       ],
-      "description": "Air quality, particles, UV and the strongest irritants.",
+      "description": "Harmful particles, UV and the strongest irritants",
       "translations": {
         "ru": {
           "title": "\u041a\u0430\u0447\u0435\u0441\u0442\u0432\u043e \u0432\u043e\u0437\u0434\u0443\u0445\u0430",
-          "description": "\u041a\u0430\u0447\u0435\u0441\u0442\u0432\u043e \u0432\u043e\u0437\u0434\u0443\u0445\u0430, \u0447\u0430\u0441\u0442\u0438\u0446\u044b, \u0423\u0424 \u0438 \u0433\u043b\u0430\u0432\u043d\u044b\u0435 \u0440\u0430\u0437\u0434\u0440\u0430\u0436\u0438\u0442\u0435\u043b\u0438."
+          "description": "\u0412\u0440\u0435\u0434\u043d\u044b\u0435 \u0447\u0430\u0441\u0442\u0438\u0446\u044b, \u0423\u0424 \u0438 \u0433\u043b\u0430\u0432\u043d\u044b\u0435 \u0440\u0430\u0437\u0434\u0440\u0430\u0436\u0438\u0442\u0435\u043b\u0438"
         }
       }
     },
     {
       "name": "calendar",
       "title": "Calendar",
-      "version": "0.4.15",
+      "version": "0.4.16",
       "abi": 3,
       "files": [
         {
@@ -64,8 +64,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 535,
-          "sha256": "ca7c47eb48dd30148cc9e4cc884a5438f1939046676d2030e5b553a308d25291"
+          "size": 534,
+          "sha256": "a61b0026a2946e75e40116d2b7fcafc3fb5d130ab19d44151d3cb6b16a355c3e"
         },
         {
           "name": "strings.ru",
@@ -74,8 +74,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 1208,
-          "sha256": "44c9f6dca003e440c0458433d66760d6290b2d4592b202a57455571634582131"
+          "size": 1207,
+          "sha256": "d1c5e5285d09df6db1e7863e8b9577a7e88625014fa1a5febbbed1aefd38891c"
         }
       ],
       "author": "Perinkpheral",
@@ -94,18 +94,18 @@
         ".#.......#.",
         ".#########."
       ],
-      "description": "Calendar events.",
+      "description": "Calendar events",
       "translations": {
         "ru": {
           "title": "\u041a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u044c",
-          "description": "\u0421\u043e\u0431\u044b\u0442\u0438\u044f \u0438\u0437 \u043a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u044f."
+          "description": "\u0421\u043e\u0431\u044b\u0442\u0438\u044f \u0438\u0437 \u043a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u044f"
         }
       }
     },
     {
       "name": "clock",
       "title": "Clock",
-      "version": "0.1.9",
+      "version": "0.1.10",
       "abi": 3,
       "files": [
         {
@@ -115,8 +115,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 75,
-          "sha256": "2369afc51a7d9bcd5b8de0f0197ed10bb5ba516e5abeedd1ef99170f54e67231"
+          "size": 74,
+          "sha256": "4b6edc48c64227695513a27123536f65e9676630a718d0178f41f83d883e78c1"
         },
         {
           "name": "strings.ru",
@@ -126,7 +126,7 @@
         {
           "name": "manifest.json",
           "size": 461,
-          "sha256": "137690db81ec4df93750ff1fcb0f7235e5055c0b9f7aa1a2bf0f64bc187cd30b"
+          "sha256": "ab56e994e5233e2362d3a262bbfa1fccc129652895c5a03ebe285d13f52c37bf"
         }
       ],
       "author": "Perinkpheral",
@@ -144,18 +144,18 @@
         "..#.....#..",
         "...#####..."
       ],
-      "description": "Large clock with the date.",
+      "description": "Large clock with the date",
       "translations": {
         "ru": {
           "title": "\u0427\u0430\u0441\u044b",
-          "description": "\u041a\u0440\u0443\u043f\u043d\u044b\u0435 \u0447\u0430\u0441\u044b \u0441 \u0434\u0430\u0442\u043e\u0439."
+          "description": "\u041a\u0440\u0443\u043f\u043d\u044b\u0435 \u0447\u0430\u0441\u044b \u0441 \u0434\u0430\u0442\u043e\u0439"
         }
       }
     },
     {
       "name": "donut",
       "title": "Donut",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "abi": 3,
       "files": [
         {
@@ -165,8 +165,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 242,
-          "sha256": "0227dadc6729510200ed6620629135157d14f41fb80fcc62b05b7c94cefd64bd"
+          "size": 220,
+          "sha256": "51b28dc1ec3d809762dee7b0909b235018207a657b89d159412c5f1a9c272d93"
         },
         {
           "name": "strings.ru",
@@ -175,8 +175,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 703,
-          "sha256": "dfb8979880a8f5ac9ee870226ad0d84286a322070c8de7e0e7de6bfb1fe28e90"
+          "size": 682,
+          "sha256": "bb04ee307ed2b11402db4d208667385c00d5a9361dc91104b61adad07af89962"
         }
       ],
       "author": "Perinkpheral",
@@ -194,18 +194,18 @@
         "...#####...",
         "..........."
       ],
-      "description": "The spinning torus of donut.c: a display test.",
+      "description": "The famous spinning torus",
       "translations": {
         "ru": {
           "title": "\u041f\u043e\u043d\u0447\u0438\u043a",
-          "description": "\u0412\u0440\u0430\u0449\u0430\u044e\u0449\u0438\u0439\u0441\u044f \u0442\u043e\u0440 donut.c: \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u044d\u043a\u0440\u0430\u043d\u0430."
+          "description": "\u0422\u043e\u0442 \u0441\u0430\u043c\u044b\u0439 \u0432\u0440\u0430\u0449\u0430\u044e\u0449\u0438\u0439\u0441\u044f \u0442\u043e\u0440"
         }
       }
     },
     {
       "name": "ha",
       "title": "HA Companion",
-      "version": "0.3.17",
+      "version": "0.3.18",
       "abi": 3,
       "files": [
         {
@@ -215,8 +215,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 264,
-          "sha256": "9c61c39c7cde1f12fce71c6b90e320330d109c7c68e2d7f4af59b8983797f93e"
+          "size": 263,
+          "sha256": "1badfe334c8d72db9623e8a2010e1a83853700e8e70ba9d64b8b1e947672b1f5"
         },
         {
           "name": "strings.ru",
@@ -225,8 +225,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 911,
-          "sha256": "3f88ee84e7049380627fc575329bc7ad6ba8a2db303afa8b444f92aad22296dc"
+          "size": 910,
+          "sha256": "d9e9fe08662d86465a651dfa59b6af65be41484705bf5a9427942afcc8133257"
         }
       ],
       "author": "Perinkpheral",
@@ -244,17 +244,17 @@
         ".##.###.##.",
         ".#########."
       ],
-      "description": "Home Assistant dashboard.",
+      "description": "Home Assistant dashboard",
       "translations": {
         "ru": {
-          "description": "\u041f\u0430\u043d\u0435\u043b\u044c Home Assistant."
+          "description": "\u041f\u0430\u043d\u0435\u043b\u044c Home Assistant"
         }
       }
     },
     {
       "name": "iss",
       "title": "ISS",
-      "version": "0.1.10",
+      "version": "0.1.11",
       "abi": 3,
       "files": [
         {
@@ -279,8 +279,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 761,
-          "sha256": "42115209750390caf9b81879987f146f3694dc13a52f8588cc67c6bc87002e5f"
+          "size": 760,
+          "sha256": "e2659fe1bf266c6e9e56b1853ee60d8a5225757cc89a3f4d866d96ad4d830887"
         }
       ],
       "author": "Perinkpheral",
@@ -298,7 +298,7 @@
         "##.......##",
         "..........."
       ],
-      "description": "International Space Station over a world map.",
+      "description": "International Space Station over a world map",
       "translations": {
         "ru": {
           "title": "\u041c\u041a\u0421",
@@ -309,7 +309,7 @@
     {
       "name": "kit",
       "title": "UI Kit",
-      "version": "0.1.13",
+      "version": "0.1.14",
       "abi": 3,
       "files": [
         {
@@ -319,8 +319,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 110,
-          "sha256": "56667792447acd16299c183bcfb79375a1108bdf2be9ff0ffe0aade97898db0f"
+          "size": 109,
+          "sha256": "754ce2325914c1d67d7b6e9cc91f6608321578b6d78192e1bc660453d249774f"
         },
         {
           "name": "strings.ru",
@@ -329,8 +329,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 412,
-          "sha256": "8f38af333298945146bb9dd852eaed3075e46435840f3d59920c22da0ac3a018"
+          "size": 411,
+          "sha256": "326f505ac59829bf5676f7f07c6100efc3336769952a8c23f58290a6dfaf1cff"
         }
       ],
       "author": "Perinkpheral",
@@ -348,18 +348,18 @@
         "#.........#",
         "###########"
       ],
-      "description": "Interface elements for app developers.",
+      "description": "Interface elements for app developers",
       "translations": {
         "ru": {
           "title": "\u041a\u0438\u0442 UI",
-          "description": "\u042d\u043b\u0435\u043c\u0435\u043d\u0442\u044b \u0438\u043d\u0442\u0435\u0440\u0444\u0435\u0439\u0441\u0430 \u0434\u043b\u044f \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u043e\u0432."
+          "description": "\u042d\u043b\u0435\u043c\u0435\u043d\u0442\u044b \u0438\u043d\u0442\u0435\u0440\u0444\u0435\u0439\u0441\u0430 \u0434\u043b\u044f \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u043e\u0432"
         }
       }
     },
     {
       "name": "life",
       "title": "Life",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "abi": 3,
       "files": [
         {
@@ -369,8 +369,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 314,
-          "sha256": "71af4ba76f16b2dfab255c3ef227cde603a9d6a551d0f561a48317698d837fe6"
+          "size": 313,
+          "sha256": "b35b9195949868a95b148fa2144cb2e90ee239eb78b078ab979c4facbafb4635"
         },
         {
           "name": "strings.ru",
@@ -379,8 +379,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 884,
-          "sha256": "a1aa1c2ca16dafe4164050edb500ba13ed5ed3172e84ce76297b034618de234e"
+          "size": 883,
+          "sha256": "2e4facbb60515b4cb2310c44bbcdaac7fd1c2bc5b78f48222afb37d4273b6373"
         }
       ],
       "author": "Perinkpheral",
@@ -398,18 +398,18 @@
         "...........",
         "..........."
       ],
-      "description": "Conway's Game of Life.",
+      "description": "Conway's Game of Life",
       "translations": {
         "ru": {
           "title": "\u0416\u0438\u0437\u043d\u044c",
-          "description": "\u0418\u0433\u0440\u0430 \"\u0416\u0438\u0437\u043d\u044c\" \u041a\u043e\u043d\u0432\u0435\u044f."
+          "description": "\u0418\u0433\u0440\u0430 \"\u0416\u0438\u0437\u043d\u044c\" \u041a\u043e\u043d\u0432\u0435\u044f"
         }
       }
     },
     {
       "name": "metals",
       "title": "Bank of Russia metals",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "abi": 3,
       "files": [
         {
@@ -419,8 +419,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 335,
-          "sha256": "26e456b50e5d68f28c72f3f70e18e152d2fdae31275fefb23f038bb60452a90e"
+          "size": 307,
+          "sha256": "9b8a5af2c40770a34f1dab392b14575c1254dd81baead153bfeadc90b90d50ae"
         },
         {
           "name": "russian-root-ca.pem",
@@ -434,8 +434,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 802,
-          "sha256": "e876ab991de9eed741c9630cbeff8334199ced450160cce0671f43815fbc6143"
+          "size": 780,
+          "sha256": "1f1fb139a24216d1bb6501539192651ac77d7a16af13fbfd0cb25759d7078a34"
         }
       ],
       "author": "Perinkpheral",
@@ -456,18 +456,18 @@
         "...........",
         "..........."
       ],
-      "description": "Bank of Russia prices of gold, silver, platinum and palladium.",
+      "description": "Bank of Russia prices of precious metals",
       "translations": {
         "ru": {
           "title": "\u041c\u0435\u0442\u0430\u043b\u043b\u044b \u0411\u0430\u043d\u043a\u0430 \u0420\u043e\u0441\u0441\u0438\u0438",
-          "description": "\u0426\u0435\u043d\u044b \u0411\u0430\u043d\u043a\u0430 \u0420\u043e\u0441\u0441\u0438\u0438 \u043d\u0430 \u0437\u043e\u043b\u043e\u0442\u043e, \u0441\u0435\u0440\u0435\u0431\u0440\u043e, \u043f\u043b\u0430\u0442\u0438\u043d\u0443 \u0438 \u043f\u0430\u043b\u043b\u0430\u0434\u0438\u0439."
+          "description": "\u0426\u0435\u043d\u044b \u0411\u0430\u043d\u043a\u0430 \u0420\u043e\u0441\u0441\u0438\u0438 \u043d\u0430 \u0434\u0440\u0430\u0433\u043e\u0446\u0435\u043d\u043d\u044b\u0435 \u043c\u0435\u0442\u0430\u043b\u043b\u044b"
         }
       }
     },
     {
       "name": "pomodoro",
       "title": "Pomodoro",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "abi": 3,
       "files": [
         {
@@ -477,8 +477,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 548,
-          "sha256": "e69daf9c76382235bafd19268c04bb6d54c74e8b41f035c963fdb6702e55d3fe"
+          "size": 547,
+          "sha256": "ed75d01db7e927fed1f1ee0fdeec01390501178c74ac9b13c2cc2163cda8f5a1"
         },
         {
           "name": "strings.ru",
@@ -487,8 +487,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 1200,
-          "sha256": "66bc4cd23d6daadf6bb84a771f875fcea5ac588305e674739bfaefbf5d987e18"
+          "size": 1199,
+          "sha256": "e1de1eb10544cee710cab46aec58cbf9031013b7b404b7fe6e9104dd9b9a3a6a"
         }
       ],
       "author": "Perinkpheral",
@@ -506,18 +506,18 @@
         "..#######..",
         "....###...."
       ],
-      "description": "Work and breaks in turns.",
+      "description": "Work and breaks in turns",
       "translations": {
         "ru": {
           "title": "\u041f\u043e\u043c\u043e\u0434\u043e\u0440\u043e",
-          "description": "\u0420\u0430\u0431\u043e\u0442\u0430 \u0438 \u043f\u0435\u0440\u0435\u0440\u044b\u0432\u044b \u043f\u043e \u043e\u0447\u0435\u0440\u0435\u0434\u0438."
+          "description": "\u0420\u0430\u0431\u043e\u0442\u0430 \u0438 \u043f\u0435\u0440\u0435\u0440\u044b\u0432\u044b \u043f\u043e \u043e\u0447\u0435\u0440\u0435\u0434\u0438"
         }
       }
     },
     {
       "name": "rates",
       "title": "Exchange rates",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "abi": 3,
       "files": [
         {
@@ -527,8 +527,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 377,
-          "sha256": "f5589a0e285a984e4a2f8d8fba46918709447a80b1040aac4bda7ac71e3d185d"
+          "size": 376,
+          "sha256": "a3ee2e372a51db57cf6ea0e56d59dd6224c8e51fded079cc7f7f8ba83a4bfb98"
         },
         {
           "name": "strings.ru",
@@ -537,8 +537,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 1237,
-          "sha256": "c4fc048a1ac869d72d87dec50d20bf932436e4bda6b5c12f1a2acf151d40d3a4"
+          "size": 1236,
+          "sha256": "b459756b6ffe44cc6b1ff5cb88a64ae62aa91668906d2113dbcdef15f6f0c5fe"
         }
       ],
       "author": "Perinkpheral",
@@ -557,18 +557,18 @@
         ".....#.....",
         "..........."
       ],
-      "description": "Exchange rates of the Bank of Russia.",
+      "description": "Exchange rates of the Bank of Russia",
       "translations": {
         "ru": {
           "title": "\u041a\u0443\u0440\u0441\u044b \u0432\u0430\u043b\u044e\u0442",
-          "description": "\u041a\u0443\u0440\u0441\u044b \u0432\u0430\u043b\u044e\u0442 \u0426\u0411 \u0420\u0424."
+          "description": "\u041a\u0443\u0440\u0441\u044b \u0432\u0430\u043b\u044e\u0442 \u0426\u0411 \u0420\u0424"
         }
       }
     },
     {
       "name": "status",
       "title": "Service status",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "abi": 3,
       "files": [
         {
@@ -578,8 +578,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 409,
-          "sha256": "07b2959496bc870270287e8fd980268beca4a480997d0ceebbc1fea1fcf06967"
+          "size": 421,
+          "sha256": "7e49f367fc6735bfdbc1e51321149f8149d7bb751a84f871029b6f3c1714bb83"
         },
         {
           "name": "strings.ru",
@@ -588,8 +588,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 2031,
-          "sha256": "ca62416ab9f65cce89042eaa9007e8b9e03be005a3495050771fa4842406cac8"
+          "size": 2027,
+          "sha256": "5859c7efa2dd5d77a2249ea3ec7af63f1f4466808b3ddc72ec320bc3a372ade5"
         }
       ],
       "author": "Perinkpheral",
@@ -607,18 +607,18 @@
         "...........",
         "..........."
       ],
-      "description": "Status of up to four services.",
+      "description": "Status of popular services",
       "translations": {
         "ru": {
           "title": "\u0421\u0442\u0430\u0442\u0443\u0441 \u0441\u0435\u0440\u0432\u0438\u0441\u043e\u0432",
-          "description": "\u0421\u0442\u0430\u0442\u0443\u0441 \u0434\u043e \u0447\u0435\u0442\u044b\u0440\u0435\u0445 \u0441\u0435\u0440\u0432\u0438\u0441\u043e\u0432."
+          "description": "\u041e\u0442\u0441\u043b\u0435\u0436\u0438\u0432\u0430\u043d\u0438\u0435 \u043f\u043e\u043f\u0443\u043b\u044f\u0440\u043d\u044b\u0445 \u0441\u0435\u0440\u0432\u0438\u0441\u043e\u0432"
         }
       }
     },
     {
       "name": "stocks",
       "title": "Stocks",
-      "version": "0.2.10",
+      "version": "0.2.11",
       "abi": 3,
       "files": [
         {
@@ -628,8 +628,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 449,
-          "sha256": "99055f45e23e67d78de2d7c8467f94db1459e464337d04e31501dceb96b43cd8"
+          "size": 448,
+          "sha256": "accbf2a61ca167343227fe41a6aeafa1178acea4592cf7d9cf5f9d548bebf5ba"
         },
         {
           "name": "strings.ru",
@@ -638,8 +638,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 2800,
-          "sha256": "0ae47f0d7bd69ab90497fe9ce44bd95bf44fe0b8f841e0f90ac7af6436cf9640"
+          "size": 2799,
+          "sha256": "9b7206188b344b2c4e79486a5c4aa89835d90f0a2cb7c8370f920da873636d7c"
         }
       ],
       "author": "Perinkpheral",
@@ -658,18 +658,18 @@
         "##########.",
         "..........."
       ],
-      "description": "Stock prices.",
+      "description": "Stock prices",
       "translations": {
         "ru": {
           "title": "\u0410\u043a\u0446\u0438\u0438",
-          "description": "\u041a\u043e\u0442\u0438\u0440\u043e\u0432\u043a\u0438 \u0430\u043a\u0446\u0438\u0439."
+          "description": "\u041a\u043e\u0442\u0438\u0440\u043e\u0432\u043a\u0438 \u0430\u043a\u0446\u0438\u0439"
         }
       }
     },
     {
       "name": "stopwatch",
       "title": "Stopwatch",
-      "version": "0.1.11",
+      "version": "0.1.12",
       "abi": 3,
       "files": [
         {
@@ -679,8 +679,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 70,
-          "sha256": "af25e39d59a89eab44c7700eaf32388f6a8e32bf70e797c16459dc8388f01dfd"
+          "size": 69,
+          "sha256": "3560978c59e3e38aba41e6eafea689d49b452450c4204818d1d9665d807a3d3b"
         },
         {
           "name": "strings.ru",
@@ -689,8 +689,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 447,
-          "sha256": "7629d3c9e9393a868f7f036e32e19898e0dd1e3f1060239c20d1bdeb8a076906"
+          "size": 446,
+          "sha256": "e3fb243b98b90b80b3b94622a31f9c4c884d76d8faa6de0dcf5fa87ae693ca8c"
         }
       ],
       "author": "Perinkpheral",
@@ -708,18 +708,18 @@
         "..#.....#..",
         "...#####..."
       ],
-      "description": "Stopwatch.",
+      "description": "Stopwatch",
       "translations": {
         "ru": {
           "title": "\u0421\u0435\u043a\u0443\u043d\u0434\u043e\u043c\u0435\u0440",
-          "description": "\u0421\u0435\u043a\u0443\u043d\u0434\u043e\u043c\u0435\u0440."
+          "description": "\u0421\u0435\u043a\u0443\u043d\u0434\u043e\u043c\u0435\u0440"
         }
       }
     },
     {
       "name": "sun",
       "title": "Sun and Moon",
-      "version": "0.1.9",
+      "version": "0.1.10",
       "abi": 3,
       "files": [
         {
@@ -729,8 +729,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 265,
-          "sha256": "11a953d19634a5bc5be3c876b8f27c3d4e83375879cfb7691a9ba8c84323190c"
+          "size": 264,
+          "sha256": "586a4dda9c9ad10f4e7946016481a0a4072ed6c9eb9228c8446b5392bcb1924b"
         },
         {
           "name": "strings.ru",
@@ -740,7 +740,7 @@
         {
           "name": "manifest.json",
           "size": 891,
-          "sha256": "2d1bdd1f06607256f2f2e9df0a0cfaad6f36ea6ce3cd28ac64e3656e5c874b76"
+          "sha256": "efe7e893d9f9666093c892820f3b96a8e8c8e5d68baf58f9f2a3e78823f63a2f"
         }
       ],
       "author": "Perinkpheral",
@@ -758,18 +758,18 @@
         "...........",
         "..........."
       ],
-      "description": "Sunrise, sunset and the moon's phase.",
+      "description": "Sunrise, sunset and the moon's phase",
       "translations": {
         "ru": {
           "title": "\u0421\u043e\u043b\u043d\u0446\u0435 \u0438 \u041b\u0443\u043d\u0430",
-          "description": "\u0412\u043e\u0441\u0445\u043e\u0434, \u0437\u0430\u043a\u0430\u0442 \u0438 \u0444\u0430\u0437\u0430 \u041b\u0443\u043d\u044b."
+          "description": "\u0412\u043e\u0441\u0445\u043e\u0434, \u0437\u0430\u043a\u0430\u0442 \u0438 \u0444\u0430\u0437\u0430 \u041b\u0443\u043d\u044b"
         }
       }
     },
     {
       "name": "timer",
       "title": "Timer",
-      "version": "0.3.10",
+      "version": "0.3.11",
       "abi": 3,
       "files": [
         {
@@ -779,8 +779,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 71,
-          "sha256": "29cf0151439102d2c833764186a9d513773243746a092916ef86c34ab87c05d0"
+          "size": 70,
+          "sha256": "99e4aea9e6f13c263ec5290a556aa59726c2eeea7658f8b92a527ac60a6a37c6"
         },
         {
           "name": "strings.ru",
@@ -789,8 +789,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 385,
-          "sha256": "7c8b4c20a1f225392458477714df8549e72418af49bfa27a809fa2aced8584b1"
+          "size": 384,
+          "sha256": "a71a2cdd5650dc6aaf93197309088e3e6ff1a2d742716421f65c12ebf280a8d0"
         }
       ],
       "author": "Perinkpheral",
@@ -808,18 +808,18 @@
         ".#########.",
         ".#########."
       ],
-      "description": "Countdown.",
+      "description": "Countdown",
       "translations": {
         "ru": {
           "title": "\u0422\u0430\u0439\u043c\u0435\u0440",
-          "description": "\u041e\u0431\u0440\u0430\u0442\u043d\u044b\u0439 \u043e\u0442\u0441\u0447\u0451\u0442."
+          "description": "\u041e\u0431\u0440\u0430\u0442\u043d\u044b\u0439 \u043e\u0442\u0441\u0447\u0451\u0442"
         }
       }
     },
     {
       "name": "weather",
       "title": "Weather",
-      "version": "0.2.15",
+      "version": "0.2.16",
       "abi": 3,
       "files": [
         {
@@ -829,8 +829,8 @@
         },
         {
           "name": "manifest.ru",
-          "size": 523,
-          "sha256": "a103ab16f2ff44ebe2608562e0fbf2165555f79210a8478fcecbba6298694cdb"
+          "size": 522,
+          "sha256": "303f3b1e00c0694b91f4fc538d8826287cf293039c18f9784bba22981f1356ee"
         },
         {
           "name": "strings.ru",
@@ -839,8 +839,8 @@
         },
         {
           "name": "manifest.json",
-          "size": 1986,
-          "sha256": "bce31dd52aec7ed875435d21065caacf59611ae59e19509fd70ce1606a77a71c"
+          "size": 1985,
+          "sha256": "d241fc70293a67bd1c499e424c68a489460c544e4ad1946a8e0957b4a67e7661"
         }
       ],
       "author": "Perinkpheral",
@@ -858,11 +858,11 @@
         "..#########",
         "...#######."
       ],
-      "description": "Weather now and for three days.",
+      "description": "Weather now and for three days",
       "translations": {
         "ru": {
           "title": "\u041f\u043e\u0433\u043e\u0434\u0430",
-          "description": "\u041f\u043e\u0433\u043e\u0434\u0430 \u0441\u0435\u0439\u0447\u0430\u0441 \u0438 \u043d\u0430 \u0442\u0440\u0438 \u0434\u043d\u044f."
+          "description": "\u041f\u043e\u0433\u043e\u0434\u0430 \u0441\u0435\u0439\u0447\u0430\u0441 \u0438 \u043d\u0430 \u0442\u0440\u0438 \u0434\u043d\u044f"
         }
       }
     }

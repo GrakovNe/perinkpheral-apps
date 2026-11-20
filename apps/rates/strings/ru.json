@@ -3,7 +3,7 @@
   "currency_name": "{0}",
   "manifest": {
     "title": "Курсы валют",
-    "description": "Курсы валют ЦБ РФ.",
+    "description": "Курсы валют ЦБ РФ",
     "settings": {
       "codes": {
         "title": "Валюты",
