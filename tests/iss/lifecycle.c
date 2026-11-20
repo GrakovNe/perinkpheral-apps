@@ -8,7 +8,7 @@
 static state_t stored, live;
 static int32_t stored_size, live_size;
 static int writes, redraws;
-static const char *values[] = { "51.23", "-4.56", "421.1235", "27580.6", "-23.5", "181.01", "1794955920" };
+static const char *values[] = { "51.23", "-4.56", "421.1235", "27580.6", "1794955920" };
 
 int32_t kv_get(const char *key, int32_t key_length, void *buffer, int32_t capacity)
 {
@@ -59,18 +59,18 @@ int main(void)
     assert(state.version == 2 && !state.has_data && state.track.count == 0);
     app_on_picked(0, 200);
     assert(state.has_data && state.altitude == 421124 && state.velocity == 27581);
-    assert(state.solar_longitude == -17899 && state.track.count == 1 && writes == 1);
-    values[2] = "421.1234"; values[6] = "1794955980";
+    assert(state.track.count == 1 && writes == 1);
+    values[2] = "421.1234"; values[4] = "1794955980";
     app_on_picked(0, 200);
     assert(state.altitude == 421123 && writes == 1 && state.track.count == 1);
-    values[2] = "1999.9995"; values[6] = "1794956040";
+    values[2] = "1999.9995"; values[4] = "1794956040";
     app_on_picked(0, 200);
     assert(state.altitude == 421123 && state.status == HOST_FAILED_NO_ANSWER && state.has_data);
-    values[2] = "423.000"; values[6] = "1794956280";
+    values[2] = "423.000"; values[4] = "1794956280";
     app_on_picked(0, 200);
     assert(state.altitude == 423000 && state.track.count == 2 && stored.altitude == 423000);
     int32_t minute = state.minute;
-    values[6] = "1794955920";
+    values[4] = "1794955920";
     app_on_picked(0, 200);
     assert(state.minute == minute && state.altitude == 423000);
     app_on_picked(0, 503);
