@@ -22,11 +22,11 @@ int32_t kv_set(const char *key, int32_t key_length, const void *buffer, int32_t 
     memcpy(&stored, buffer, (size_t)length); stored_size = length; writes++;
     return HOST_OK;
 }
-int32_t scene_state_get(void *buffer, int32_t capacity)
+int32_t session_get(void *buffer, int32_t capacity)
 {
     assert(capacity >= live_size); memcpy(buffer, &live, (size_t)live_size); return live_size;
 }
-int32_t scene_state_set(const void *buffer, int32_t length)
+int32_t session_set(const void *buffer, int32_t length)
 {
     assert(length == sizeof live); memcpy(&live, buffer, (size_t)length); live_size = length; return HOST_OK;
 }
