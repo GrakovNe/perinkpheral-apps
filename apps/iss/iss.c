@@ -29,7 +29,7 @@ typedef struct {
 } state_t;
 static state_t state;
 static int32_t saved_minute, saved_status;
-_Static_assert(sizeof(state_t) <= HOST_SCENE_STATE_MAX, "ISS snapshot fits scene storage");
+_Static_assert(sizeof(state_t) <= HOST_SESSION_MAX, "ISS snapshot fits scene storage");
 _Static_assert(sizeof(state_t) <= HOST_KV_VALUE_MAX, "ISS snapshot fits one store value");
 static bool restore_state(state_t *saved)
 {
@@ -56,7 +56,7 @@ void app_on_load(void)
 void app_on_focus(void)
 {
     state_t live;
-    if (scene_state_get(&live, sizeof live) == sizeof live && restore_state(&live) &&
+    if (session_get(&live, sizeof live) == sizeof live && restore_state(&live) &&
         (live.minute > state.minute || (live.minute == state.minute && live.second > state.second))) {
         live.status = state.status;
         state = live;
@@ -65,7 +65,7 @@ void app_on_focus(void)
 
 void app_on_blur(void)
 {
-    if (state.has_data) { scene_state_set(&state, sizeof state); }
+    if (state.has_data) { session_set(&state, sizeof state); }
 }
 
 void app_on_button(int32_t event)

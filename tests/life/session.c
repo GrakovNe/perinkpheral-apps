@@ -5,7 +5,7 @@
 #define HOST_IMPORT(name, ...) __VA_ARGS__
 #include "../../apps/life/life.c"
 
-static uint8_t scene_bytes[HOST_SCENE_STATE_MAX];
+static uint8_t scene_bytes[HOST_SESSION_MAX];
 static int32_t scene_length, timer_ms;
 
 bool app_setting_is(const char *key, const char *value)
@@ -34,7 +34,7 @@ int32_t timer_set(int32_t id, int32_t milliseconds)
 
 void screen_redraw(int32_t reason_flags) { (void)reason_flags; }
 
-int32_t scene_state_set(const void *data, int32_t length)
+int32_t session_set(const void *data, int32_t length)
 {
     assert(length <= (int32_t)sizeof scene_bytes);
     memcpy(scene_bytes, data, (size_t)length);
@@ -42,7 +42,7 @@ int32_t scene_state_set(const void *data, int32_t length)
     return HOST_OK;
 }
 
-int32_t scene_state_get(void *data, int32_t capacity)
+int32_t session_get(void *data, int32_t capacity)
 {
     assert(scene_length <= capacity);
     memcpy(data, scene_bytes, (size_t)scene_length);
