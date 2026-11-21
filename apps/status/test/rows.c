@@ -74,7 +74,7 @@ static void reload(void)
 }
 static void round_of(int32_t services_count, const char *indicator)
 {
-    char name[16];
+    char name[24]; /* "Page " and any int32_t */
     for (int32_t item = 0; item < services_count; item++) {
         snprintf(name, sizeof name, "Page %d", item);
         answer(item, 200, name, indicator);
@@ -86,7 +86,8 @@ int main(void)
     standin_reset();
     standin_handlers.on_picked = app_on_picked;
     standin()->is_session_writable = true; /* app_on_blur() is called as for the instance on the screen */
-    /* The default list; an answer is its item's row and nobody else's. */
+    /* A list of four; an answer is its item's row and nobody else's. */
+    user_sets("services", "www.githubstatus.com\nwww.cloudflarestatus.com\ndiscordstatus.com\nstatus.openai.com");
     reload();
     assert(count == 4 && !strcmp(listed + item_at[2], "discordstatus.com"));
     answer(2, 200, "Discord", "major");
@@ -185,7 +186,7 @@ int main(void)
 
     /* 18 services keep whole names of 47 bytes; the record at its largest still fits. */
     hosts[0] = '\0';
-    for (int at = 0; at < 18; at++) snprintf(hosts + strlen(hosts), 13, "%sstatus%02d.io", at ? "\n" : "", at);
+    for (int at = 0; at < 18; at++) snprintf(hosts + strlen(hosts), sizeof hosts - strlen(hosts), "%sstatus%02d.io", at ? "\n" : "", at);
     user_sets("services", hosts);
     settings();
     assert(count == 18 && name_room(count) == NAME_SIZE - 1);
@@ -216,17 +217,18 @@ int main(void)
     assert(first_row == 0);
 
     /* An update from 0.1.x: the four links are nobody's settings now and
-     * leave the store; the old record is not read as rows. */
+     * leave the store; the old record is not read as rows, and the list is
+     * the manifest's default of three. */
     for (int at = 0; at < STANDIN_STORE_VALUES; at++) standin()->values[at].is_stored = false;
     user_sets("page1", "https://status.example.org/api/v2/status.json");
     user_sets("page3", "");
     uint8_t old[392] = { 2 };
     kv_set("answers", 7, old, sizeof old);
     reload();
-    assert(standin_value("page1", NULL) == NULL && standin_value("page3", NULL) == NULL && count == 4 && services[0].flags == 0);
+    assert(standin_value("page1", NULL) == NULL && standin_value("page3", NULL) == NULL && count == 3 && services[0].flags == 0);
     answer(0, 200, "GitHub", "none");
     reload();
-    assert(!strcmp(services[0].name, "GitHub") && stored_length("answers") == RECORD_HEADER + 4 * (SLOT_FIXED + 47));
+    assert(!strcmp(services[0].name, "GitHub") && stored_length("answers") == RECORD_HEADER + 3 * (SLOT_FIXED + 47));
 
     puts("status: own rows, order, the longest list, unchanged rounds, a changed list, scrolling and the 0.1.x update passed");
     return 0;
