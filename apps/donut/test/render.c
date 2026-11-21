@@ -285,10 +285,15 @@ static void check_handlers(void)
     render_frame(0);
     assert(memcmp(drawn, bitmap, sizeof drawn) == 0);
 
-    /* A repaint is not a frame: nothing is rendered, counted or timed anew. */
-    timer_set(FRAME_TIMER, 0); /* the host counts no calls: one made now would set it again */
+    /* A repaint is not a frame: nothing is rendered, counted or timed anew - the timer that
+     * waits for the next frame is left as it is, neither set again nor taken back. */
+    int64_t due_ms = standin()->timer_due_ms[FRAME_TIMER];
+    int32_t timer_calls = standin()->timer_sets;
+    assert(due_ms != 0);
     draw();
-    assert(draws == 1 && bitmap_calls == 2 && timer_ms() == 0 && draw_ms_total == 120);
+    assert(draws == 1 && bitmap_calls == 2 && draw_ms_total == 120);
+    assert(standin()->timer_sets == timer_calls && standin()->timer_due_ms[FRAME_TIMER] == due_ms);
+    timer_set(FRAME_TIMER, 0); /* what follows starts with no timer waiting, as before */
 
     /* Timers come once after the panel was busy, not once an interval: a
      * late one is one frame, and nothing moves until that frame is drawn. */
