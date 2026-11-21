@@ -669,13 +669,13 @@
     {
       "name": "stopwatch",
       "title": "Stopwatch",
-      "version": "0.1.12",
+      "version": "0.1.13",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 2996,
-          "sha256": "69c3b3fdfde221ff0bd15ec64eb4f78a2bc70d561255da138a4395fbd39c561b"
+          "size": 3097,
+          "sha256": "a3028e738fac7f72e345e629b4b0d8d38c0baecd5b9356fa91c970a014181e8b"
         },
         {
           "name": "manifest.ru",
@@ -690,7 +690,7 @@
         {
           "name": "manifest.json",
           "size": 446,
-          "sha256": "e3fb243b98b90b80b3b94622a31f9c4c884d76d8faa6de0dcf5fa87ae693ca8c"
+          "sha256": "cc19d22374ecde9dfb2a36a2acb55260d92951f87c9ad9039136641815744b04"
         }
       ],
       "author": "Perinkpheral",
@@ -769,13 +769,13 @@
     {
       "name": "timer",
       "title": "Timer",
-      "version": "0.3.11",
+      "version": "0.3.12",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 3042,
-          "sha256": "17d77c7ba0c2d1523adcfbe7b923576d6fdc1e7e7b923c5031663e3212e1f06f"
+          "size": 3162,
+          "sha256": "9567a50dcad694335bd7bfc6fd4895ecd0bc58355dcd2f66c1982fd31bb79e6b"
         },
         {
           "name": "manifest.ru",
@@ -790,7 +790,7 @@
         {
           "name": "manifest.json",
           "size": 384,
-          "sha256": "a71a2cdd5650dc6aaf93197309088e3e6ff1a2d742716421f65c12ebf280a8d0"
+          "sha256": "3840ea483313fe45c09cacbd13b15db94d4a57738fc6d305e2cb704a8db13e9d"
         }
       ],
       "author": "Perinkpheral",

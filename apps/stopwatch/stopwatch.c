@@ -48,9 +48,9 @@ typedef struct {
 
 static stopwatch_t state;
 
-static void save(void)
+static bool save(void)
 {
-    app_state_save(STATE_KEY, &state, sizeof state);
+    return app_state_save(STATE_KEY, &state, sizeof state);
 }
 
 /* How long the run in hand has lasted, or -1 when that cannot be known
@@ -256,7 +256,16 @@ void app_on_button(int32_t event)
         if (state.is_running) {
             stop();
         } else {
+            stopwatch_t before = state;
             start();
+            /* A start the store did not keep is no start: its alarm and the header's status
+             * would outlive what the stopwatch shows when it is opened again. */
+            if (!save()) {
+                stop();
+                state = before;
+            }
+            screen_redraw(HOST_REDRAW_NORMAL);
+            return;
         }
     } else if (event == BTN_OK_LONG_PRESSED && !state.is_running) {
         reset();

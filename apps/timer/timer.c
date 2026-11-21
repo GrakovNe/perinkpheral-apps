@@ -45,9 +45,9 @@ static int32_t uptime_seconds(void)
     return (int32_t)(time_uptime_ms() / MS_PER_SECOND);
 }
 
-static void save(void)
+static bool save(void)
 {
-    app_state_save(STATE_KEY, &state, sizeof state);
+    return app_state_save(STATE_KEY, &state, sizeof state);
 }
 
 void app_on_load(void)
@@ -218,7 +218,16 @@ void app_on_button(int32_t event)
         if (state.ends_at != 0) {
             stop();
         } else {
+            timer_state_t before = state;
             start();
+            /* A start the store did not keep is no start: its alarms and the header's
+             * hourglass would outlive what the timer shows when it is opened again. */
+            if (!save()) {
+                stop();
+                state = before;
+            }
+            screen_redraw(HOST_REDRAW_NORMAL);
+            return;
         }
         break;
     default:
