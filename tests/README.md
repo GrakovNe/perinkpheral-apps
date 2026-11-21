@@ -28,7 +28,8 @@ doing nothing.
 | `drawing` | exports `app_on_draw` | Every state the checks reach draws a frame, with no call the host refuses, and no handler draws outside `app_on_draw()`. |
 
 "The same" is told without knowing the application: by the picture - every drawing call and
-its arguments - and by the presses of BACK that leave. The clock stands still unless a check
+its arguments of the frame last drawn, as the device draws one when the application takes the
+screen or asks for it, and the header around it - and by the presses of BACK that leave. The clock stands still unless a check
 moves it, so an application that shows the time shows the same time before and after.
 
 A line of the report is an application and a capability: `ok`, `FAIL` with what was expected
@@ -49,6 +50,12 @@ and seen, or `-` where the capability does not apply. `--app <name>` and
 - **timers, set again in app_on_focus()**: a timer is set where the user starts something and
   nowhere else. Timers stop when the application leaves the screen.
 - **network, an answer that stops**: something of the answer is saved before `HOST_DATA_LAST`.
+- **network, drawn anew another picture**: a handler changed what is shown and did not call
+  `screen_redraw()`; the panel keeps the old frame until something else asks for one.
+- **network, http_send() answered HOST_ERR_ARGUMENT**: the request goes to a host `hosts` does not
+  list, or its headers are not four of "Name: value"; the device refuses it when it is queued.
+- **network, off the screen another picture**: an answer is read with something kept in memory
+  from the instance that asked for it. Off the screen every delivery is an instance of its own.
 - **stopped in a handler** with a sanitizer's line: a read or write outside an array, an
   overflow, a shift too far. The line names the source.
 - **did not return in 3 s**: a loop without an end; a handler has three seconds on the device.
