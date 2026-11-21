@@ -38,10 +38,10 @@ int main(void)
     standin_clock(now);
     app_on_timer(MINUTE_TIMER);
     assert(delay() == 60000);
-    /* The host counts no timer_set calls: the clock is moved, so one made now would set another delay. */
-    standin_clock(now + 7);
+    /* A restart's intent sets no timer: the minute timer is the one already set. */
+    int previous_calls = standin()->timer_sets;
     app_on_intent(HOST_INTENT_STARTED);
-    assert(delay() == 60000);
+    assert(standin()->timer_sets == previous_calls && delay() == 60000);
     puts("Clock: forward/backward time corrections, initial sync and minute scheduling passed");
     return 0;
 }
