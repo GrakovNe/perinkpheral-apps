@@ -1,7 +1,8 @@
 # Every push and pull request: every application built with the SDK of the perinkpheral
 # repository's main, the catalog that build makes held against the one committed - the
-# modules, their sums and the least firmware each asks for - and the applications run in the
-# simulator, their screens against the pictures kept in tests/.
+# modules, their sums and the least firmware each asks for - every application held to the
+# contract by the SDK's capability checks, with its own tests, and the applications run in
+# the simulator, their screens against the pictures kept in tests/.
 #
 # Every push to main is a release, once that passes: the next version - the last release's
 # with its patch one up, or 0.1.0 - with the catalog as an archive. Devices install from the
@@ -68,26 +69,6 @@ jobs:
             echo "build.sh makes files the catalog has not committed" >&2
             exit 1
           fi
-      - name: Calendar reader host tests
-        run: |
-          cc -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -fsanitize=address,undefined \
-            '-DHOST_IMPORT(name,...)=__VA_ARGS__' \
-            -Iapps/calendar -Iperinkpheral-os/sdk/lib apps/calendar/test/test_ics.c apps/calendar/ics.c \
-            perinkpheral-os/sdk/lib/app_days.c perinkpheral-os/sdk/lib/app_text.c -Iperinkpheral-os/sdk \
-            -o "$RUNNER_TEMP/test_ics"
-          "$RUNNER_TEMP/test_ics"
-      - name: Application logic and scene restoration
-        env:
-          PERINKPHERAL: ${{ github.workspace }}/perinkpheral-os
-        run: |
-          tests/check-logic.sh
-          tests/life/check-session.sh
-          tests/donut/check.sh
-          tests/stopwatch/check-resume.sh
-          sh tests/check-timers.sh
-          sh tests/pomodoro/check-stop.sh
-          apps/rates/test/check.sh
-          tests/stocks/check-storage.sh
       - name: The applications in the simulator
         run: |
           perinkpheral-os/tools/perinkpheral sim-test tests
@@ -98,6 +79,12 @@ jobs:
           name: simulator-pictures
           path: tests/**/*.actual.png
           if-no-files-found: ignore
+      # One command and no list: the SDK's capability checks on every application of the
+      # folder, and whatever tests an application keeps in its own test folder. After the
+      # pictures, so that a finding here does not keep them from being compared.
+      - name: The applications against the contract
+        if: success() || failure()
+        run: perinkpheral-os/tools/perinkpheral app-check apps
       - name: The catalog, as the run's artifact
         run: (cd catalog && zip -qr ../catalog.zip .)
       - uses: actions/upload-artifact@v4

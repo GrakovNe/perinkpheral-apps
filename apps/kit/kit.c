@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include "app_draw.h"
+#include "app_state.h"
 #include "app_text.h"
 #include "app_ui.h"
 #include "host_api.h"
@@ -90,6 +91,39 @@ static void follow(app_ui_result_t result)
         screen_redraw(REDRAW);
     } else if (result == APP_UI_DONE || result == APP_UI_CANCELLED) {
         open(PAGE_CONTENTS);
+    }
+}
+
+/* Where the user is, kept while Kit waits in the stack: the page, every list's
+ * selection, the values being set. */
+typedef struct {
+    page_t       page;
+    app_list_t   contents, units, settings, facts;
+    int32_t      unit_set;
+    app_picker_t pace;
+    app_date_t   when;
+    int32_t      bar_value;
+} session_t;
+
+void app_on_blur(void)
+{
+    session_t kept = { page, contents, units, settings, facts, unit_set, pace, when, bar_value };
+    app_session_save(&kept, sizeof kept);
+}
+
+void app_on_focus(void)
+{
+    session_t kept;
+    if (app_session_load(&kept, sizeof kept)) {
+        page = kept.page;
+        contents = kept.contents;
+        units = kept.units;
+        settings = kept.settings;
+        facts = kept.facts;
+        unit_set = kept.unit_set;
+        pace = kept.pace;
+        when = kept.when;
+        bar_value = kept.bar_value;
     }
 }
 

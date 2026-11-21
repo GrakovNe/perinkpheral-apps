@@ -55,6 +55,7 @@ APP_SESSION_FITS(session_t);
 _Static_assert(sizeof(month_t) <= HOST_KV_VALUE_MAX, "the month fits one store value");
 
 static month_t month;
+static bool    month_unsaved; /* the store refused the last write of it */
 static month_t incoming;
 static session_t session;
 static int32_t status;
@@ -388,10 +389,14 @@ void app_on_data(int32_t request, const uint8_t *data, int32_t length, int32_t f
     if (status >= 200 && status < 300) {
         if (!complete()) {
             status = HOST_FAILED_NO_ANSWER;
-        } else if (!same_month()) {
-            app_state_save(STATE_KEY, &incoming, sizeof incoming);
-            month = incoming;
-            screen_redraw(had_data ? HOST_REDRAW_NORMAL : HOST_REDRAW_SOON);
+        } else {
+            bool is_new = !same_month();
+            /* A write the store refused is made again with the next answer, the same or not. */
+            if (is_new || month_unsaved) { month_unsaved = !app_state_save(STATE_KEY, &incoming, sizeof incoming); }
+            if (is_new) {
+                month = incoming;
+                screen_redraw(had_data ? HOST_REDRAW_NORMAL : HOST_REDRAW_SOON);
+            }
         }
     }
     if (!had_data) { screen_redraw(HOST_REDRAW_SOON); }

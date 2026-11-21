@@ -8,6 +8,8 @@ before changing an application. ABI 3 requires firmware 0.1.30 or later.
 ## Layout
 
 - `apps/<name>/`: C sources, manifest, translations, pictures and package files.
+- `apps/<name>/test/`: what its checks need to know of it (`check.json`) and tests of its
+  own logic (`*.c`).
 - `tests/<scenario>/`: simulator steps, network mocks and reviewed reference PNGs.
 - [tests/fixtures](tests/fixtures/README.md): shared offline response samples.
 - `glyphs/`: generated font packs and licenses used as catalog inputs.
@@ -43,21 +45,32 @@ sibling `../perinkpheral-os` checkout:
 export WASI_SDK_PATH=/path/to/wasi-sdk
 ../perinkpheral-os/tools/perinkpheral build apps/<name> --out /tmp/<name>
 ../perinkpheral-os/tools/perinkpheral sim apps/<name>
-tests/check-logic.sh
-tests/life/check-session.sh
-tests/stopwatch/check-resume.sh
+../perinkpheral-os/tools/perinkpheral app-check apps
 ../perinkpheral-os/tools/perinkpheral sim-test tests
 ./build.sh
 ```
 
-`PERINKPHERAL` overrides the SDK checkout for `build.sh` and the shell tests. For CLI
-commands, use the matching checkout's `tools/perinkpheral`. The tests require no live
-service: declare mocks for network answers. See [the test reference](tests/README.md).
+`PERINKPHERAL` overrides the SDK checkout for `build.sh`. For CLI commands, use the
+matching checkout's `tools/perinkpheral`. The tests require no live service: declare mocks
+for network answers. See [the test reference](tests/README.md).
+
+**A new application is checked by doing nothing.** `app-check` runs the SDK's capability
+checks - sessions, store, timers, network, drawing - on every application of `apps/`,
+choosing by what the application imports; there is no list to add it to and no test to
+write for what the contract promises. Two things are the application's own, both in
+`apps/<name>/test/`:
+
+- `check.json`, when it asks the network for anything or needs settings to show anything:
+  the time, the store and the answers it is checked with - a simulator scenario's `at`,
+  `tz`, `store` and `mocks`, and usually the scenario's own mocks file by name.
+- `<anything>.c`, when it has logic of its own - a calculation, a parser, an ordering: a
+  program that includes the application's source and asserts on it. No script runs it;
+  `app-check` finds it.
 
 A new or changed screen needs a simulator scenario. Use `sim-test tests --update` only
 when the intended rendering changed, inspect every changed PNG, then run again without
-`--update`. Check English and Russian in both font families. Validate the relevant
-pure logic tests and the catalog build before publishing.
+`--update`. Check English and Russian in both font families. Run `app-check apps` and the catalog build before
+publishing.
 
 ## Delivery
 
@@ -66,6 +79,6 @@ changes. `build.sh` recreates the catalog; commit affected packages and `catalog
 with the source change. A documentation or fixture move should leave catalog bytes
 unchanged. `glyphs/` and `catalog/glyphs/` are intentional input/output copies.
 
-CI rebuilds and compares the committed catalog, runs host and simulator checks, then
+CI rebuilds and compares the committed catalog, runs `app-check apps` and `sim-test tests`, then
 releases a catalog archive on each successful push to `main`. The live device catalog
 is served directly from `catalog/` on `main`; branch builds do not publish it.

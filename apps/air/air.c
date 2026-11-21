@@ -41,6 +41,7 @@ typedef struct {
 } state_t;
 
 static state_t state;
+static bool    state_unsaved; /* the store refused the last write of it */
 static int32_t status, saved_status;
 static bool urgent;
 
@@ -163,7 +164,8 @@ void app_on_picked(int32_t request, int32_t http_status)
                 changed |= saved[index] != received[index];
             }
             state = fresh;
-            if (changed) { app_state_save("state", &state, sizeof state); }
+            /* A write the store refused is made again with the next answer, the same or not. */
+            if (changed || state_unsaved) { state_unsaved = !app_state_save("state", &state, sizeof state); }
         } else { status = HOST_FAILED_NO_ANSWER; }
     }
     save_status();

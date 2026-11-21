@@ -1,0 +1,9 @@
+{
+  "at": 1794992400,
+  "tz": "Europe/Moscow",
+  "store": {
+    "feed": "https://calendar.example.test/events.ics",
+    "remind": "Off"
+  },
+  "mocks": "../../../tests/calendar-details/mocks.json"
+}
