@@ -69,10 +69,6 @@ jobs:
             echo "build.sh makes files the catalog has not committed" >&2
             exit 1
           fi
-      # One command and no list: the SDK's capability checks on every application of the
-      # folder, and whatever tests an application keeps in its own test folder.
-      - name: The applications against the contract
-        run: perinkpheral-os/tools/perinkpheral app-check apps
       - name: The applications in the simulator
         run: |
           perinkpheral-os/tools/perinkpheral sim-test tests
@@ -83,6 +79,12 @@ jobs:
           name: simulator-pictures
           path: tests/**/*.actual.png
           if-no-files-found: ignore
+      # One command and no list: the SDK's capability checks on every application of the
+      # folder, and whatever tests an application keeps in its own test folder. After the
+      # pictures, so that a finding here does not keep them from being compared.
+      - name: The applications against the contract
+        if: success() || failure()
+        run: perinkpheral-os/tools/perinkpheral app-check apps
       - name: The catalog, as the run's artifact
         run: (cd catalog && zip -qr ../catalog.zip .)
       - uses: actions/upload-artifact@v4

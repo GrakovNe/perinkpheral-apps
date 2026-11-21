@@ -22,9 +22,9 @@ doing nothing.
 | Capability | Runs on an application that | What it holds the application to |
 |---|---|---|
 | `sessions` | any | Unloaded and loaded again as a scene that waited in the stack, it shows the same picture and BACK leaves it in as many presses. Opened anew from the menu, it is on its first page. It survives a restart, and a start with an empty store. |
-| `store` | calls `kv_set` or `file_write` | Every write is within the limits (1 KB a value, 2 KB an application), with the settings at their longest too. An unchanged answer, a request that fails again and a visit that changed nothing write nothing: every write is a write of the flash. A refused write does not stop it or loop, and what it did not save is saved when the same answer comes again. |
+| `store` | calls `kv_set` or `file_write` | Every write is within the limits (1 KB a value, 2 KB an application), with the settings at their longest too. An unchanged answer, a request that fails again and a visit that changed nothing write nothing new: every change is a write of the flash, and a value the store already holds is none, as on the device. A refused write does not stop it or loop, and what it did not save is saved when the same answer comes again. |
 | `timers` | calls `timer_set` or `alarm_set*` | A timer 5 s late or delivered twice leaves the same timers waiting as one on time. Timers that waited before an unload wait again after `app_on_focus()`. The clock set a day on or back loses no timer. Alarms come on the screen and off it, and `app_on_updated()` sets them again. |
-| `network` | has `polls` or calls `http_send` | An answer in pieces of 1, 7 and 1000 bytes shows what the whole answer shows. One that stops without `HOST_DATA_LAST` changes nothing. `HOST_DATA_FAILED` after pieces is a request that failed and no more. After every failure status and HTTP 503, 404 and 304 the next whole answer is shown as if nothing had happened. An answer that arrives off the screen is there when the application is back. |
+| `network` | has `polls` or calls `http_send` | An answer in pieces of 1, 7 and 1000 bytes shows what the whole answer shows. One that stops without `HOST_DATA_LAST`, with the background instance that took it, changes nothing. `HOST_DATA_FAILED` after pieces is a request that failed and no more. After every failure status and HTTP 503, 404 and 304 the next whole answer is shown as if nothing had happened. An answer that arrives off the screen is there when the application is back. |
 | `drawing` | exports `app_on_draw` | Every state the checks reach draws a frame, with no call the host refuses, and no handler draws outside `app_on_draw()`. |
 
 "The same" is told without knowing the application: by the picture - every drawing call and
@@ -40,15 +40,15 @@ and seen, or `-` where the capability does not apply. `--app <name>` and
 - **sessions, another picture after the unload**: where the user is - a page, a row, a value
   half set - is not in the session. Save it in `app_on_blur()` (`app_session_save`), read it
   in `app_on_focus()`.
-- **store, written N times**: a handler saves without asking whether anything changed.
-  Compare with what was stored; `app_on_terminate()` is no exception.
+- **store, written N times**: a handler saves something that changes every time - a count, a
+  time - although the answer did not. Compare with what was stored; `app_on_terminate()` is
+  no exception.
 - **store, not saved when the same answer comes again**: the write was refused, the value in
   memory now equals the answer, and "unchanged" is taken for "saved". Remember that the save
   failed.
 - **timers, set again in app_on_focus()**: a timer is set where the user starts something and
   nowhere else. Timers stop when the application leaves the screen.
-- **network, an answer that stops**: something is shown or kept before `HOST_DATA_LAST`, or a
-  flag set at `HOST_DATA_FIRST` is never cleared when no end comes.
+- **network, an answer that stops**: something of the answer is saved before `HOST_DATA_LAST`.
 - **stopped in a handler** with a sanitizer's line: a read or write outside an array, an
   overflow, a shift too far. The line names the source.
 - **did not return in 3 s**: a loop without an end; a handler has three seconds on the device.
