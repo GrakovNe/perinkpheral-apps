@@ -4,13 +4,13 @@
     {
       "name": "air",
       "title": "Air quality",
-      "version": "0.1.7",
+      "version": "0.1.8",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 6871,
-          "sha256": "ba5f01b022ca67cc7d9960f22920bd44ee2da73bd3c20a24dafec1b916cc0b73"
+          "size": 6892,
+          "sha256": "5b5af9820d50be3cdde8a90c719bab53438c9a9474832b1f1bc48968fafbfe3b"
         },
         {
           "name": "manifest.ru",
@@ -25,7 +25,7 @@
         {
           "name": "manifest.json",
           "size": 2178,
-          "sha256": "65018f8d5a0641c8c0e279e5a555506fc58d2cd7285deb7773d7988836fbef77"
+          "sha256": "4c619ce8beb63c6125c9823debb81955a99791e91fc425cac01b0515726a113f"
         }
       ],
       "author": "Perinkpheral",
@@ -309,13 +309,13 @@
     {
       "name": "kit",
       "title": "UI Kit",
-      "version": "0.1.14",
+      "version": "0.1.15",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 7444,
-          "sha256": "387317003ffbabc427dff79b18da233ce2ebb8214888716c9679aa2c2f6f9725"
+          "size": 8243,
+          "sha256": "721c03d70f53cd22bf8ce15b589892853d5790e73181faf619901148db0f4e7c"
         },
         {
           "name": "manifest.ru",
@@ -330,7 +330,7 @@
         {
           "name": "manifest.json",
           "size": 411,
-          "sha256": "326f505ac59829bf5676f7f07c6100efc3336769952a8c23f58290a6dfaf1cff"
+          "sha256": "3dea4387869d4a8b98d2750bd8976407d59cdde27ed83fa031071c4ea67f70b0"
         }
       ],
       "author": "Perinkpheral",
@@ -409,13 +409,13 @@
     {
       "name": "metals",
       "title": "Bank of Russia metals",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 8902,
-          "sha256": "c98cc2c49554620ab8c4d0c1ad153a0565c924bcc33f09494f4f628f9ff1da48"
+          "size": 8959,
+          "sha256": "eff62fb374d9b3a25b5ebf1b71d3b19bd6ebf5521122748f7e70807f2cb8dcfc"
         },
         {
           "name": "manifest.ru",
@@ -435,7 +435,7 @@
         {
           "name": "manifest.json",
           "size": 780,
-          "sha256": "1f1fb139a24216d1bb6501539192651ac77d7a16af13fbfd0cb25759d7078a34"
+          "sha256": "2245318c452c215f31156f70769de586071d1b5ae9635ef4a33be0403e3b7049"
         }
       ],
       "author": "Perinkpheral",
@@ -517,13 +517,13 @@
     {
       "name": "rates",
       "title": "Exchange rates",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 14968,
-          "sha256": "e723f0f506d6eee6d433def122c0abf202d61d63d0b38b10765b3b75a0ab3226"
+          "size": 15001,
+          "sha256": "f10efe908bcc3b15b36a9ceca403134575d744dfd429c041dd6741a319539759"
         },
         {
           "name": "manifest.ru",
@@ -538,7 +538,7 @@
         {
           "name": "manifest.json",
           "size": 1236,
-          "sha256": "b459756b6ffe44cc6b1ff5cb88a64ae62aa91668906d2113dbcdef15f6f0c5fe"
+          "sha256": "7aff2b9f3b82ededbda6381766c09d6354bcd752203b4870eccae49203bea56e"
         }
       ],
       "author": "Perinkpheral",
@@ -568,13 +568,13 @@
     {
       "name": "status",
       "title": "Service status",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "abi": 3,
       "files": [
         {
           "name": "app.wasm",
-          "size": 6321,
-          "sha256": "efe0b5c645572abd2402ed4ce41147b3598221ca73d13acbbddbef36f446f543"
+          "size": 6348,
+          "sha256": "3233fc77b5cef0435d48d61af0752db32fc17a0183a3e3713581f9c70e5398eb"
         },
         {
           "name": "manifest.ru",
@@ -589,7 +589,7 @@
         {
           "name": "manifest.json",
           "size": 1129,
-          "sha256": "26dfa9eb04fcc52c9fdf089151241d6070533dc43206a7127575d8c9ae3a8d47"
+          "sha256": "9b5038c8343eba19e6c60add15353617dd49a4dbe2eff54a250abfdf57cc3842"
         }
       ],
       "author": "Perinkpheral",

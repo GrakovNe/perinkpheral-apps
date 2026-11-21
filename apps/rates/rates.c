@@ -27,6 +27,7 @@ typedef struct {
 } state_t;
 _Static_assert(sizeof(state_t) <= HOST_KV_VALUE_MAX, "snapshot fits one store value");
 static state_t state, incoming;
+static bool    state_unsaved; /* the store refused the last write of it */
 typedef struct {
     int32_t version, index, rotating;
 } navigation_t;
@@ -138,7 +139,8 @@ static bool take_response(void)
     }
     bool changed = !same_bytes(&state, &incoming, sizeof state);
     state = incoming;
-    if (changed) { app_state_save("state", &state, sizeof state); }
+    /* A write the store refused is made again with the next answer, the same or not. */
+    if (changed || state_unsaved) { state_unsaved = !app_state_save("state", &state, sizeof state); }
     return true;
 }
 

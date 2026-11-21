@@ -64,6 +64,7 @@ static char      listed[MANIFEST_SETTING_VALUE_MAX + 1]; /* the items, each term
 static uint8_t   item_at[SERVICES_MAX];
 static uint32_t  list_hash;
 static uint32_t  checked_at;
+static bool      answers_unsaved; /* the store refused the last write of them */
 static uint8_t   record[HOST_KV_VALUE_MAX];
 static uint8_t   order[SERVICES_MAX];
 static int32_t   first_row, shown_rows = 4;
@@ -345,7 +346,10 @@ void app_on_picked(int32_t request, int32_t http_status)
     }
     bool is_changed = service->indicator != before.indicator || service->flags != before.flags ||
                       !app_text_equal(service->name, before.name);
-    if (is_changed) { kv_set(ANSWERS, app_text_length(ANSWERS), record, pack()); }
+    /* A write the store refused is made again with the next answer, the same or not. */
+    if (is_changed || answers_unsaved) {
+        answers_unsaved = kv_set(ANSWERS, app_text_length(ANSWERS), record, pack()) != HOST_OK;
+    }
     if (item == count - 1 && now > 0) {
         checked_at = now;
         checked_t checked = { .version = CHECKED_VERSION, .at = now };
